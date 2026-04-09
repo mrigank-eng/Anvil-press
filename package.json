@@ -1,0 +1,15 @@
+{
+  "name": "anvil-press",
+  "version": "1.0.0",
+  "description": "Instagram quote post scheduler for quiet_anvil",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@sparticuz/chromium": "^123.0.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "puppeteer-core": "^22.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
