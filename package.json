@@ -1,8 +1,8 @@
 {
   "name": "anvil-press",
   "version": "1.0.0",
+  "description": "Instagram quote post scheduler for quiet_anvil",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "echo 'no build'"
   },
