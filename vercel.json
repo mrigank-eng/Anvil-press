@@ -1,26 +1,8 @@
 {
-  "version": 2,
   "crons": [
     {
       "path": "/api/cron",
       "schedule": "*/30 * * * *"
-    },
-    {
-      "path": "/api/refresh-token",
-      "schedule": "0 9 1 * *"
     }
-  ],
-  "functions": {
-    "api/post.js": {
-      "memory": 1024,
-      "maxDuration": 60
-    },
-    "api/cron.js": {
-      "maxDuration": 30
-    }
-  },
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
