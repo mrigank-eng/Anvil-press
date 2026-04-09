@@ -1,3 +1,5 @@
+
+// @vercel/node
 // api/post.js — Anvil Press posting pipeline
 const { createClient } = require('@supabase/supabase-js');
 
