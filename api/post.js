@@ -1,5 +1,9 @@
 // api/post.js
 import { createClient } from '@supabase/supabase-js';
+import satori from 'satori';
+import sharp from 'sharp';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 const db = createClient(
   process.env.SUPABASE_URL,
@@ -11,10 +15,6 @@ const IG_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN;
 
 function getDimensions(dim) {
   return ({ '1:1':{w:1080,h:1080}, '4:5':{w:1080,h:1350}, '9:16':{w:1080,h:1920}, '16:9':{w:1920,h:1080} })[dim] || {w:1080,h:1080};
-}
-
-function escapeHtml(s) {
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function hexToRgb(hex) {
@@ -31,12 +31,11 @@ function blendHex(h1,h2,t) {
   return rgbToHex(r1*(1-t)+r2*t,g1*(1-t)+g2*t,b1*(1-t)+b2*t);
 }
 
-function buildCardHtml(post) {
+async function renderCard(post) {
   const {
     quote, bg_color, border_color, ink_color,
-    font_quote, font_header, font_meta,
-    font_size_quote, font_size_header, font_size_meta,
-    post_number, scheduled_at, dimension
+    font_quote, font_header,
+    font_size_quote, post_number, scheduled_at, dimension
   } = post;
 
   const { w, h } = getDimensions(dimension);
@@ -44,76 +43,359 @@ function buildCardHtml(post) {
   const num   = String(post_number || 1).padStart(3, '0');
   const pad   = Math.round(w * 0.07);
   const bord  = Math.round(w * 0.035);
-  const tick  = Math.round(bord * 0.7);
   const mSize = Math.round(w * 0.115);
-  const qPad  = Math.round(mSize * 1.1);
+  const qPad  = Math.round(mSize * 0.8);
   const bg    = bg_color || '#2e4a6a';
   const bc    = border_color || '#8aacbf';
   const ink   = ink_color || '#e8e4dc';
-  const fq    = font_quote || 'Courier Prime';
-  const fh    = font_header || 'Cormorant Garamond';
-  const fm    = font_meta || 'Cormorant Garamond';
-  const sq    = (font_size_quote  || 16) * (w / 340);
-  const sh    = (font_size_header || 11) * (w / 340);
-  const sm    = (font_size_meta   || 10) * (w / 340);
+  const sq    = Math.round((font_size_quote || 16) * (w / 340));
+  const sh    = Math.round(11 * (w / 340));
+  const sm    = Math.round(10 * (w / 340));
   const muted = blendHex(ink, bg, 0.45);
+  const tick  = Math.round(bord * 0.7);
 
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(fq)}:ital,wght@0,300;0,400;1,300;1,400&family=${encodeURIComponent(fh)}:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:${w}px;height:${h}px;overflow:hidden;}
-.card{width:${w}px;height:${h}px;background:radial-gradient(ellipse at 28% 22%,${lighten(bg,0.12)} 0%,transparent 52%),radial-gradient(ellipse at 72% 78%,${darken(bg,0.08)} 0%,transparent 52%),${bg};position:relative;overflow:hidden;}
-.noise{position:absolute;inset:0;opacity:0.13;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.1'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");background-size:300px;}
-.vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.22) 100%);}
-.bsvg{position:absolute;inset:0;width:100%;height:100%;}
-.ct{position:absolute;inset:0;padding:${pad}px;display:flex;flex-direction:column;z-index:4;}
-.hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:${Math.round(pad*0.3)}px;}
-.fm{font-family:'${fh}',Georgia,serif;font-size:${sh}px;font-weight:300;font-style:italic;letter-spacing:0.08em;color:${muted};}
-.qn{font-family:'${fm}',Georgia,serif;font-size:${sm}px;font-weight:300;letter-spacing:0.45em;color:${muted};}
-.rl{width:100%;height:${Math.max(1,Math.round(w*0.001))}px;background:${bc};opacity:0.4;}
-.qa{flex:1;display:flex;align-items:center;justify-content:center;}
-.qw{width:100%;position:relative;}
-.qt{font-family:'${fq}','Courier New',monospace;font-size:${sq}px;font-style:italic;line-height:1.78;letter-spacing:0.01em;color:${ink};text-align:left;padding:${qPad}px 0;}
-.om{position:absolute;top:0;left:-${Math.round(mSize*0.12)}px;transform:translateY(-${Math.round(mSize*0.35)}px);font-family:'${fh}',Georgia,serif;font-size:${mSize}px;font-weight:300;line-height:1;color:${ink};opacity:0.2;}
-.cm{position:absolute;bottom:0;right:-${Math.round(mSize*0.08)}px;transform:translateY(${Math.round(mSize*0.35)}px);font-family:'${fh}',Georgia,serif;font-size:${mSize}px;font-weight:300;line-height:1;color:${ink};opacity:0.2;}
-.ft{display:flex;align-items:flex-end;justify-content:space-between;padding-top:${Math.round(pad*0.4)}px;}
-.dr{width:${Math.round(w*0.055)}px;height:${Math.max(1,Math.round(w*0.001))}px;background:${bc};opacity:0.55;margin-bottom:${Math.round(w*0.008)}px;}
-.dt{font-family:'${fm}',Georgia,serif;font-size:${sm}px;font-weight:300;letter-spacing:0.2em;color:${muted};}
-.wm{font-family:'${fm}',Georgia,serif;font-size:${sm*1.08}px;font-style:italic;font-weight:300;letter-spacing:0.12em;color:${ink};opacity:0.2;}
-</style></head><body>
-<div class="card">
-  <div class="noise"></div><div class="vig"></div>
-  <svg class="bsvg" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${bord}" y="${bord}" width="${w-bord*2}" height="${h-bord*2}" stroke="${bc}" stroke-width="1.5" fill="none" opacity="0.5"/>
-    <line x1="${bord}" y1="${bord+tick}" x2="${bord}" y2="${bord}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <line x1="${bord}" y1="${bord}" x2="${bord+tick}" y2="${bord}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <circle cx="${bord}" cy="${bord}" r="3" fill="${bc}" opacity="0.65"/>
-    <line x1="${w-bord}" y1="${bord}" x2="${w-bord-tick}" y2="${bord}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <line x1="${w-bord}" y1="${bord}" x2="${w-bord}" y2="${bord+tick}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <circle cx="${w-bord}" cy="${bord}" r="3" fill="${bc}" opacity="0.65"/>
-    <line x1="${bord}" y1="${h-bord}" x2="${bord+tick}" y2="${h-bord}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <line x1="${bord}" y1="${h-bord}" x2="${bord}" y2="${h-bord-tick}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <circle cx="${bord}" cy="${h-bord}" r="3" fill="${bc}" opacity="0.65"/>
-    <line x1="${w-bord}" y1="${h-bord}" x2="${w-bord-tick}" y2="${h-bord}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <line x1="${w-bord}" y1="${h-bord}" x2="${w-bord}" y2="${h-bord-tick}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <circle cx="${w-bord}" cy="${h-bord}" r="3" fill="${bc}" opacity="0.65"/>
-  </svg>
-  <div class="ct">
-    <div class="hd"><span class="fm">From the Margins</span><span class="qn">${num}</span></div>
-    <div class="rl"></div>
-    <div class="qa"><div class="qw">
-      <span class="om">\u201C</span>
-      <p class="qt">${escapeHtml(quote)}</p>
-      <span class="cm">\u201D</span>
-    </div></div>
-    <div class="ft">
-      <div><div class="dr"></div><span class="dt">${date}</span></div>
-      <span class="wm">The Anvil Speaks</span>
-    </div>
-  </div>
-</div>
-</body></html>`;
+  // Fetch fonts from Google Fonts
+  const cormorantUrl = 'https://fonts.gstatic.com/s/cormorantgaramond/v22/co3WmX5slCNuHLi8bLeY9MK7whWMhyjYrEPjuw.woff';
+  const courierUrl   = 'https://fonts.gstatic.com/s/courierprime/v9/u-450q2lgwslOqpF_6gQ8kELaw9pWt_-.woff';
+
+  const [cormorantData, courierData] = await Promise.all([
+    fetch(cormorantUrl).then(r => r.arrayBuffer()),
+    fetch(courierUrl).then(r => r.arrayBuffer()),
+  ]);
+
+  // Build the card as a Satori JSX object
+  const card = {
+    type: 'div',
+    props: {
+      style: {
+        width: w,
+        height: h,
+        display: 'flex',
+        flexDirection: 'column',
+        background: `radial-gradient(ellipse at 28% 22%, ${lighten(bg,0.12)} 0%, transparent 52%), radial-gradient(ellipse at 72% 78%, ${darken(bg,0.08)} 0%, transparent 52%), ${bg}`,
+        padding: pad,
+        position: 'relative',
+        overflow: 'hidden',
+      },
+      children: [
+        // Border — top-left corner
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              top: bord, left: bord,
+              width: tick, height: 2,
+              background: bc, opacity: 0.9,
+            }
+          }
+        },
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              top: bord, left: bord,
+              width: 2, height: tick,
+              background: bc, opacity: 0.9,
+            }
+          }
+        },
+        // Border — top-right corner
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              top: bord, right: bord,
+              width: tick, height: 2,
+              background: bc, opacity: 0.9,
+            }
+          }
+        },
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              top: bord, right: bord,
+              width: 2, height: tick,
+              background: bc, opacity: 0.9,
+            }
+          }
+        },
+        // Border — bottom-left corner
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              bottom: bord, left: bord,
+              width: tick, height: 2,
+              background: bc, opacity: 0.9,
+            }
+          }
+        },
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              bottom: bord, left: bord,
+              width: 2, height: tick,
+              background: bc, opacity: 0.9,
+            }
+          }
+        },
+        // Border — bottom-right corner
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              bottom: bord, right: bord,
+              width: tick, height: 2,
+              background: bc, opacity: 0.9,
+            }
+          }
+        },
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              bottom: bord, right: bord,
+              width: 2, height: tick,
+              background: bc, opacity: 0.9,
+            }
+          }
+        },
+        // Border rectangle
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              top: bord, left: bord,
+              right: bord, bottom: bord,
+              border: `1px solid ${bc}`,
+              opacity: 0.5,
+            }
+          }
+        },
+
+        // Header row
+        {
+          type: 'div',
+          props: {
+            style: {
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'baseline',
+              marginBottom: Math.round(pad * 0.3),
+            },
+            children: [
+              {
+                type: 'span',
+                props: {
+                  style: {
+                    fontFamily: 'Cormorant',
+                    fontSize: sh,
+                    fontWeight: 300,
+                    fontStyle: 'italic',
+                    letterSpacing: '0.08em',
+                    color: muted,
+                  },
+                  children: 'From the Margins',
+                }
+              },
+              {
+                type: 'span',
+                props: {
+                  style: {
+                    fontFamily: 'Cormorant',
+                    fontSize: sm,
+                    fontWeight: 300,
+                    letterSpacing: '0.45em',
+                    color: muted,
+                  },
+                  children: num,
+                }
+              },
+            ]
+          }
+        },
+
+        // Rule
+        {
+          type: 'div',
+          props: {
+            style: {
+              width: '100%',
+              height: Math.max(1, Math.round(w * 0.001)),
+              background: bc,
+              opacity: 0.4,
+              marginBottom: 0,
+            }
+          }
+        },
+
+        // Quote area
+        {
+          type: 'div',
+          props: {
+            style: {
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'flex-start',
+            },
+            children: [
+              // Opening mark
+              {
+                type: 'div',
+                props: {
+                  style: {
+                    fontFamily: 'Cormorant',
+                    fontSize: mSize,
+                    fontWeight: 300,
+                    lineHeight: 1,
+                    color: ink,
+                    opacity: 0.2,
+                    marginBottom: Math.round(qPad * 0.3),
+                    marginLeft: -Math.round(mSize * 0.08),
+                  },
+                  children: '\u201C',
+                }
+              },
+              // Quote text
+              {
+                type: 'div',
+                props: {
+                  style: {
+                    fontFamily: 'Courier',
+                    fontSize: sq,
+                    fontStyle: 'italic',
+                    lineHeight: 1.78,
+                    letterSpacing: '0.01em',
+                    color: ink,
+                    textAlign: 'left',
+                    width: '100%',
+                  },
+                  children: quote,
+                }
+              },
+              // Closing mark
+              {
+                type: 'div',
+                props: {
+                  style: {
+                    fontFamily: 'Cormorant',
+                    fontSize: mSize,
+                    fontWeight: 300,
+                    lineHeight: 1,
+                    color: ink,
+                    opacity: 0.2,
+                    marginTop: Math.round(qPad * 0.3),
+                    alignSelf: 'flex-end',
+                    marginRight: -Math.round(mSize * 0.08),
+                  },
+                  children: '\u201D',
+                }
+              },
+            ]
+          }
+        },
+
+        // Footer
+        {
+          type: 'div',
+          props: {
+            style: {
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'flex-end',
+              paddingTop: Math.round(pad * 0.4),
+            },
+            children: [
+              {
+                type: 'div',
+                props: {
+                  style: { display: 'flex', flexDirection: 'column' },
+                  children: [
+                    {
+                      type: 'div',
+                      props: {
+                        style: {
+                          width: Math.round(w * 0.055),
+                          height: Math.max(1, Math.round(w * 0.001)),
+                          background: bc,
+                          opacity: 0.55,
+                          marginBottom: Math.round(w * 0.008),
+                        }
+                      }
+                    },
+                    {
+                      type: 'span',
+                      props: {
+                        style: {
+                          fontFamily: 'Cormorant',
+                          fontSize: sm,
+                          fontWeight: 300,
+                          letterSpacing: '0.2em',
+                          color: muted,
+                        },
+                        children: date,
+                      }
+                    },
+                  ]
+                }
+              },
+              {
+                type: 'span',
+                props: {
+                  style: {
+                    fontFamily: 'Cormorant',
+                    fontSize: Math.round(sm * 1.08),
+                    fontStyle: 'italic',
+                    fontWeight: 300,
+                    letterSpacing: '0.12em',
+                    color: ink,
+                    opacity: 0.2,
+                  },
+                  children: 'The Anvil Speaks',
+                }
+              },
+            ]
+          }
+        },
+      ]
+    }
+  };
+
+  const svg = await satori(card, {
+    width: w,
+    height: h,
+    fonts: [
+      { name: 'Cormorant', data: cormorantData, weight: 300, style: 'italic' },
+      { name: 'Courier',   data: courierData,   weight: 400, style: 'italic' },
+    ],
+  });
+
+  const png = await sharp(Buffer.from(svg)).png().toBuffer();
+
+  // Upload to Supabase Storage
+  const fileName = `cards/${post.id}.png`;
+  const { error: uploadErr } = await db.storage
+    .from('anvil-cards')
+    .upload(fileName, png, { contentType: 'image/png', upsert: true });
+  if (uploadErr) throw new Error(`Storage upload failed: ${uploadErr.message}`);
+
+  const { data: { publicUrl } } = db.storage.from('anvil-cards').getPublicUrl(fileName);
+  return publicUrl;
 }
 
 async function waitForContainer(containerId) {
@@ -145,38 +427,6 @@ async function postToInstagram(post, imageUrl) {
   const published = await publishRes.json();
   if (published.error) throw new Error(`Publish error: ${published.error.message}`);
   return published.id;
-}
-
-async function renderCard(post) {
-  const { default: puppeteer } = await import('puppeteer-core');
-  const chromium = await import('@sparticuz/chromium');
-  const { w, h } = getDimensions(post.dimension);
-
-  const executablePath = await chromium.default.executablePath();
-
-  const browser = await puppeteer.launch({
-    args: chromium.default.args,
-    defaultViewport: { width: w, height: h },
-    executablePath,
-    headless: chromium.default.headless,
-  });
-
-  const page = await browser.newPage();
-  await page.setContent(buildCardHtml(post), { waitUntil: 'networkidle0' });
-  await new Promise(r => setTimeout(r, 1000));
-  const screenshot = await page.screenshot({ type: 'png', encoding: 'base64' });
-  await browser.close();
-
-  const fileName = `cards/${post.id}.png`;
-  const buffer   = Buffer.from(screenshot, 'base64');
-
-  const { error: uploadErr } = await db.storage
-    .from('anvil-cards')
-    .upload(fileName, buffer, { contentType: 'image/png', upsert: true });
-  if (uploadErr) throw new Error(`Storage upload failed: ${uploadErr.message}`);
-
-  const { data: { publicUrl } } = db.storage.from('anvil-cards').getPublicUrl(fileName);
-  return publicUrl;
 }
 
 export default async function handler(req, res) {
