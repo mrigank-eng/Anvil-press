@@ -149,18 +149,17 @@ async function postToInstagram(post, imageUrl) {
 
 async function renderCard(post) {
   const { default: puppeteer } = await import('puppeteer-core');
-  const { default: chromium }  = await import('@sparticuz/chromium');
+  const chromium = await import('@sparticuz/chromium');
   const { w, h } = getDimensions(post.dimension);
 
-  chromium.setGraphicsMode = false;
+  const executablePath = await chromium.default.executablePath();
 
   const browser = await puppeteer.launch({
-    args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
+    args: chromium.default.args,
     defaultViewport: { width: w, height: h },
-    executablePath: await chromium.executablePath('/tmp/chromium'),
-    headless: 'shell',
+    executablePath,
+    headless: chromium.default.headless,
   });
-  // rest stays the same
 
   const page = await browser.newPage();
   await page.setContent(buildCardHtml(post), { waitUntil: 'networkidle0' });
