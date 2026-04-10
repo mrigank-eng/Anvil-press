@@ -152,12 +152,15 @@ async function renderCard(post) {
   const { default: chromium }  = await import('@sparticuz/chromium');
   const { w, h } = getDimensions(post.dimension);
 
+  chromium.setGraphicsMode = false;
+
   const browser = await puppeteer.launch({
-    args: chromium.args,
+    args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
     defaultViewport: { width: w, height: h },
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless,
+    executablePath: await chromium.executablePath('/tmp/chromium'),
+    headless: 'shell',
   });
+  // rest stays the same
 
   const page = await browser.newPage();
   await page.setContent(buildCardHtml(post), { waitUntil: 'networkidle0' });
