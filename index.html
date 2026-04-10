@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Anvil Press</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Courier+Prime:ital,wght@0,400;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Courier+Prime:ital,wght@0,400;1,400&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -16,608 +16,520 @@
   --text:#e8e4dc;--muted:#6a6870;--accent:#8aacbf;--accent2:#c9a84c;
   --danger:#bf5a5a;--success:#5abf8a;
   --font-ui:'Cormorant Garamond',Georgia,serif;
-  --font-mono:'Courier Prime','Courier New',monospace;
-  --radius:6px;--radius-lg:12px;
+  --font-mono:'Courier Prime',monospace;
+  --r:6px;--rlg:12px;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-ui);overflow:hidden;}
 
-/* ── Layout ── */
-.app{display:grid;grid-template-columns:240px 1fr 300px;grid-template-rows:52px 1fr;height:100vh;}
+/* ── App layout: sidebar | canvas | right panel ── */
+.app{display:grid;grid-template-columns:220px 1fr 280px;grid-template-rows:48px 1fr;height:100vh;}
 
 /* ── Topbar ── */
-.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--border);background:var(--surface);gap:16px;}
-.topbar-brand{font-size:14px;font-weight:300;letter-spacing:0.28em;text-transform:uppercase;color:var(--accent);white-space:nowrap;}
-.topbar-brand span{color:var(--accent2);}
-.topbar-center{display:flex;align-items:center;gap:8px;}
-.tb-btn{padding:5px 14px;border-radius:var(--radius);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;border:1px solid var(--border);color:var(--muted);cursor:pointer;background:transparent;transition:all 0.15s;font-family:var(--font-ui);}
-.tb-btn:hover{border-color:var(--accent);color:var(--accent);}
-.tb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);}
-.tb-btn.primary:hover{background:#9bbdcf;}
-.tb-btn.danger{border-color:var(--danger);color:var(--danger);}
-.tb-btn.danger:hover{background:var(--danger);color:var(--bg);}
-.topbar-right{display:flex;align-items:center;gap:10px;}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 5px var(--success);}
-.status-label{font-size:10px;letter-spacing:0.15em;color:var(--muted);}
-.tz-badge{font-size:9px;font-family:var(--font-mono);color:var(--accent2);padding:2px 7px;border-radius:20px;border:1px solid rgba(201,168,76,0.3);}
-.kbd{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-family:var(--font-mono);color:var(--muted);border:1px solid var(--border);border-radius:3px;padding:1px 5px;}
+.topbar{grid-column:1/-1;display:flex;align-items:center;padding:0 16px;gap:10px;border-bottom:1px solid var(--border);background:var(--surface);}
+.brand{font-size:13px;font-weight:300;letter-spacing:0.3em;text-transform:uppercase;color:var(--accent);margin-right:8px;}
+.brand span{color:var(--accent2);}
+.tb{padding:4px 12px;border-radius:var(--r);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;border:1px solid var(--border);color:var(--muted);cursor:pointer;background:transparent;transition:all 0.12s;font-family:var(--font-ui);}
+.tb:hover{border-color:var(--accent);color:var(--accent);}
+.tb.p{background:var(--accent);border-color:var(--accent);color:var(--bg);}
+.tb.d{border-color:var(--danger);color:var(--danger);}
+.sep{width:1px;height:16px;background:var(--border);margin:0 4px;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 5px var(--success);}
+.slbl{font-size:9px;letter-spacing:0.15em;color:var(--muted);}
+.tz{font-size:9px;font-family:var(--font-mono);color:var(--accent2);padding:2px 6px;border-radius:20px;border:1px solid rgba(201,168,76,0.3);}
 
 /* ── Sidebar ── */
 .sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-.sidebar-section{border-bottom:1px solid var(--border);}
-.sidebar-section-header{padding:10px 14px;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
-.sidebar-section-header:hover{color:var(--text);}
-.sidebar-section-body{padding:0 10px 10px;}
+.sh{padding:10px 12px;font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.qlist{flex:1;overflow-y:auto;padding:5px;}
+.qlist::-webkit-scrollbar{width:2px;}
+.qi{padding:7px 9px;border-radius:var(--r);border:1px solid transparent;cursor:pointer;margin-bottom:2px;position:relative;transition:all 0.1s;}
+.qi:hover{background:var(--panel);border-color:var(--border);}
+.qi.on{background:var(--panel);border-color:var(--accent);}
+.qn{font-size:8px;letter-spacing:0.3em;color:var(--muted);font-family:var(--font-mono);}
+.qq{font-size:11px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;margin-top:2px;}
+.qm{font-size:9px;color:var(--muted);margin-top:2px;}
+.qdot{position:absolute;top:9px;right:7px;width:5px;height:5px;border-radius:50%;}
+.qdot.pending{background:var(--accent2);}
+.qdot.posted{background:var(--success);}
+.qdot.failed{background:var(--danger);}
+.qdot.draft{background:var(--muted);}
+.qfooter{padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:8px;}
+.stat{flex:1;text-align:center;}
+.sn{font-size:14px;font-weight:300;}
+.sl{font-size:7px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
 
-/* Queue */
-.queue-list{flex:1;overflow-y:auto;padding:6px;}
-.queue-list::-webkit-scrollbar{width:2px;}
-.queue-list::-webkit-scrollbar-thumb{background:var(--border-md);}
-.queue-item{padding:8px 10px;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;margin-bottom:3px;transition:all 0.12s;position:relative;}
-.queue-item:hover{background:var(--panel);border-color:var(--border);}
-.queue-item.active{background:var(--panel);border-color:var(--accent);}
-.qi-num{font-size:8px;letter-spacing:0.3em;color:var(--muted);margin-bottom:3px;font-family:var(--font-mono);}
-.qi-quote{font-size:11px;font-style:italic;color:var(--text);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
-.qi-meta{font-size:9px;color:var(--muted);margin-top:3px;}
-.qi-dot{position:absolute;top:10px;right:8px;width:5px;height:5px;border-radius:50%;}
-.qi-dot.pending{background:var(--accent2);}
-.qi-dot.posted{background:var(--success);}
-.qi-dot.failed{background:var(--danger);}
-.qi-dot.draft{background:var(--muted);}
-.queue-footer{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:10px;}
-.stat{text-align:center;flex:1;}
-.stat-num{font-size:15px;font-weight:300;}
-.stat-lbl{font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
+/* ── Canvas area ── */
+.canvas-area{display:flex;flex-direction:column;overflow:hidden;background:#111113;}
+.ctb{display:flex;align-items:center;gap:5px;padding:7px 12px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;flex-wrap:wrap;}
+.cb{width:26px;height:26px;border-radius:var(--r);border:1px solid transparent;color:var(--muted);cursor:pointer;background:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.12s;}
+.cb:hover{background:var(--panel);color:var(--text);}
+.cb.on{background:rgba(138,172,191,0.12);color:var(--accent);border-color:var(--accent);}
+.csep{width:1px;height:16px;background:var(--border);margin:0 2px;}
+.czoom{font-size:10px;font-family:var(--font-mono);color:var(--muted);min-width:40px;text-align:center;}
+.viewport{flex:1;overflow:hidden;position:relative;}
+.croot{position:absolute;transform-origin:top left;will-change:transform;}
+/* The actual card — pure canvas rendering */
+.card-stage{position:relative;}
+.card-stage canvas{display:block;}
+/* Interaction overlay for drag/resize */
+.interact-layer{position:absolute;inset:0;pointer-events:none;}
+.el-box{position:absolute;pointer-events:all;cursor:move;}
+.el-box.sel .sel-ring{display:block;}
+.sel-ring{display:none;position:absolute;inset:-2px;border:1.5px solid var(--accent);border-radius:1px;pointer-events:none;}
+.sel-ring::after{content:attr(data-lbl);position:absolute;top:-18px;left:0;font-size:8px;font-family:var(--font-mono);color:var(--accent);background:rgba(13,13,15,0.9);padding:1px 4px;border-radius:2px;white-space:nowrap;}
+.rh{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);display:none;z-index:5;}
+.el-box.sel .rh{display:block;}
+.rh.tl{top:-5px;left:-5px;cursor:nw-resize;}
+.rh.tc{top:-5px;left:calc(50% - 4px);cursor:n-resize;}
+.rh.tr{top:-5px;right:-5px;cursor:ne-resize;}
+.rh.ml{top:calc(50% - 4px);left:-5px;cursor:w-resize;}
+.rh.mr{top:calc(50% - 4px);right:-5px;cursor:e-resize;}
+.rh.bl{bottom:-5px;left:-5px;cursor:sw-resize;}
+.rh.bc{bottom:-5px;left:calc(50% - 4px);cursor:s-resize;}
+.rh.br{bottom:-5px;right:-5px;cursor:se-resize;}
+.snap-line{position:absolute;pointer-events:none;z-index:100;}
+.snap-line.h{left:0;right:0;height:1px;background:rgba(138,172,191,0.7);}
+.snap-line.v{top:0;bottom:0;width:1px;background:rgba(138,172,191,0.7);}
 
-/* ── Canvas Area ── */
-.canvas-area{display:flex;flex-direction:column;overflow:hidden;background:#111113;position:relative;}
-.canvas-toolbar{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
-.ct-sep{width:1px;height:18px;background:var(--border);margin:0 2px;}
-.ct-btn{width:28px;height:28px;border-radius:var(--radius);border:1px solid transparent;color:var(--muted);cursor:pointer;background:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.12s;position:relative;}
-.ct-btn:hover{background:var(--panel);color:var(--text);border-color:var(--border);}
-.ct-btn.active{background:rgba(138,172,191,0.12);color:var(--accent);border-color:var(--accent);}
-.ct-btn[title]:hover::after{content:attr(title);position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--border);color:var(--text);font-size:10px;white-space:nowrap;padding:3px 7px;border-radius:4px;pointer-events:none;z-index:100;font-family:var(--font-ui);letter-spacing:0.05em;}
-.zoom-display{font-size:10px;font-family:var(--font-mono);color:var(--muted);min-width:42px;text-align:center;}
-.canvas-viewport{flex:1;overflow:hidden;position:relative;cursor:default;}
-.canvas-viewport.panning{cursor:grab;}
-.canvas-viewport.panning:active{cursor:grabbing;}
-.canvas-root{position:absolute;transform-origin:top left;}
-.card-canvas{position:relative;overflow:hidden;user-select:none;}
-.card-layer{position:absolute;inset:0;pointer-events:none;}
-.elements-layer{position:absolute;inset:0;}
+/* ── Right panel ── */
+.rpanel{background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.ptabs{display:flex;border-bottom:1px solid var(--border);}
+.pt{flex:1;padding:10px 4px;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all 0.1s;}
+.pt.on{color:var(--accent);border-bottom-color:var(--accent);}
+.ps{flex:1;overflow-y:auto;padding:12px;}
+.ps::-webkit-scrollbar{width:2px;}
 
-/* ── Canvas Elements ── */
-.cv-element{position:absolute;cursor:move;}
-.cv-element.selected .sel-box{display:block;}
-.cv-element.locked{cursor:default;}
-.cv-element.locked .sel-box{border-color:var(--accent2);}
-.sel-box{display:none;position:absolute;inset:-2px;border:1.5px solid var(--accent);pointer-events:none;border-radius:1px;}
-.sel-box::before{content:attr(data-dim);position:absolute;top:-20px;left:0;font-size:9px;font-family:var(--font-mono);color:var(--accent);white-space:nowrap;background:var(--bg);padding:1px 4px;border-radius:2px;}
-.rh{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--accent);border:1.5px solid var(--bg);z-index:10;pointer-events:all;cursor:pointer;}
-.rh.tl{top:-4px;left:-4px;cursor:nw-resize;}
-.rh.tr{top:-4px;right:-4px;cursor:ne-resize;}
-.rh.bl{bottom:-4px;left:-4px;cursor:sw-resize;}
-.rh.br{bottom:-4px;right:-4px;cursor:se-resize;}
-.rh.ml{top:50%;left:-4px;transform:translateY(-50%);cursor:w-resize;}
-.rh.mr{top:50%;right:-4px;transform:translateY(-50%);cursor:e-resize;}
-.rh.tm{top:-4px;left:50%;transform:translateX(-50%);cursor:n-resize;}
-.rh.bm{bottom:-4px;left:50%;transform:translateX(-50%);cursor:s-resize;}
-.cv-text-el{position:absolute;inset:0;overflow:hidden;word-break:break-word;}
-.cv-text-el.editing{cursor:text;outline:none;}
-
-/* Snap guides */
-.snap-guide{position:absolute;pointer-events:none;z-index:1000;}
-.snap-guide.h{width:100%;height:1px;background:rgba(138,172,191,0.6);left:0;}
-.snap-guide.v{height:100%;width:1px;background:rgba(138,172,191,0.6);top:0;}
-
-/* ── Right Panel ── */
-.right-panel{background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-.panel-tabs{display:flex;border-bottom:1px solid var(--border);}
-.panel-tab{flex:1;padding:11px 6px;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all 0.12s;}
-.panel-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-.panel-tab:hover{color:var(--text);}
-.panel-scroll{flex:1;overflow-y:auto;padding:14px;}
-.panel-scroll::-webkit-scrollbar{width:2px;}
-.panel-scroll::-webkit-scrollbar-thumb{background:var(--border-md);}
+/* Preview strip — always visible at bottom of right panel */
+.preview-strip{border-top:1px solid var(--border);padding:10px;flex-shrink:0;background:var(--surface);}
+.prev-label{font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.prev-mockup{background:#000;border-radius:8px;overflow:hidden;border:1px solid #222;}
+.pm-top{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-bottom:1px solid #1a1a1a;}
+.pm-av{width:18px;height:18px;border-radius:50%;background:#333;}
+.pm-handle{font-size:9px;color:#fff;font-family:-apple-system,sans-serif;}
+.pm-cap{padding:4px 8px 6px;font-size:8px;color:#999;font-family:-apple-system,sans-serif;line-height:1.3;}
+.pm-cap strong{color:#fff;}
 
 /* Fields */
-.field{margin-bottom:14px;}
-.field-label{font-size:8px;letter-spacing:0.28em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;}
+.fl{font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;}
+.fg{margin-bottom:12px;}
 textarea,input[type=text],input[type=date],input[type=time],input[type=number],select{
-  width:100%;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
-  color:var(--text);font-family:var(--font-ui);font-size:13px;padding:8px 10px;outline:none;
-  resize:none;transition:border 0.12s;
+  width:100%;background:var(--panel);border:1px solid var(--border);border-radius:var(--r);
+  color:var(--text);font-family:var(--font-ui);font-size:12px;padding:7px 9px;outline:none;resize:none;transition:border 0.1s;
 }
 textarea:focus,input:focus,select:focus{border-color:var(--accent);}
-textarea{line-height:1.65;font-style:italic;min-height:80px;}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+textarea{line-height:1.65;font-style:italic;min-height:72px;}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
 
-/* Post number */
-.num-ctrl{display:flex;align-items:center;gap:6px;}
-.num-btn{width:28px;height:28px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--border-md);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.12s;flex-shrink:0;}
-.num-btn:hover{border-color:var(--accent);color:var(--accent);}
-.num-inp{width:64px;text-align:center;font-family:var(--font-mono);font-size:15px;}
+/* Number control */
+.nc{display:flex;align-items:center;gap:5px;}
+.nb{width:26px;height:26px;border-radius:var(--r);background:var(--panel);border:1px solid var(--border-md);color:var(--text);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s;}
+.nb:hover{border-color:var(--accent);color:var(--accent);}
+.ni{width:58px;text-align:center;font-family:var(--font-mono);font-size:14px;}
 
 /* Colour */
-.colour-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.col-field{}
-.col-field label{display:block;font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.col-wrap{position:relative;}
-.col-wrap input[type=color]{width:100%;height:34px;padding:2px;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border);}
-.col-hex{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:10px;font-family:var(--font-mono);color:var(--muted);pointer-events:none;}
-.palettes{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
-.swatch{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.12s;flex-shrink:0;}
-.swatch:hover{transform:scale(1.15);}
-.swatch.active{border-color:var(--accent);}
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.cf label{display:block;font-size:7px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.cw{position:relative;}
+.cw input[type=color]{width:100%;height:30px;padding:2px;border-radius:var(--r);cursor:pointer;border:1px solid var(--border);}
+.chx{position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:9px;font-family:var(--font-mono);color:var(--muted);pointer-events:none;}
+.swatches{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.sw{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.1s;}
+.sw:hover{transform:scale(1.15);}
+.sw.on{border-color:var(--accent);}
 
-/* Fonts */
-.font-row{display:flex;gap:6px;margin-bottom:6px;}
-.font-row select{flex:1;font-size:12px;}
-.font-sz{width:52px;text-align:center;}
+/* Dim */
+.dg{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px;}
+.do{border:1px solid var(--border);border-radius:var(--r);padding:6px 3px;cursor:pointer;text-align:center;transition:all 0.1s;background:var(--panel);}
+.do:hover,.do.on{border-color:var(--accent);}
+.do.on{background:rgba(138,172,191,0.06);}
+.dt{margin:0 auto 3px;border:1px solid var(--border-md);background:var(--bg);}
+.dr{font-size:9px;color:var(--text);}
+.dl{font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+
+/* Props panel */
+.pp{background:var(--panel);border-radius:var(--r);padding:9px;margin-bottom:10px;border:1px solid var(--border);}
+.ppt{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.pr{display:flex;gap:5px;margin-bottom:5px;align-items:center;}
+.pl{font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);min-width:44px;}
+.pr input,.pr select{flex:1;font-size:10px;padding:4px 6px;}
+.pr input[type=color]{height:24px;padding:1px;flex:0 0 40px;}
+.pr input[type=number]{flex:0 0 48px;}
+.ib{width:22px;height:22px;border-radius:3px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.1s;flex-shrink:0;}
+.ib:hover{border-color:var(--accent);color:var(--accent);}
+.ib.on{background:rgba(138,172,191,0.1);border-color:var(--accent);color:var(--accent);}
+
+/* Shapes toolbar */
+.shapes-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+.shp{padding:4px 8px;border-radius:var(--r);font-size:9px;letter-spacing:0.1em;border:1px solid var(--border);color:var(--muted);cursor:pointer;background:transparent;transition:all 0.1s;font-family:var(--font-ui);}
+.shp:hover{border-color:var(--accent);color:var(--accent);}
 
 /* Schedule */
-.time-slot{display:flex;gap:6px;align-items:center;padding:6px 8px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--border);margin-bottom:5px;}
-.time-slot-lbl{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);white-space:nowrap;min-width:44px;}
-.time-slot input[type=time]{flex:1;}
-.rm-btn{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
-.rm-btn:hover{border-color:var(--danger);color:var(--danger);}
-.presets{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
-.preset{padding:3px 9px;border-radius:20px;background:var(--panel);border:1px solid var(--border);color:var(--muted);font-size:10px;font-family:var(--font-mono);cursor:pointer;transition:all 0.12s;}
-.preset:hover{border-color:var(--accent);color:var(--accent);}
-.add-slot{width:100%;padding:6px;border-radius:var(--radius);background:transparent;border:1px dashed var(--border-md);color:var(--muted);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all 0.12s;font-family:var(--font-ui);}
-.add-slot:hover{border-color:var(--accent);color:var(--accent);}
+.ts{display:flex;gap:5px;align-items:center;padding:5px 7px;border-radius:var(--r);background:var(--panel);border:1px solid var(--border);margin-bottom:4px;}
+.tsl{font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;min-width:40px;}
+.ts input[type=time]{flex:1;}
+.rmb{width:20px;height:20px;border-radius:3px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.1s;}
+.rmb:hover{border-color:var(--danger);color:var(--danger);}
+.presets{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.prs{padding:3px 8px;border-radius:20px;background:var(--panel);border:1px solid var(--border);color:var(--muted);font-size:9px;font-family:var(--font-mono);cursor:pointer;transition:all 0.1s;}
+.prs:hover{border-color:var(--accent);color:var(--accent);}
+.adds{width:100%;padding:5px;border-radius:var(--r);background:transparent;border:1px dashed var(--border-md);color:var(--muted);font-size:8px;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:all 0.1s;font-family:var(--font-ui);}
+.adds:hover{border-color:var(--accent);color:var(--accent);}
 
-/* Element props panel */
-.props-panel{background:var(--panel);border-radius:var(--radius);padding:10px;margin-bottom:10px;border:1px solid var(--border);}
-.props-panel-title{font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
-.prop-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;}
-.prop-label{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);min-width:52px;}
-.prop-row input,.prop-row select{flex:1;font-size:11px;padding:5px 7px;}
-.prop-row input[type=color]{height:26px;padding:1px;}
-.prop-row input[type=number]{flex:0 0 52px;}
-.icon-btn{width:24px;height:24px;border-radius:4px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.12s;flex-shrink:0;}
-.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
-.icon-btn.active{background:rgba(138,172,191,0.1);border-color:var(--accent);color:var(--accent);}
+/* Layers */
+.li{display:flex;align-items:center;gap:5px;padding:5px 7px;border-radius:var(--r);border:1px solid transparent;cursor:pointer;margin-bottom:2px;transition:all 0.1s;}
+.li:hover{background:var(--panel);}
+.li.on{background:var(--panel);border-color:var(--accent);}
+.li-ic{font-size:10px;color:var(--muted);width:14px;text-align:center;}
+.li-nm{flex:1;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.li-lk{font-size:10px;color:var(--muted);cursor:pointer;opacity:0.5;}
+.li-lk:hover{opacity:1;}
 
-/* Dim options */
-.dim-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
-.dim-opt{border:1px solid var(--border);border-radius:var(--radius);padding:8px 4px;cursor:pointer;text-align:center;transition:all 0.12s;background:var(--panel);}
-.dim-opt:hover,.dim-opt.active{border-color:var(--accent);}
-.dim-opt.active{background:rgba(138,172,191,0.06);}
-.dim-thumb{margin:0 auto 4px;border:1px solid var(--border-md);background:var(--bg);}
-.dim-r{font-size:9px;color:var(--text);margin-bottom:1px;}
-.dim-l{font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+/* Font search */
+.fsw{position:relative;}
+.fres{position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--border-md);border-radius:var(--r);z-index:200;max-height:120px;overflow-y:auto;display:none;}
+.fri{padding:5px 9px;font-size:11px;cursor:pointer;border-bottom:1px solid var(--border);}
+.fri:hover{background:var(--bg);}
 
-/* Divider */
-.div{height:1px;background:var(--border);margin:12px 0;}
-
-/* Layers panel */
-.layer-item{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;margin-bottom:2px;transition:all 0.1s;}
-.layer-item:hover{background:var(--panel);border-color:var(--border);}
-.layer-item.active{background:var(--panel);border-color:var(--accent);}
-.layer-icon{font-size:11px;color:var(--muted);width:16px;text-align:center;}
-.layer-name{flex:1;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.layer-lock{font-size:11px;color:var(--muted);cursor:pointer;opacity:0.5;}
-.layer-lock:hover{opacity:1;}
-
-/* Preview mockup */
-.preview-mockup{background:#000;border-radius:12px;overflow:hidden;border:1px solid #222;width:100%;}
-.pm-header{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid #1a1a1a;}
-.pm-avatar{width:20px;height:20px;border-radius:50%;background:#333;}
-.pm-handle{font-size:10px;color:#fff;font-family:-apple-system,sans-serif;}
-.pm-card{width:100%;position:relative;overflow:hidden;}
-.pm-caption{padding:6px 10px 8px;font-size:9px;color:#aaa;font-family:-apple-system,sans-serif;line-height:1.4;}
-.pm-caption strong{color:#fff;}
+.divv{height:1px;background:var(--border);margin:10px 0;}
 
 /* Modal */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;}
-.modal-bg.open{display:flex;}
-.modal{background:var(--panel);border:1px solid var(--border-md);border-radius:var(--radius-lg);padding:24px;width:340px;}
-.modal h3{font-size:13px;font-weight:300;letter-spacing:0.15em;margin-bottom:12px;color:var(--accent);}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
-
-/* Toast */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:var(--radius);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;z-index:2000;opacity:0;transition:opacity 0.25s;pointer-events:none;}
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;}
+.mbg.open{display:flex;}
+.modal{background:var(--panel);border:1px solid var(--border-md);border-radius:var(--rlg);padding:22px;width:320px;}
+.modal h3{font-size:12px;font-weight:300;letter-spacing:0.15em;margin-bottom:10px;color:var(--accent);}
+.mact{display:flex;gap:7px;justify-content:flex-end;margin-top:14px;}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);padding:7px 16px;border-radius:var(--r);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;z-index:2000;opacity:0;transition:opacity 0.22s;pointer-events:none;}
 .toast.show{opacity:1;}
 .toast.ok{background:var(--success);color:var(--bg);}
 .toast.err{background:var(--danger);color:#fff;}
-
-/* Font search */
-.font-search-wrap{position:relative;}
-.font-results{position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--border-md);border-radius:var(--radius);z-index:100;max-height:140px;overflow-y:auto;display:none;}
-.font-result{padding:6px 10px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);}
-.font-result:hover{background:var(--bg);}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- ── Topbar ── -->
+<!-- Topbar -->
 <header class="topbar">
-  <div class="topbar-brand">Anvil <span>Press</span></div>
-  <div class="topbar-center">
-    <button class="tb-btn" onclick="undo()" title="Ctrl+Z">↩ Undo</button>
-    <button class="tb-btn" onclick="redo()" title="Ctrl+Y">↪ Redo</button>
-    <div class="ct-sep"></div>
-    <button class="tb-btn" onclick="newPost()">New</button>
-    <button class="tb-btn" onclick="saveDraft()">Draft</button>
-    <button class="tb-btn primary" onclick="schedulePost()">Schedule</button>
-    <button class="tb-btn danger" id="btnDelete" onclick="deletePost()" style="display:none;">Delete</button>
-  </div>
+  <div class="brand">Anvil <span>Press</span></div>
+  <button class="tb" onclick="undo()">↩ Undo</button>
+  <button class="tb" onclick="redo()">↪ Redo</button>
+  <div class="sep"></div>
+  <button class="tb" onclick="newPost()">New</button>
+  <button class="tb" onclick="saveDraft()">Draft</button>
+  <button class="tb p" onclick="schedulePost()">Schedule</button>
+  <button class="tb d" id="btnDel" onclick="deletePost()" style="display:none;">Delete</button>
   <div class="topbar-right">
-    <span class="tz-badge" id="tzBadge">—</span>
-    <div class="status-dot" id="statusDot"></div>
-    <span class="status-label" id="statusLabel">Connecting...</span>
+    <span class="tz" id="tzBadge">—</span>
+    <div class="dot" id="dot"></div>
+    <span class="slbl" id="slbl">Connecting...</span>
   </div>
 </header>
 
-<!-- ── Sidebar ── -->
+<!-- Sidebar -->
 <aside class="sidebar">
-  <!-- Queue -->
-  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-    <div class="sidebar-section-header" style="cursor:default;">
-      <span>Queue</span>
-      <button class="tb-btn" style="padding:2px 8px;font-size:9px;" onclick="newPost()">+ New</button>
-    </div>
-    <div class="queue-list" id="queueList">
-      <div style="padding:16px;text-align:center;color:var(--muted);font-size:11px;">Loading...</div>
-    </div>
+  <div class="sh">
+    <span>Queue</span>
+    <button class="tb" style="padding:2px 7px;font-size:8px;" onclick="newPost()">+ New</button>
   </div>
-  <div class="queue-footer">
-    <div class="stat"><div class="stat-num" id="statPending">—</div><div class="stat-lbl">Pending</div></div>
-    <div class="stat"><div class="stat-num" id="statPosted">—</div><div class="stat-lbl">Posted</div></div>
-    <div class="stat"><div class="stat-num" id="statFailed">—</div><div class="stat-lbl">Failed</div></div>
+  <div class="qlist" id="qlist"><div style="padding:14px;text-align:center;color:var(--muted);font-size:10px;">Loading...</div></div>
+  <div class="qfooter">
+    <div class="stat"><div class="sn" id="sp">—</div><div class="sl">Pending</div></div>
+    <div class="stat"><div class="sn" id="ss">—</div><div class="sl">Posted</div></div>
+    <div class="stat"><div class="sn" id="sf">—</div><div class="sl">Failed</div></div>
   </div>
 </aside>
 
-<!-- ── Canvas ── -->
+<!-- Canvas -->
 <main class="canvas-area">
-  <div class="canvas-toolbar">
-    <!-- Tools -->
-    <button class="ct-btn active" id="tool-select" onclick="setTool('select',this)" title="Select (V)">&#9654;</button>
-    <button class="ct-btn" id="tool-text" onclick="addTextEl()" title="Add text (T)">T</button>
-    <button class="ct-btn" id="tool-pan" onclick="setTool('pan',this)" title="Pan (Space)">&#9881;</button>
-    <div class="ct-sep"></div>
-    <!-- Edit -->
-    <button class="ct-btn" onclick="duplicateEl()" title="Duplicate (Ctrl+D)">⧉</button>
-    <button class="ct-btn" onclick="deleteEl()" title="Delete (Del)">✕</button>
-    <button class="ct-btn" onclick="lockEl()" title="Lock element">🔒</button>
-    <div class="ct-sep"></div>
-    <!-- Order -->
-    <button class="ct-btn" onclick="bringFront()" title="Bring to front">⬆</button>
-    <button class="ct-btn" onclick="sendBack()" title="Send to back">⬇</button>
-    <div class="ct-sep"></div>
-    <!-- Zoom -->
-    <button class="ct-btn" onclick="zoomOut()" title="Zoom out">−</button>
-    <span class="zoom-display" id="zoomDisplay">100%</span>
-    <button class="ct-btn" onclick="zoomIn()" title="Zoom in">+</button>
-    <button class="ct-btn" onclick="zoomFit()" title="Fit to screen">⊡</button>
-    <div class="ct-sep"></div>
-    <!-- Snap -->
-    <button class="ct-btn" id="snap-btn" onclick="toggleSnap(this)" title="Snap to guides">⊹</button>
-    <button class="ct-btn" id="grid-btn" onclick="toggleGrid(this)" title="Show grid">⊞</button>
+  <div class="ctb">
+    <button class="cb on" id="ts" onclick="setTool('sel',this)" title="Select (V)">▶</button>
+    <button class="cb" id="tt" onclick="addTextEl()" title="Add text (T)">T</button>
+    <button class="cb" id="tp" onclick="setTool('pan',this)" title="Pan">⊕</button>
+    <div class="csep"></div>
+    <button class="cb" onclick="dupEl()" title="Duplicate Ctrl+D">⧉</button>
+    <button class="cb" onclick="delEl()" title="Delete Del">✕</button>
+    <button class="cb" onclick="lockEl()" title="Lock">🔒</button>
+    <div class="csep"></div>
+    <button class="cb" onclick="toFront()" title="Bring to front">⬆</button>
+    <button class="cb" onclick="toBack()" title="Send to back">⬇</button>
+    <div class="csep"></div>
+    <button class="cb" onclick="zOut()">−</button>
+    <span class="czoom" id="zd">100%</span>
+    <button class="cb" onclick="zIn()">+</button>
+    <button class="cb" onclick="zFit()" title="Fit">⊡</button>
+    <div class="csep"></div>
+    <button class="cb on" id="snapBtn" onclick="toggleSnap(this)" title="Snap">⊹</button>
+    <button class="cb" id="gridBtn" onclick="toggleGrid(this)" title="Grid">⊞</button>
   </div>
-  <div class="canvas-viewport" id="viewport">
-    <div class="canvas-root" id="canvasRoot">
-      <div class="card-canvas" id="cardCanvas">
-        <!-- Background layers -->
-        <canvas class="card-layer" id="bgLayer"></canvas>
-        <!-- Grid overlay -->
-        <canvas class="card-layer" id="gridLayer" style="opacity:0;pointer-events:none;"></canvas>
-        <!-- Border SVG -->
-        <svg class="card-layer" id="borderSvg" xmlns="http://www.w3.org/2000/svg" style="pointer-events:none;"></svg>
-        <!-- Elements -->
-        <div class="elements-layer" id="elementsLayer"></div>
+  <div class="viewport" id="vp">
+    <div class="croot" id="croot">
+      <div class="card-stage" id="stage">
+        <!-- Main render canvas -->
+        <canvas id="mainCanvas"></canvas>
+        <!-- Interaction overlay -->
+        <div class="interact-layer" id="ilay"></div>
         <!-- Snap guides -->
-        <div id="snapGuides"></div>
+        <div id="snaps" style="position:absolute;inset:0;pointer-events:none;z-index:50;"></div>
       </div>
     </div>
   </div>
 </main>
 
-<!-- ── Right Panel ── -->
-<aside class="right-panel">
-  <div class="panel-tabs">
-    <div class="panel-tab active" onclick="switchPanel('content',this)">Content</div>
-    <div class="panel-tab" onclick="switchPanel('design',this)">Design</div>
-    <div class="panel-tab" onclick="switchPanel('schedule',this)">Schedule</div>
-    <div class="panel-tab" onclick="switchPanel('layers',this)">Layers</div>
+<!-- Right panel -->
+<aside class="rpanel">
+  <div class="ptabs">
+    <div class="pt on" onclick="switchP('content',this)">Content</div>
+    <div class="pt" onclick="switchP('design',this)">Design</div>
+    <div class="pt" onclick="switchP('schedule',this)">Schedule</div>
+    <div class="pt" onclick="switchP('layers',this)">Layers</div>
   </div>
 
-  <!-- Content panel -->
-  <div class="panel-scroll" id="panel-content">
-    <div class="field">
-      <div class="field-label">Quote</div>
-      <textarea id="fQuote" placeholder="Your thought..." oninput="onQuoteChange()"></textarea>
+  <!-- Content -->
+  <div class="ps" id="p-content">
+    <div class="fg"><div class="fl">Quote</div>
+      <textarea id="fQuote" placeholder="Your thought..." oninput="syncQuote()"></textarea>
     </div>
-    <div class="field">
-      <div class="field-label">Caption</div>
-      <textarea id="fCaption" placeholder="Instagram caption..." style="min-height:56px;" oninput="onCaptionChange()"></textarea>
+    <div class="fg"><div class="fl">Caption</div>
+      <textarea id="fCap" placeholder="Instagram caption..." style="min-height:52px;" oninput="syncCaption()"></textarea>
     </div>
-    <div class="div"></div>
-    <div class="field">
-      <div class="field-label">Post Number</div>
-      <div class="num-ctrl">
-        <button class="num-btn" onclick="changeNum(-1)">−</button>
-        <input type="number" class="num-inp" id="postNum" value="1" min="1" max="9999" oninput="onNumChange()"/>
-        <button class="num-btn" onclick="changeNum(1)">+</button>
+    <div class="divv"></div>
+    <div class="fg"><div class="fl">Post Number</div>
+      <div class="nc">
+        <button class="nb" onclick="chNum(-1)">−</button>
+        <input type="number" class="ni" id="postNum" value="1" min="1" max="9999" oninput="syncNum()"/>
+        <button class="nb" onclick="chNum(1)">+</button>
       </div>
     </div>
-
-    <!-- Element props (shown when element selected) -->
-    <div class="props-panel" id="propsPanel" style="display:none;">
-      <div class="props-panel-title">
-        <span id="propsPanelTitle">Element</span>
-        <button class="icon-btn" onclick="deleteEl()" title="Delete">✕</button>
+    <!-- Element props shown when selected -->
+    <div class="pp" id="pp" style="display:none;">
+      <div class="ppt"><span id="ppt-title">Element</span><button class="ib" onclick="delEl()">✕</button></div>
+      <div class="pr"><span class="pl">Font</span><select id="pFont" onchange="ap('font',this.value)" style="font-size:10px;"></select></div>
+      <div class="pr">
+        <span class="pl">Size</span><input type="number" id="pSz" value="16" min="4" max="400" oninput="ap('size',+this.value)"/>
+        <span class="pl" style="min-width:28px;text-align:right;">Color</span>
+        <input type="color" id="pCol" value="#e8e4dc" oninput="ap('color',this.value)"/>
       </div>
-      <div class="prop-row">
-        <span class="prop-label">Font</span>
-        <select id="propFont" onchange="applyProp('font',this.value)" style="font-size:11px;"></select>
+      <div class="pr">
+        <span class="pl">Opacity</span><input type="number" id="pOp" value="100" min="0" max="100" oninput="ap('opacity',+this.value)"/>
+        <span class="pl" style="min-width:28px;text-align:right;">LSpac</span>
+        <input type="number" id="pLS" value="0" min="-10" max="50" step="0.5" oninput="ap('letterSpacing',+this.value)"/>
       </div>
-      <div class="prop-row">
-        <span class="prop-label">Size</span>
-        <input type="number" id="propSize" value="16" min="4" max="400" oninput="applyProp('size',this.value)" style="flex:0 0 52px;"/>
-        <span class="prop-label" style="min-width:30px;">Color</span>
-        <input type="color" id="propColor" value="#e8e4dc" oninput="applyProp('color',this.value)"/>
+      <div class="pr">
+        <span class="pl">Style</span>
+        <button class="ib" id="pBold" onclick="tog('bold')"><b>B</b></button>
+        <button class="ib" id="pItal" onclick="tog('italic')"><i>I</i></button>
+        <button class="ib" id="pAL" onclick="ap('align','left')">⬅</button>
+        <button class="ib" id="pAC" onclick="ap('align','center')">↔</button>
+        <button class="ib" id="pAR" onclick="ap('align','right')">➡</button>
       </div>
-      <div class="prop-row">
-        <span class="prop-label">Opacity</span>
-        <input type="number" id="propOpacity" value="100" min="0" max="100" oninput="applyProp('opacity',this.value)" style="flex:0 0 52px;"/>
-        <span class="prop-label" style="min-width:30px;">LSpac</span>
-        <input type="number" id="propLetterSpacing" value="0" min="-10" max="50" step="0.5" oninput="applyProp('letterSpacing',this.value)" style="flex:0 0 52px;"/>
+      <div class="pr">
+        <span class="pl">X</span><input type="number" id="pX" oninput="ap('x',+this.value)" style="flex:0 0 46px;"/>
+        <span class="pl" style="min-width:14px;text-align:right;">Y</span><input type="number" id="pY" oninput="ap('y',+this.value)" style="flex:0 0 46px;"/>
       </div>
-      <div class="prop-row">
-        <span class="prop-label">Style</span>
-        <button class="icon-btn" id="propBold" onclick="toggleProp('bold')" title="Bold"><b>B</b></button>
-        <button class="icon-btn" id="propItalic" onclick="toggleProp('italic')" title="Italic"><i>I</i></button>
-        <button class="icon-btn" id="propAlignL" onclick="applyProp('align','left')" title="Left">⬅</button>
-        <button class="icon-btn" id="propAlignC" onclick="applyProp('align','center')" title="Center">↔</button>
-        <button class="icon-btn" id="propAlignR" onclick="applyProp('align','right')" title="Right">➡</button>
+      <div class="pr">
+        <span class="pl">W</span><input type="number" id="pW" oninput="ap('w',+this.value)" style="flex:0 0 46px;"/>
+        <span class="pl" style="min-width:14px;text-align:right;">H</span><input type="number" id="pH" oninput="ap('h',+this.value)" style="flex:0 0 46px;"/>
       </div>
-      <div class="prop-row">
-        <span class="prop-label">Position</span>
-        <input type="number" id="propX" value="0" oninput="applyProp('x',this.value)" style="flex:0 0 52px;"/>
-        <span style="font-size:10px;color:var(--muted);margin:0 2px;">X</span>
-        <input type="number" id="propY" value="0" oninput="applyProp('y',this.value)" style="flex:0 0 52px;"/>
-        <span style="font-size:10px;color:var(--muted);margin:0 2px;">Y</span>
+      <!-- Shape props (shown for shapes) -->
+      <div id="shapeProps" style="display:none;">
+        <div class="pr"><span class="pl">Fill</span><input type="color" id="pFill" value="#8aacbf" oninput="ap('fill',this.value)"/><span class="pl" style="min-width:28px;text-align:right;">Stroke</span><input type="color" id="pStroke" value="#8aacbf" oninput="ap('stroke',this.value)"/></div>
+        <div class="pr"><span class="pl">StrokeW</span><input type="number" id="pSW" value="1" min="0" max="20" oninput="ap('strokeWidth',+this.value)"/></div>
       </div>
-      <div class="prop-row">
-        <span class="prop-label">Size</span>
-        <input type="number" id="propW" value="100" oninput="applyProp('w',this.value)" style="flex:0 0 52px;"/>
-        <span style="font-size:10px;color:var(--muted);margin:0 2px;">W</span>
-        <input type="number" id="propH" value="30" oninput="applyProp('h',this.value)" style="flex:0 0 52px;"/>
-        <span style="font-size:10px;color:var(--muted);margin:0 2px;">H</span>
-      </div>
-      <div class="field-label" style="margin-top:8px;">Font search</div>
-      <div class="font-search-wrap">
-        <input type="text" id="propFontSearch" placeholder="Search Google Fonts..." oninput="searchFonts(this.value,'propFont')" style="font-size:11px;padding:5px 8px;margin-bottom:0;"/>
-        <div class="font-results" id="propFontResults"></div>
+      <div class="fsw" style="margin-top:6px;">
+        <input type="text" id="pFSearch" placeholder="Search fonts..." oninput="searchF(this.value,'pFont','pFRes')" style="font-size:10px;padding:4px 7px;"/>
+        <div class="fres" id="pFRes"></div>
       </div>
     </div>
   </div>
 
-  <!-- Design panel -->
-  <div class="panel-scroll" id="panel-design" style="display:none;">
-    <div class="field">
-      <div class="field-label">Dimensions</div>
-      <div class="dim-opts">
-        <div class="dim-opt active" data-dim="1:1" onclick="setDim(this,'1:1',1080,1080)">
-          <div class="dim-thumb" style="width:28px;height:28px;"></div>
-          <div class="dim-r">1:1</div><div class="dim-l">Square</div>
-        </div>
-        <div class="dim-opt" data-dim="4:5" onclick="setDim(this,'4:5',1080,1350)">
-          <div class="dim-thumb" style="width:24px;height:30px;"></div>
-          <div class="dim-r">4:5</div><div class="dim-l">Portrait</div>
-        </div>
-        <div class="dim-opt" data-dim="9:16" onclick="setDim(this,'9:16',1080,1920)">
-          <div class="dim-thumb" style="width:16px;height:28px;"></div>
-          <div class="dim-r">9:16</div><div class="dim-l">Story</div>
-        </div>
-        <div class="dim-opt" data-dim="16:9" onclick="setDim(this,'16:9',1920,1080)">
-          <div class="dim-thumb" style="width:34px;height:20px;"></div>
-          <div class="dim-r">16:9</div><div class="dim-l">Wide</div>
-        </div>
+  <!-- Design -->
+  <div class="ps" id="p-design" style="display:none;">
+    <div class="fg"><div class="fl">Dimensions</div>
+      <div class="dg">
+        <div class="do on" data-dim="1:1" onclick="setDim(this,'1:1',1080,1080)"><div class="dt" style="width:26px;height:26px;"></div><div class="dr">1:1</div><div class="dl">Square</div></div>
+        <div class="do" data-dim="4:5" onclick="setDim(this,'4:5',1080,1350)"><div class="dt" style="width:22px;height:28px;"></div><div class="dr">4:5</div><div class="dl">Portrait</div></div>
+        <div class="do" data-dim="9:16" onclick="setDim(this,'9:16',1080,1920)"><div class="dt" style="width:14px;height:26px;"></div><div class="dr">9:16</div><div class="dl">Story</div></div>
+        <div class="do" data-dim="16:9" onclick="setDim(this,'16:9',1920,1080)"><div class="dt" style="width:32px;height:18px;"></div><div class="dr">16:9</div><div class="dl">Wide</div></div>
       </div>
     </div>
-    <div class="div"></div>
-    <div class="field">
-      <div class="field-label">Card colours</div>
-      <div class="colour-grid">
-        <div class="col-field"><label>Background</label>
-          <div class="col-wrap"><input type="color" id="cBg" value="#2e4a6a" oninput="onColorChange()"/><span class="col-hex" id="cBgHex">#2e4a6a</span></div>
-        </div>
-        <div class="col-field"><label>Border</label>
-          <div class="col-wrap"><input type="color" id="cBorder" value="#8aacbf" oninput="onColorChange()"/><span class="col-hex" id="cBorderHex">#8aacbf</span></div>
-        </div>
-        <div class="col-field"><label>Ink</label>
-          <div class="col-wrap"><input type="color" id="cInk" value="#e8e4dc" oninput="onColorChange()"/><span class="col-hex" id="cInkHex">#e8e4dc</span></div>
-        </div>
+    <div class="divv"></div>
+    <div class="fg"><div class="fl">Card colours</div>
+      <div class="cg">
+        <div class="cf"><label>Background</label><div class="cw"><input type="color" id="cBg" value="#2e4a6a" oninput="onCol()"/><span class="chx" id="cBgH">#2e4a6a</span></div></div>
+        <div class="cf"><label>Border</label><div class="cw"><input type="color" id="cBrd" value="#8aacbf" oninput="onCol()"/><span class="chx" id="cBrdH">#8aacbf</span></div></div>
+        <div class="cf"><label>Ink</label><div class="cw"><input type="color" id="cInk" value="#e8e4dc" oninput="onCol()"/><span class="chx" id="cInkH">#e8e4dc</span></div></div>
       </div>
-      <div class="field-label" style="margin-top:10px;">Palettes</div>
-      <div class="palettes" id="palettes">
-        <div class="swatch" style="background:#c9a49a;" onclick="applyPalette('#c9a49a','#8a4a40','#1e0e0a')"></div>
-        <div class="swatch" style="background:#a8a8aa;" onclick="applyPalette('#a8a8aa','#505052','#101012')"></div>
-        <div class="swatch active" style="background:#2e4a6a;" onclick="applyPalette('#2e4a6a','#8aacbf','#e8e4dc')"></div>
-        <div class="swatch" style="background:#1a1a2e;" onclick="applyPalette('#1a1a2e','#9a8abf','#e4e0f0')"></div>
-        <div class="swatch" style="background:#2a3d2e;" onclick="applyPalette('#2a3d2e','#7abf8a','#e0f0e4')"></div>
-        <div class="swatch" style="background:#3d1a0a;" onclick="applyPalette('#3d1a0a','#bf7a4a','#f0e4dc')"></div>
-        <div class="swatch" style="background:var(--panel);border:1px dashed var(--border-md);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);" onclick="savePalette()">+</div>
+      <div class="fl" style="margin-top:8px;">Palettes</div>
+      <div class="swatches" id="swatches">
+        <div class="sw" style="background:#c9a49a;" onclick="setPal('#c9a49a','#8a4a40','#1e0e0a')"></div>
+        <div class="sw" style="background:#a8a8aa;" onclick="setPal('#a8a8aa','#505052','#101012')"></div>
+        <div class="sw on" style="background:#2e4a6a;" onclick="setPal('#2e4a6a','#8aacbf','#e8e4dc')"></div>
+        <div class="sw" style="background:#1a1a2e;" onclick="setPal('#1a1a2e','#9a8abf','#e4e0f0')"></div>
+        <div class="sw" style="background:#2a3d2e;" onclick="setPal('#2a3d2e','#7abf8a','#e0f0e4')"></div>
+        <div class="sw" style="background:#3d1a0a;" onclick="setPal('#3d1a0a','#bf7a4a','#f0e4dc')"></div>
+        <div class="sw" style="background:var(--panel);border:1px dashed var(--border-md);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);" onclick="savePal()">+</div>
       </div>
     </div>
-    <div class="div"></div>
-    <div class="field">
-      <div class="field-label">Default fonts</div>
-      <div class="font-row">
-        <select id="defFontQuote" onchange="onDefaultFontChange()" style="font-size:11px;"></select>
-        <input type="number" class="font-sz" id="defSzQuote" value="16" min="6" max="200" oninput="onDefaultFontChange()"/>
-      </div>
-      <div class="field-label" style="margin-top:6px;font-size:8px;">Quote font / size</div>
-      <div class="font-row" style="margin-top:6px;">
-        <select id="defFontMeta" onchange="onDefaultFontChange()" style="font-size:11px;"></select>
-        <input type="number" class="font-sz" id="defSzMeta" value="11" min="6" max="200" oninput="onDefaultFontChange()"/>
-      </div>
-      <div class="field-label" style="margin-top:6px;font-size:8px;">Meta font / size</div>
-      <div class="font-search-wrap" style="margin-top:8px;">
-        <input type="text" id="globalFontSearch" placeholder="Search fonts..." oninput="searchFonts(this.value,'defFontQuote')" style="font-size:11px;padding:5px 8px;"/>
-        <div class="font-results" id="globalFontResults"></div>
+    <div class="divv"></div>
+    <div class="fg"><div class="fl">Add shapes</div>
+      <div class="shapes-row">
+        <button class="shp" onclick="addShape('rect')">▭ Rectangle</button>
+        <button class="shp" onclick="addShape('line')">― Line</button>
+        <button class="shp" onclick="addShape('circle')">○ Circle</button>
+        <button class="shp" onclick="addShape('divider')">― Divider</button>
       </div>
     </div>
-    <div class="div"></div>
-    <!-- Live preview -->
-    <div class="field-label">Preview</div>
-    <div class="preview-mockup">
-      <div class="pm-header">
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div class="pm-avatar"></div>
-          <span class="pm-handle">quiet_anvil</span>
-        </div>
-        <span style="color:#666;font-size:13px;">···</span>
+    <div class="divv"></div>
+    <div class="fg"><div class="fl">Default fonts</div>
+      <div style="margin-bottom:4px;"><select id="dFQ" onchange="onDFont()" style="font-size:11px;"></select></div>
+      <div class="fl" style="font-size:7px;">Quote font</div>
+      <div style="margin-bottom:4px;"><select id="dFM" onchange="onDFont()" style="font-size:11px;"></select></div>
+      <div class="fl" style="font-size:7px;">Meta font</div>
+      <div class="fsw" style="margin-top:6px;">
+        <input type="text" id="gFS" placeholder="Search Google Fonts..." oninput="searchF(this.value,'dFQ','gFR')" style="font-size:10px;padding:4px 7px;"/>
+        <div class="fres" id="gFR"></div>
       </div>
-      <div class="pm-card" id="pmCard">
-        <canvas id="previewCanvas" style="width:100%;display:block;"></canvas>
-      </div>
-      <div class="pm-caption"><strong>quiet_anvil</strong> <span id="pmCaption">Your caption...</span></div>
     </div>
   </div>
 
-  <!-- Schedule panel -->
-  <div class="panel-scroll" id="panel-schedule" style="display:none;">
-    <div class="field">
-      <div class="field-label">Date <span class="tz-badge" id="tzBadge2" style="font-size:8px;">—</span></div>
-      <input type="date" id="fDate"/>
-    </div>
-    <div class="div"></div>
-    <div class="field">
-      <div class="field-label">Time slots <span style="color:var(--muted);font-size:8px;">one slot = one post</span></div>
+  <!-- Schedule -->
+  <div class="ps" id="p-schedule" style="display:none;">
+    <div class="fg"><div class="fl">Date <span class="tz" id="tzB2">—</span></div><input type="date" id="fDate"/></div>
+    <div class="divv"></div>
+    <div class="fg">
+      <div class="fl">Time slots <span style="color:var(--muted);font-size:7px;">one = one post</span></div>
       <div class="presets">
-        <button class="preset" onclick="setPresets([6,14,22])">06·14·22</button>
-        <button class="preset" onclick="setPresets([8,16,22])">08·16·22</button>
-        <button class="preset" onclick="setPresets([7,13,20])">07·13·20</button>
+        <button class="prs" onclick="setPre([6,14,22])">06·14·22</button>
+        <button class="prs" onclick="setPre([8,16,22])">08·16·22</button>
+        <button class="prs" onclick="setPre([7,13,20])">07·13·20</button>
       </div>
-      <div id="timeSlotsList"></div>
-      <button class="add-slot" onclick="addSlot()">+ Add time slot</button>
+      <div id="tsList"></div>
+      <button class="adds" onclick="addSlot()">+ Add time slot</button>
     </div>
   </div>
 
-  <!-- Layers panel -->
-  <div class="panel-scroll" id="panel-layers" style="display:none;">
-    <div class="field-label" style="margin-bottom:8px;">Elements <span style="color:var(--muted);font-size:8px;">(top = front)</span></div>
-    <div id="layersList"></div>
-    <div class="div"></div>
-    <button class="tb-btn" style="width:100%;text-align:center;" onclick="addTextEl()">+ Add text element</button>
-    <button class="tb-btn" style="width:100%;text-align:center;margin-top:6px;" onclick="resetLayout()">Reset to default</button>
+  <!-- Layers -->
+  <div class="ps" id="p-layers" style="display:none;">
+    <div class="fl" style="margin-bottom:6px;">Elements <span style="color:var(--muted);font-size:7px;">(top = front)</span></div>
+    <div id="layerList"></div>
+    <div class="divv"></div>
+    <button class="tb" style="width:100%;text-align:center;display:block;margin-bottom:5px;" onclick="addTextEl()">+ Text</button>
+    <button class="tb" style="width:100%;text-align:center;display:block;" onclick="resetLayout()">Reset layout</button>
+  </div>
+
+  <!-- Always-visible preview strip -->
+  <div class="preview-strip">
+    <div class="prev-label">Preview · quiet_anvil</div>
+    <div class="prev-mockup">
+      <div class="pm-top">
+        <div style="display:flex;align-items:center;gap:5px;"><div class="pm-av"></div><span class="pm-handle">quiet_anvil</span></div>
+        <span style="color:#666;font-size:12px;">···</span>
+      </div>
+      <canvas id="prevCanvas" style="width:100%;display:block;"></canvas>
+      <div class="pm-cap"><strong>quiet_anvil</strong> <span id="pmCap">Your caption...</span></div>
+    </div>
   </div>
 </aside>
 </div>
 
 <!-- Delete modal -->
-<div class="modal-bg" id="deleteModal">
+<div class="mbg" id="delModal">
   <div class="modal">
     <h3>Delete this post?</h3>
-    <p style="font-size:12px;color:var(--muted);line-height:1.6;">Permanently removes the post from the queue.</p>
-    <div class="modal-actions">
-      <button class="tb-btn" onclick="closeModal('deleteModal')">Cancel</button>
-      <button class="tb-btn danger" onclick="confirmDelete()">Delete</button>
+    <p style="font-size:11px;color:var(--muted);line-height:1.6;">Permanently removes from queue.</p>
+    <div class="mact">
+      <button class="tb" onclick="closeModal()">Cancel</button>
+      <button class="tb d" onclick="confirmDel()">Delete</button>
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════════════════
-const SUPA_URL='https://oshyrxekeqobkhmfnseq.supabase.co';
-const SUPA_KEY='sb_publishable_dQxgWep_h9-9wOnpkI6O-A_mS7EwBiA';
-const {createClient}=supabase;
-const db=createClient(SUPA_URL,SUPA_KEY);
-
-const TZ_SHORT=new Date().toLocaleTimeString('en',{timeZoneName:'short'}).split(' ').pop();
-
-let posts=[],currentPost=null;
-let timeSlots=['06:00','14:00','22:00'];
-let dim={label:'1:1',w:1080,h:1080};
-let zoom=1,panX=0,panY=0;
-let tool='select';
-let snapEnabled=true,gridEnabled=false;
-let selectedId=null;
-let isDragging=false,isResizing=false,isPanning=false;
-let dragStart={},resizeStart={},resizeHandle='';
-let spaceDown=false;
-
-// Elements: array of {id,type,x,y,w,h,text,font,size,color,opacity,italic,bold,align,letterSpacing,locked,zIndex}
-let elements=[];
-let history=[],historyIdx=-1;
-const MAX_HISTORY=50;
-
-const GOOGLE_FONTS=['Cormorant Garamond','Courier Prime','EB Garamond','Playfair Display','Libre Baskerville','Lora','DM Serif Display','Merriweather','Crimson Text','Spectral','Source Serif 4','Bitter','Zilla Slab','Arvo','Cardo','Bodoni Moda','Old Standard TT','Vollkorn','Alegreya','PT Serif','PT Sans','Noto Serif','Noto Sans','IBM Plex Serif','IBM Plex Mono','Space Mono','DM Sans','DM Mono','Josefin Slab','Raleway','Nunito','Oswald','Barlow','Work Sans','Rubik','Manrope','Outfit','Syne','Epilogue','Urbanist','Poppins','Montserrat','Fira Sans','Fira Code','Inconsolata','Share Tech Mono','Rajdhani','Ubuntu'];
-
-// ════════════════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════════════════
-async function init(){
-  document.getElementById('tzBadge').textContent=TZ_SHORT;
-  document.getElementById('tzBadge2').textContent=TZ_SHORT;
-  document.getElementById('fDate').value=new Date().toLocaleDateString('en-CA');
-  populateFontSelects();
-  renderTimeSlots();
-  initCanvas();
-  setupKeyboard();
-  resetLayout();
-  await checkSupabase();
-  await loadQueue();
-}
-
-function populateFontSelects(){
-  const opts=GOOGLE_FONTS.map(f=>`<option value="${f}">${f}</option>`).join('');
-  ['defFontQuote','defFontMeta','propFont'].forEach(id=>{
-    const el=document.getElementById(id);if(!el)return;
-    el.innerHTML=opts;
-  });
-  document.getElementById('defFontQuote').value='Courier Prime';
-  document.getElementById('defFontMeta').value='Cormorant Garamond';
-  document.getElementById('propFont').value='Cormorant Garamond';
-}
-
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // SUPABASE
-// ════════════════════════════════════════════════════════════
-async function checkSupabase(){
-  try{const{error}=await db.from('anvil_posts').select('id').limit(1);setStatus(!error||error.code==='42P01');}
-  catch{setStatus(false);}
+// ══════════════════════════════════════════════════════
+const SURL='https://oshyrxekeqobkhmfnseq.supabase.co';
+const SKEY='sb_publishable_dQxgWep_h9-9wOnpkI6O-A_mS7EwBiA';
+const {createClient}=supabase;
+const db=createClient(SURL,SKEY);
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+const TZ=new Date().toLocaleTimeString('en',{timeZoneName:'short'}).split(' ').pop();
+let posts=[],curPost=null,dim={l:'1:1',w:1080,h:1080};
+let zoom=1,panX=0,panY=0,tool='sel',snapOn=true,gridOn=false,spaceDown=false;
+let els=[],selId=null,history=[],hIdx=-1;
+let timeSlots=['06:00','14:00','22:00'];
+
+// Drag / resize state — stored outside elements to avoid conflicts
+let drag={active:false,elId:null,startMX:0,startMY:0,startX:0,startY:0};
+let resize={active:false,elId:null,handle:'',startMX:0,startMY:0,startX:0,startY:0,startW:0,startH:0};
+let panning={active:false,startMX:0,startMY:0,startPX:0,startPY:0};
+
+const FONTS=['Cormorant Garamond','Courier Prime','EB Garamond','Playfair Display','Libre Baskerville','Lora','DM Serif Display','Merriweather','Crimson Text','Spectral','Source Serif 4','Bitter','Bodoni Moda','Old Standard TT','Vollkorn','Alegreya','PT Serif','PT Sans','IBM Plex Serif','IBM Plex Mono','Space Mono','DM Sans','Josefin Slab','Raleway','Nunito','Oswald','Barlow','Work Sans','Rubik','Poppins','Montserrat','Fira Sans','Fira Code','Inconsolata','Share Tech Mono','Rajdhani'];
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+async function init(){
+  document.getElementById('tzBadge').textContent=TZ;
+  document.getElementById('tzB2').textContent=TZ;
+  document.getElementById('fDate').value=new Date().toLocaleDateString('en-CA');
+  popFonts();renderSlots();
+  setupViewport();
+  resetLayout();
+  setTimeout(zFit,100);
+  await checkDB();await loadQueue();
 }
-function setStatus(ok){
-  document.getElementById('statusDot').style.background=ok?'var(--success)':'var(--danger)';
-  document.getElementById('statusDot').style.boxShadow=ok?'0 0 5px var(--success)':'0 0 5px var(--danger)';
-  document.getElementById('statusLabel').textContent=ok?'Connected':'Error';
+
+function popFonts(){
+  const o=FONTS.map(f=>`<option value="${f}">${f}</option>`).join('');
+  ['dFQ','dFM','pFont'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=o;});
+  document.getElementById('dFQ').value='Courier Prime';
+  document.getElementById('dFM').value='Cormorant Garamond';
+  document.getElementById('pFont').value='Cormorant Garamond';
+}
+
+// ══════════════════════════════════════════════════════
+// DB
+// ══════════════════════════════════════════════════════
+async function checkDB(){
+  try{const{error}=await db.from('anvil_posts').select('id').limit(1);setSt(!error||error.code==='42P01');}
+  catch{setSt(false);}
+}
+function setSt(ok){
+  document.getElementById('dot').style.background=ok?'var(--success)':'var(--danger)';
+  document.getElementById('dot').style.boxShadow=ok?'0 0 5px var(--success)':'0 0 5px var(--danger)';
+  document.getElementById('slbl').textContent=ok?'Connected':'Error';
 }
 
 async function loadQueue(){
-  const{data,error}=await db.from('anvil_posts').select('*').order('scheduled_at',{ascending:true});
-  if(error){toast('Load failed','err');return;}
+  const{data}=await db.from('anvil_posts').select('*').order('scheduled_at',{ascending:true});
   posts=data||[];renderQueue();updateStats();
 }
 
 function renderQueue(){
-  const el=document.getElementById('queueList');
-  if(!posts.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted);font-size:11px;">Queue is empty</div>';return;}
+  const el=document.getElementById('qlist');
+  if(!posts.length){el.innerHTML='<div style="padding:12px;text-align:center;color:var(--muted);font-size:10px;">Empty</div>';return;}
   el.innerHTML=posts.map(p=>`
-    <div class="queue-item${currentPost?.id===p.id?' active':''}" onclick="loadPost('${p.id}')">
-      <div class="qi-num">${String(p.post_number||'—').padStart(3,'0')}</div>
-      <div class="qi-quote">${p.quote}</div>
-      <div class="qi-meta">${fmtDate(p.scheduled_at)} · ${p.dimension||'1:1'}</div>
-      <div class="qi-dot ${p.status}"></div>
+    <div class="qi${curPost?.id===p.id?' on':''}" onclick="loadPost('${p.id}')">
+      <div class="qn">${String(p.post_number||'—').padStart(3,'0')}</div>
+      <div class="qq">${p.quote}</div>
+      <div class="qm">${fmtD(p.scheduled_at)} · ${p.dimension||'1:1'}</div>
+      <div class="qdot ${p.status}"></div>
     </div>`).join('');
 }
 
 function updateStats(){
-  document.getElementById('statPending').textContent=posts.filter(p=>p.status==='pending').length;
-  document.getElementById('statPosted').textContent=posts.filter(p=>p.status==='posted').length;
-  document.getElementById('statFailed').textContent=posts.filter(p=>p.status==='failed').length;
+  document.getElementById('sp').textContent=posts.filter(p=>p.status==='pending').length;
+  document.getElementById('ss').textContent=posts.filter(p=>p.status==='posted').length;
+  document.getElementById('sf').textContent=posts.filter(p=>p.status==='failed').length;
 }
 
-function fmtDate(iso){
+function fmtD(iso){
   if(!iso)return'—';
   const d=new Date(iso);
   return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
@@ -625,80 +537,65 @@ function fmtDate(iso){
 
 function loadPost(id){
   const p=posts.find(x=>x.id===id);if(!p)return;
-  currentPost=p;
+  curPost=p;
   document.getElementById('fQuote').value=p.quote||'';
-  document.getElementById('fCaption').value=p.caption||'';
+  document.getElementById('fCap').value=p.caption||'';
   const d=new Date(p.scheduled_at);
   document.getElementById('fDate').value=d.toLocaleDateString('en-CA');
   document.getElementById('postNum').value=p.post_number||1;
   document.getElementById('cBg').value=p.bg_color||'#2e4a6a';
-  document.getElementById('cBorder').value=p.border_color||'#8aacbf';
+  document.getElementById('cBrd').value=p.border_color||'#8aacbf';
   document.getElementById('cInk').value=p.ink_color||'#e8e4dc';
-  updateHexes();
-  document.getElementById('btnDelete').style.display='block';
-  renderQueue();
-  rebuildDefaultElements();
-  renderAll();
+  updHex();
+  document.getElementById('btnDel').style.display='block';
+  renderQueue();resetLayout();
 }
 
 function newPost(){
-  currentPost=null;
+  curPost=null;
   document.getElementById('fQuote').value='';
-  document.getElementById('fCaption').value='';
+  document.getElementById('fCap').value='';
   document.getElementById('fDate').value=new Date().toLocaleDateString('en-CA');
   document.getElementById('postNum').value=1;
-  document.getElementById('btnDelete').style.display='none';
-  timeSlots=['06:00','14:00','22:00'];
-  renderTimeSlots();
-  renderQueue();
-  rebuildDefaultElements();
-  renderAll();
+  document.getElementById('btnDel').style.display='none';
+  timeSlots=['06:00','14:00','22:00'];renderSlots();
+  renderQueue();resetLayout();
 }
 
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // SCHEDULE
-// ════════════════════════════════════════════════════════════
-function localToUTC(dateStr,timeStr){
-  const[y,m,d]=dateStr.split('-').map(Number);
-  const[h,min]=timeStr.split(':').map(Number);
-  return new Date(y,m-1,d,h,min,0).toISOString();
-}
-
-function renderTimeSlots(){
-  const el=document.getElementById('timeSlotsList');
-  el.innerHTML=timeSlots.map((t,i)=>`
-    <div class="time-slot">
-      <span class="time-slot-lbl">Post ${i+1}</span>
+// ══════════════════════════════════════════════════════
+function ltu(ds,ts){const[y,m,d]=ds.split('-').map(Number);const[h,mn]=ts.split(':').map(Number);return new Date(y,m-1,d,h,mn).toISOString();}
+function renderSlots(){
+  document.getElementById('tsList').innerHTML=timeSlots.map((t,i)=>`
+    <div class="ts">
+      <span class="tsl">Post ${i+1}</span>
       <input type="time" value="${t}" onchange="timeSlots[${i}]=this.value"/>
-      <button class="rm-btn" onclick="removeSlot(${i})"${timeSlots.length<=1?' disabled':''}>×</button>
+      <button class="rmb" onclick="rmSlot(${i})"${timeSlots.length<=1?' disabled':''}>×</button>
     </div>`).join('');
 }
-
-function addSlot(){timeSlots.push('12:00');renderTimeSlots();}
-function removeSlot(i){if(timeSlots.length<=1)return;timeSlots.splice(i,1);renderTimeSlots();}
-function setPresets(h){timeSlots=h.map(x=>`${String(x).padStart(2,'0')}:00`);renderTimeSlots();}
+function addSlot(){timeSlots.push('12:00');renderSlots();}
+function rmSlot(i){if(timeSlots.length<=1)return;timeSlots.splice(i,1);renderSlots();}
+function setPre(h){timeSlots=h.map(x=>`${String(x).padStart(2,'0')}:00`);renderSlots();}
 
 async function schedulePost(){
-  const quote=document.getElementById('fQuote').value.trim();
-  if(!quote){toast('Quote cannot be empty','err');return;}
+  const q=document.getElementById('fQuote').value.trim();
+  if(!q){toast('Quote cannot be empty','err');return;}
   const date=document.getElementById('fDate').value;
   if(!date){toast('Pick a date','err');return;}
-  const baseNum=parseInt(document.getElementById('postNum').value)||1;
+  const base=parseInt(document.getElementById('postNum').value)||1;
   const rows=timeSlots.map((t,i)=>({
-    quote,
-    caption:document.getElementById('fCaption').value.trim(),
-    scheduled_at:localToUTC(date,t),
-    dimension:dim.label,width_px:dim.w,height_px:dim.h,
+    quote:q,caption:document.getElementById('fCap').value.trim(),
+    scheduled_at:ltu(date,t),
+    dimension:dim.l,width_px:dim.w,height_px:dim.h,
     bg_color:document.getElementById('cBg').value,
-    border_color:document.getElementById('cBorder').value,
+    border_color:document.getElementById('cBrd').value,
     ink_color:document.getElementById('cInk').value,
-    font_quote:document.getElementById('defFontQuote').value,
-    font_header:document.getElementById('defFontMeta').value,
-    font_meta:document.getElementById('defFontMeta').value,
-    font_size_quote:parseInt(document.getElementById('defSzQuote').value)||16,
-    font_size_header:parseInt(document.getElementById('defSzMeta').value)||11,
-    font_size_meta:parseInt(document.getElementById('defSzMeta').value)||11,
-    post_number:baseNum+i,status:'pending',
+    font_quote:document.getElementById('dFQ').value,
+    font_header:document.getElementById('dFM').value,
+    font_meta:document.getElementById('dFM').value,
+    font_size_quote:16,font_size_header:11,font_size_meta:11,
+    post_number:base+i,status:'pending',
   }));
   const{error}=await db.from('anvil_posts').insert(rows);
   if(error){toast('Failed: '+error.message,'err');return;}
@@ -707,798 +604,724 @@ async function schedulePost(){
 }
 
 async function saveDraft(){
-  const quote=document.getElementById('fQuote').value.trim();
-  if(!quote){toast('Quote cannot be empty','err');return;}
+  const q=document.getElementById('fQuote').value.trim();
+  if(!q){toast('Quote empty','err');return;}
   const date=document.getElementById('fDate').value;
-  const draft={
-    quote,caption:document.getElementById('fCaption').value.trim(),
-    scheduled_at:localToUTC(date,timeSlots[0]||'00:00'),
-    dimension:dim.label,bg_color:document.getElementById('cBg').value,
-    border_color:document.getElementById('cBorder').value,
+  const draft={quote:q,caption:document.getElementById('fCap').value.trim(),
+    scheduled_at:ltu(date,timeSlots[0]||'00:00'),dimension:dim.l,
+    bg_color:document.getElementById('cBg').value,
+    border_color:document.getElementById('cBrd').value,
     ink_color:document.getElementById('cInk').value,
-    font_quote:document.getElementById('defFontQuote').value,
-    font_header:document.getElementById('defFontMeta').value,
-    font_meta:document.getElementById('defFontMeta').value,
-    post_number:parseInt(document.getElementById('postNum').value)||1,
-    status:'draft',
-  };
-  if(currentPost){
-    const{error}=await db.from('anvil_posts').update(draft).eq('id',currentPost.id);
-    if(error){toast('Update failed','err');return;}
-  }else{
-    const{error}=await db.from('anvil_posts').insert([draft]);
-    if(error){toast('Save failed','err');return;}
-  }
+    font_quote:document.getElementById('dFQ').value,
+    font_header:document.getElementById('dFM').value,
+    font_meta:document.getElementById('dFM').value,
+    post_number:parseInt(document.getElementById('postNum').value)||1,status:'draft'};
+  if(curPost){await db.from('anvil_posts').update(draft).eq('id',curPost.id);}
+  else{await db.from('anvil_posts').insert([draft]);}
   toast('Draft saved','ok');await loadQueue();
 }
 
-function deletePost(){document.getElementById('deleteModal').classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-async function confirmDelete(){
-  if(!currentPost)return;
-  await db.from('anvil_posts').delete().eq('id',currentPost.id);
-  closeModal('deleteModal');toast('Deleted','ok');newPost();await loadQueue();
+function deletePost(){document.getElementById('delModal').classList.add('open');}
+function closeModal(){document.getElementById('delModal').classList.remove('open');}
+async function confirmDel(){
+  if(!curPost)return;
+  await db.from('anvil_posts').delete().eq('id',curPost.id);
+  closeModal();toast('Deleted','ok');newPost();await loadQueue();
 }
 
-// ════════════════════════════════════════════════════════════
-// CANVAS SETUP
-// ════════════════════════════════════════════════════════════
-function initCanvas(){
-  const vp=document.getElementById('viewport');
-  vp.addEventListener('mousedown',onVpMouseDown);
-  vp.addEventListener('mousemove',onVpMouseMove);
-  vp.addEventListener('mouseup',onVpMouseUp);
+// ══════════════════════════════════════════════════════
+// VIEWPORT SETUP
+// ══════════════════════════════════════════════════════
+function setupViewport(){
+  const vp=document.getElementById('vp');
+
+  // Global mouse events on document for reliable tracking
+  document.addEventListener('mousemove',onMouseMove);
+  document.addEventListener('mouseup',onMouseUp);
+  vp.addEventListener('mousedown',onVpDown);
   vp.addEventListener('wheel',onWheel,{passive:false});
   vp.addEventListener('dblclick',onDblClick);
-  document.addEventListener('mouseup',()=>{isDragging=false;isResizing=false;isPanning=false;clearSnapGuides();});
-  setTimeout(()=>{zoomFit();},100);
 }
 
-function getCardDims(){return{w:dim.w,h:dim.h};}
-
-function applyTransform(){
-  const root=document.getElementById('canvasRoot');
-  root.style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`;
-  document.getElementById('zoomDisplay').textContent=Math.round(zoom*100)+'%';
+// ══════════════════════════════════════════════════════
+// CANVAS RENDERING (single canvas for entire card)
+// ══════════════════════════════════════════════════════
+let pendingRender=false;
+function scheduleRender(){
+  if(pendingRender)return;
+  pendingRender=true;
+  requestAnimationFrame(()=>{pendingRender=false;renderCanvas();renderPreview();});
 }
 
-function zoomIn(){zoom=Math.min(4,zoom*1.2);applyTransform();}
-function zoomOut(){zoom=Math.max(0.1,zoom/1.2);applyTransform();}
-function zoomFit(){
-  const vp=document.getElementById('viewport');
-  const {w,h}=getCardDims();
-  const scaleX=(vp.offsetWidth-60)/w;
-  const scaleY=(vp.offsetHeight-60)/h;
-  zoom=Math.min(scaleX,scaleY,1);
-  panX=(vp.offsetWidth-w*zoom)/2;
-  panY=(vp.offsetHeight-h*zoom)/2;
-  applyTransform();
-}
-
-function setTool(name,el){
-  tool=name;
-  document.querySelectorAll('.ct-btn[id^=tool]').forEach(b=>b.classList.remove('active'));
-  if(el)el.classList.add('active');
-  document.getElementById('viewport').style.cursor=name==='pan'?'grab':'default';
-}
-
-function toggleSnap(btn){snapEnabled=!snapEnabled;btn.classList.toggle('active',snapEnabled);}
-function toggleGrid(btn){
-  gridEnabled=!gridEnabled;btn.classList.toggle('active',gridEnabled);
-  document.getElementById('gridLayer').style.opacity=gridEnabled?'0.15':'0';
-  if(gridEnabled)drawGrid();
-}
-
-function drawGrid(){
-  const c=document.getElementById('gridLayer');
-  const{w,h}=getCardDims();
-  c.width=w;c.height=h;
-  const ctx=c.getContext('2d');
-  ctx.clearRect(0,0,w,h);
-  ctx.strokeStyle='rgba(138,172,191,0.5)';ctx.lineWidth=1;
-  const step=Math.round(w/12);
-  for(let x=0;x<=w;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
-  for(let y=0;y<=h;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-}
-
-// ════════════════════════════════════════════════════════════
-// ELEMENTS
-// ════════════════════════════════════════════════════════════
-function uid(){return 'el_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);}
-
-function rebuildDefaultElements(){
-  elements=[];
-  const{w,h}=getCardDims();
-  const pad=Math.round(w*0.07);
-  const bg=document.getElementById('cBg').value;
-  const ink=document.getElementById('cInk').value;
-  const muted=blendHex(ink,bg,0.45);
-  const fq=document.getElementById('defFontQuote').value||'Courier Prime';
-  const fm=document.getElementById('defFontMeta').value||'Cormorant Garamond';
-  const szq=parseInt(document.getElementById('defSzQuote').value)||16;
-  const szm=parseInt(document.getElementById('defSzMeta').value)||11;
-  const mSize=Math.round(w*0.115);
-  const quote=document.getElementById('fQuote').value||'Your quote will appear here...';
-  const date=getDateDisplay();
-  const num=String(document.getElementById('postNum').value||1).padStart(3,'0');
-
-  elements=[
-    {id:uid(),name:'From the Margins',type:'text',x:pad,y:pad,w:w-pad*2-80,h:szm*2,text:'From the Margins',font:fm,size:szm,color:muted,opacity:100,italic:true,bold:false,align:'left',letterSpacing:0.08,locked:false,zIndex:2},
-    {id:uid(),name:'Post number',type:'text',x:w-pad-80,y:pad,w:80,h:szm*2,text:num,font:fm,size:szm,color:muted,opacity:100,italic:false,bold:false,align:'right',letterSpacing:0.4,locked:false,zIndex:2},
-    {id:uid(),name:'Opening quote mark',type:'text',x:pad-Math.round(mSize*0.08),y:Math.round(h*0.22),w:Math.round(mSize*1.2),h:Math.round(mSize*1.2),text:'\u201C',font:fm,size:mSize,color:ink,opacity:20,italic:false,bold:false,align:'left',letterSpacing:0,locked:false,zIndex:2},
-    {id:uid(),name:'Quote text',type:'text',x:pad,y:Math.round(h*0.32),w:w-pad*2,h:Math.round(h*0.34),text:quote,font:fq,size:szq,color:ink,opacity:100,italic:true,bold:false,align:'left',letterSpacing:0.01,locked:false,zIndex:3},
-    {id:uid(),name:'Closing quote mark',type:'text',x:w-pad-Math.round(mSize*1.1),y:Math.round(h*0.62),w:Math.round(mSize*1.2),h:Math.round(mSize*1.2),text:'\u201D',font:fm,size:mSize,color:ink,opacity:20,italic:false,bold:false,align:'right',letterSpacing:0,locked:false,zIndex:2},
-    {id:uid(),name:'Date',type:'text',x:pad,y:h-pad-Math.round(szm*2.5),w:220,h:Math.round(szm*2),text:date,font:fm,size:szm,color:muted,opacity:100,italic:false,bold:false,align:'left',letterSpacing:0.2,locked:false,zIndex:2},
-    {id:uid(),name:'The Anvil Speaks',type:'text',x:w-pad-200,y:h-pad-Math.round(szm*2.5),w:200,h:Math.round(szm*2),text:'The Anvil Speaks',font:fm,size:Math.round(szm*1.08),color:ink,opacity:20,italic:true,bold:false,align:'right',letterSpacing:0.12,locked:false,zIndex:2},
-  ];
-  pushHistory();
-  renderAllElements();
-  renderBg();
-  renderBorder();
-  renderPreview();
-}
-
-function resetLayout(){
-  rebuildDefaultElements();
-}
-
-function getDateDisplay(){
-  const date=document.getElementById('fDate').value;
-  if(!date)return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  return new Date(date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-}
-
-// ════════════════════════════════════════════════════════════
-// RENDER ELEMENTS
-// ════════════════════════════════════════════════════════════
-function renderAllElements(){
-  const layer=document.getElementById('elementsLayer');
-  // Remove elements that no longer exist
-  const ids=new Set(elements.map(e=>e.id));
-  Array.from(layer.children).forEach(c=>{if(!ids.has(c.id))c.remove();});
-  // Sort by zIndex
-  const sorted=[...elements].sort((a,b)=>a.zIndex-b.zIndex);
-  sorted.forEach(el=>renderElement(el));
-  renderLayers();
-}
-
-function renderElement(el){
-  const layer=document.getElementById('elementsLayer');
-  let div=document.getElementById(el.id);
-  if(!div){
-    div=document.createElement('div');
-    div.id=el.id;
-    div.className='cv-element';
-    div.innerHTML=`<div class="sel-box" data-dim=""></div>
-      <div class="rh tl"></div><div class="rh tr"></div>
-      <div class="rh bl"></div><div class="rh br"></div>
-      <div class="rh ml"></div><div class="rh mr"></div>
-      <div class="rh tm"></div><div class="rh bm"></div>
-      <div class="cv-text-el"></div>`;
-    // Events
-    div.addEventListener('mousedown',e=>onElMouseDown(e,el.id));
-    div.querySelectorAll('.rh').forEach(rh=>{
-      rh.addEventListener('mousedown',e=>onResizeStart(e,el.id,Array.from(rh.classList).find(c=>c!=='rh')));
-    });
-    layer.appendChild(div);
-  }
-  div.style.left=el.x+'px';
-  div.style.top=el.y+'px';
-  div.style.width=el.w+'px';
-  div.style.minHeight=el.h+'px';
-  div.style.zIndex=el.zIndex;
-  div.classList.toggle('selected',el.id===selectedId);
-  div.classList.toggle('locked',el.locked);
-
-  const textEl=div.querySelector('.cv-text-el');
-  textEl.style.fontFamily=`'${el.font}',Georgia,serif`;
-  textEl.style.fontSize=el.size+'px';
-  textEl.style.color=el.color;
-  textEl.style.opacity=el.opacity/100;
-  textEl.style.fontStyle=el.italic?'italic':'normal';
-  textEl.style.fontWeight=el.bold?'600':'300';
-  textEl.style.textAlign=el.align;
-  textEl.style.letterSpacing=el.letterSpacing+'em';
-  textEl.style.lineHeight='1.65';
-  textEl.style.wordBreak='break-word';
-  textEl.style.whiteSpace='pre-wrap';
-  textEl.textContent=el.text;
-
-  // Update selection box dim
-  const selBox=div.querySelector('.sel-box');
-  selBox.dataset.dim=`${Math.round(el.w)}×${Math.round(el.h)}`;
-
-  // Show/hide resize handles
-  const showHandles=el.id===selectedId&&!el.locked;
-  div.querySelectorAll('.rh').forEach(rh=>rh.style.display=showHandles?'block':'none');
-}
-
-// ════════════════════════════════════════════════════════════
-// BG & BORDER
-// ════════════════════════════════════════════════════════════
-function renderBg(){
-  const c=document.getElementById('bgLayer');
-  const{w,h}=getCardDims();
-  c.width=w;c.height=h;
-  c.style.width=w+'px';c.style.height=h+'px';
-  document.getElementById('cardCanvas').style.width=w+'px';
-  document.getElementById('cardCanvas').style.height=h+'px';
-  const ctx=c.getContext('2d');
-  const bg=document.getElementById('cBg').value;
-  // Base
-  ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
-  // Radial gradients
-  const g1=ctx.createRadialGradient(w*0.28,h*0.22,0,w*0.28,h*0.22,Math.max(w,h)*0.5);
-  g1.addColorStop(0,lighten(bg,0.12));g1.addColorStop(1,'transparent');
-  ctx.fillStyle=g1;ctx.fillRect(0,0,w,h);
-  const g2=ctx.createRadialGradient(w*0.72,h*0.78,0,w*0.72,h*0.78,Math.max(w,h)*0.5);
-  g2.addColorStop(0,darken(bg,0.08));g2.addColorStop(1,'transparent');
-  ctx.fillStyle=g2;ctx.fillRect(0,0,w,h);
-  // Noise
-  const imgData=ctx.getImageData(0,0,w,h);
-  const data=imgData.data;
-  for(let i=0;i<data.length;i+=4){const n=(Math.random()-0.5)*20;data[i]+=n;data[i+1]+=n;data[i+2]+=n;}
-  ctx.putImageData(imgData,0,0);
-  // Vignette
-  const vg=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.3,w/2,h/2,Math.max(w,h)*0.7);
-  vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,0.25)');
-  ctx.fillStyle=vg;ctx.fillRect(0,0,w,h);
-}
-
-function renderBorder(){
-  const{w,h}=getCardDims();
-  const bc=document.getElementById('cBorder').value;
-  const svg=document.getElementById('borderSvg');
-  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
-  svg.style.width=w+'px';svg.style.height=h+'px';
-  const m=Math.round(w*0.035),tick=Math.round(m*0.7);
-  const c=m,r=w-m,b=h-m;
-  svg.innerHTML=`
-    <rect x="${m}" y="${m}" width="${w-m*2}" height="${h-m*2}" stroke="${bc}" stroke-width="1.5" fill="none" opacity="0.5"/>
-    <line x1="${c}" y1="${c+tick}" x2="${c}" y2="${c}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <line x1="${c}" y1="${c}" x2="${c+tick}" y2="${c}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <circle cx="${c}" cy="${c}" r="2.5" fill="${bc}" opacity="0.65"/>
-    <line x1="${r}" y1="${c}" x2="${r-tick}" y2="${c}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <line x1="${r}" y1="${c}" x2="${r}" y2="${c+tick}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <circle cx="${r}" cy="${c}" r="2.5" fill="${bc}" opacity="0.65"/>
-    <line x1="${c}" y1="${b}" x2="${c+tick}" y2="${b}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <line x1="${c}" y1="${b}" x2="${c}" y2="${b-tick}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <circle cx="${c}" cy="${b}" r="2.5" fill="${bc}" opacity="0.65"/>
-    <line x1="${r}" y1="${b}" x2="${r-tick}" y2="${b}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <line x1="${r}" y1="${b}" x2="${r}" y2="${b-tick}" stroke="${bc}" stroke-width="2" opacity="0.9"/>
-    <circle cx="${r}" cy="${b}" r="2.5" fill="${bc}" opacity="0.65"/>`;
-}
-
-function renderAll(){
-  renderBg();renderBorder();renderAllElements();renderPreview();
-  if(gridEnabled)drawGrid();
-}
-
-// ════════════════════════════════════════════════════════════
-// PREVIEW (right panel)
-// ════════════════════════════════════════════════════════════
-function renderPreview(){
-  const canvas=document.getElementById('previewCanvas');
-  const{w,h}=getCardDims();
-  const pmCard=document.getElementById('pmCard');
-  const displayW=pmCard.offsetWidth||240;
-  const scale=displayW/w;
-  canvas.width=displayW;
-  canvas.height=Math.round(h*scale);
+function renderCanvas(){
+  const canvas=document.getElementById('mainCanvas');
+  const{w,h}=dim;
+  canvas.width=w;canvas.height=h;
+  canvas.style.width=w+'px';canvas.style.height=h+'px';
+  document.getElementById('stage').style.width=w+'px';
+  document.getElementById('stage').style.height=h+'px';
   const ctx=canvas.getContext('2d');
-  ctx.scale(scale,scale);
+  drawCard(ctx,w,h);
+}
 
-  // Bg
+function drawCard(ctx,w,h){
   const bg=document.getElementById('cBg').value;
+  const bc=document.getElementById('cBrd').value;
+
+  // Background
   ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
-  const g1=ctx.createRadialGradient(w*0.28,h*0.22,0,w*0.28,h*0.22,Math.max(w,h)*0.5);
-  g1.addColorStop(0,lighten(bg,0.12));g1.addColorStop(1,'transparent');
+  const g1=ctx.createRadialGradient(w*.28,h*.22,0,w*.28,h*.22,Math.max(w,h)*.55);
+  g1.addColorStop(0,lighten(bg,.12));g1.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=g1;ctx.fillRect(0,0,w,h);
-  const g2=ctx.createRadialGradient(w*0.72,h*0.78,0,w*0.72,h*0.78,Math.max(w,h)*0.5);
-  g2.addColorStop(0,darken(bg,0.08));g2.addColorStop(1,'transparent');
+  const g2=ctx.createRadialGradient(w*.72,h*.78,0,w*.72,h*.78,Math.max(w,h)*.55);
+  g2.addColorStop(0,darken(bg,.08));g2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=g2;ctx.fillRect(0,0,w,h);
-  const vg=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.3,w/2,h/2,Math.max(w,h)*0.7);
-  vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,0.2)');
+  const vg=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*.3,w/2,h/2,Math.max(w,h)*.75);
+  vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.22)');
   ctx.fillStyle=vg;ctx.fillRect(0,0,w,h);
+
+  // Noise
+  try{
+    const id=ctx.getImageData(0,0,w,h);const d=id.data;
+    for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*18;d[i]+=n;d[i+1]+=n;d[i+2]+=n;}
+    ctx.putImageData(id,0,0);
+  }catch(e){}
 
   // Border
-  const bc=document.getElementById('cBorder').value;
-  const bm=Math.round(w*0.035),tick=Math.round(bm*0.7);
-  ctx.strokeStyle=bc;ctx.globalAlpha=0.5;ctx.lineWidth=1.5;
-  ctx.strokeRect(bm,bm,w-bm*2,h-bm*2);
-  ctx.globalAlpha=0.9;ctx.lineWidth=2;
-  [[bm,bm+tick,bm,bm],[bm,bm,bm+tick,bm],[w-bm,bm,w-bm-tick,bm],[w-bm,bm,w-bm,bm+tick],
-   [bm,h-bm,bm+tick,h-bm],[bm,h-bm,bm,h-bm-tick],[w-bm,h-bm,w-bm-tick,h-bm],[w-bm,h-bm,w-bm,h-bm-tick]]
-  .forEach(([x1,y1,x2,y2])=>{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();});
+  const m=Math.round(w*.035),tk=Math.round(m*.7);
+  ctx.strokeStyle=bc;ctx.lineWidth=1.5;ctx.globalAlpha=.5;
+  ctx.strokeRect(m,m,w-m*2,h-m*2);
+  ctx.globalAlpha=.9;ctx.lineWidth=2;
+  const corners=[[m,m+tk,m,m],[m,m,m+tk,m],[w-m,m,w-m-tk,m],[w-m,m,w-m,m+tk],[m,h-m,m+tk,h-m],[m,h-m,m,h-m-tk],[w-m,h-m,w-m-tk,h-m],[w-m,h-m,w-m,h-m-tk]];
+  corners.forEach(([x1,y1,x2,y2])=>{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();});
+  ctx.globalAlpha=.65;ctx.fillStyle=bc;
+  [[m,m],[w-m,m],[m,h-m],[w-m,h-m]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fill();});
   ctx.globalAlpha=1;
 
   // Elements
-  const sorted=[...elements].sort((a,b)=>a.zIndex-b.zIndex);
-  sorted.forEach(el=>{
-    ctx.save();
-    ctx.globalAlpha=el.opacity/100;
-    ctx.fillStyle=el.color;
-    const style=`${el.italic?'italic ':''} ${el.bold?'600 ':'300 '}${el.size}px '${el.font}', Georgia, serif`;
-    ctx.font=style;
-    ctx.textAlign=el.align;
-    ctx.letterSpacing=el.letterSpacing*el.size+'px';
-    // Word wrap
-    const words=el.text.split(' ');
-    let line='';const lines=[];
-    const ax=el.align==='right'?el.x+el.w:el.align==='center'?el.x+el.w/2:el.x;
-    for(const word of words){
-      const test=line?line+' '+word:word;
-      if(ctx.measureText(test).width>el.w&&line){lines.push(line);line=word;}
-      else line=test;
+  const sorted=[...els].sort((a,b)=>a.z-b.z);
+  sorted.forEach(el=>drawEl(ctx,el));
+}
+
+function drawEl(ctx,el){
+  ctx.save();
+  ctx.globalAlpha=el.opacity/100;
+  if(el.type==='rect'||el.type==='circle'||el.type==='line'||el.type==='divider'){
+    drawShape(ctx,el);
+  } else {
+    drawText(ctx,el);
+  }
+  ctx.restore();
+}
+
+function drawText(ctx,el){
+  const weight=el.bold?'600':'300';
+  const style=el.italic?'italic':'normal';
+  ctx.font=`${style} ${weight} ${el.size}px '${el.font}', Georgia, serif`;
+  ctx.fillStyle=el.color;
+  ctx.textAlign=el.align||'left';
+  if(el.letterSpacing)ctx.letterSpacing=el.letterSpacing*el.size+'px';
+  const ax=el.align==='right'?el.x+el.w:el.align==='center'?el.x+el.w/2:el.x;
+  const lh=el.size*1.65;
+  // Word wrap
+  const words=(el.text||'').split(' ');
+  let line='';const lines=[];
+  for(const w of words){
+    const t=line?line+' '+w:w;
+    if(ctx.measureText(t).width>el.w+2&&line){lines.push(line);line=w;}else line=t;
+  }
+  lines.push(line);
+  lines.forEach((ln,i)=>ctx.fillText(ln,ax,el.y+el.size+i*lh));
+}
+
+function drawShape(ctx,el){
+  ctx.fillStyle=el.fill||'transparent';
+  ctx.strokeStyle=el.stroke||el.color||'#8aacbf';
+  ctx.lineWidth=el.strokeWidth||1;
+  if(el.type==='rect'){
+    if(el.fill&&el.fill!=='transparent')ctx.fillRect(el.x,el.y,el.w,el.h);
+    if(el.strokeWidth>0)ctx.strokeRect(el.x,el.y,el.w,el.h);
+  } else if(el.type==='circle'){
+    ctx.beginPath();ctx.ellipse(el.x+el.w/2,el.y+el.h/2,el.w/2,el.h/2,0,0,Math.PI*2);
+    if(el.fill&&el.fill!=='transparent')ctx.fill();
+    if(el.strokeWidth>0)ctx.stroke();
+  } else if(el.type==='line'||el.type==='divider'){
+    ctx.beginPath();ctx.moveTo(el.x,el.y);ctx.lineTo(el.x+el.w,el.y+el.h);ctx.stroke();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// INTERACTION OVERLAY (boxes for drag/resize)
+// ══════════════════════════════════════════════════════
+function renderOverlay(){
+  const layer=document.getElementById('ilay');
+  const existIds=new Set(els.map(e=>e.id));
+  // Remove stale
+  Array.from(layer.children).forEach(c=>{if(!existIds.has(c.id.replace('box-','')))c.remove();});
+  const sorted=[...els].sort((a,b)=>a.z-b.z);
+  sorted.forEach(el=>renderBox(el));
+}
+
+function renderBox(el){
+  const layer=document.getElementById('ilay');
+  const bid='box-'+el.id;
+  let box=document.getElementById(bid);
+  if(!box){
+    box=document.createElement('div');
+    box.id=bid;
+    box.className='el-box';
+    box.innerHTML=`<div class="sel-ring" data-lbl=""></div>
+      <div class="rh tl" data-h="tl"></div><div class="rh tc" data-h="tc"></div>
+      <div class="rh tr" data-h="tr"></div>
+      <div class="rh ml" data-h="ml"></div><div class="rh mr" data-h="mr"></div>
+      <div class="rh bl" data-h="bl"></div><div class="rh bc" data-h="bc"></div>
+      <div class="rh br" data-h="br"></div>`;
+
+    // Drag — only on the box itself, not on resize handles
+    box.addEventListener('mousedown',e=>{
+      if(e.target.classList.contains('rh'))return;// handled by resize
+      e.preventDefault();e.stopPropagation();
+      if(el.locked)return;
+      selectEl(el.id);
+      drag={active:true,elId:el.id,startMX:e.clientX,startMY:e.clientY,startX:el.x,startY:el.y};
+    });
+
+    // Resize handles
+    box.querySelectorAll('.rh').forEach(rh=>{
+      rh.addEventListener('mousedown',e=>{
+        e.preventDefault();e.stopPropagation();
+        if(el.locked)return;
+        selectEl(el.id);
+        resize={active:true,elId:el.id,handle:rh.dataset.h,
+          startMX:e.clientX,startMY:e.clientY,
+          startX:el.x,startY:el.y,startW:el.w,startH:el.h};
+      });
+    });
+
+    layer.appendChild(box);
+  }
+
+  // Position the box exactly over the element
+  const eh=Math.max(el.h||30, el.size*1.65*(el.text||'').split('\n').length);
+  box.style.left=el.x+'px';
+  box.style.top=el.y+'px';
+  box.style.width=el.w+'px';
+  box.style.height=eh+'px';
+  box.style.zIndex=el.z+10;
+  box.classList.toggle('sel',el.id===selId);
+  box.querySelector('.sel-ring').dataset.lbl=`${Math.round(el.w)}×${Math.round(eh)}`;
+
+  if(el.locked){
+    box.style.cursor='default';
+    box.querySelectorAll('.rh').forEach(rh=>rh.style.display='none');
+  } else {
+    box.style.cursor='move';
+  }
+}
+
+function removeBox(id){
+  const b=document.getElementById('box-'+id);if(b)b.remove();
+}
+
+// ══════════════════════════════════════════════════════
+// MOUSE HANDLERS
+// ══════════════════════════════════════════════════════
+function onVpDown(e){
+  // If clicking directly on viewport (not on a box), deselect or start pan
+  if(e.target===document.getElementById('vp')||e.target===document.getElementById('croot')||e.target===document.getElementById('stage')||e.target===document.getElementById('mainCanvas')||e.target===document.getElementById('ilay')){
+    if(tool==='pan'||spaceDown){
+      panning={active:true,startMX:e.clientX,startMY:e.clientY,startPX:panX,startPY:panY};
+    } else {
+      selId=null;renderOverlay();hidePP();
     }
-    lines.push(line);
-    const lh=el.size*1.65;
-    lines.forEach((ln,i)=>{ctx.fillText(ln,ax,el.y+el.size*(i+1));});
-    ctx.restore();
-  });
-
-  // Caption
-  document.getElementById('pmCaption').textContent=document.getElementById('fCaption').value||'Your caption...';
-}
-
-// ════════════════════════════════════════════════════════════
-// MOUSE EVENTS
-// ════════════════════════════════════════════════════════════
-function getCanvasPos(e){
-  const card=document.getElementById('cardCanvas');
-  const rect=card.getBoundingClientRect();
-  return{x:(e.clientX-rect.left)/zoom,y:(e.clientY-rect.top)/zoom};
-}
-
-function onVpMouseDown(e){
-  if(e.target===document.getElementById('viewport')||e.target===document.getElementById('canvasRoot')){
-    if(tool==='pan'||spaceDown){startPan(e);return;}
-    // Deselect
-    selectedId=null;renderAllElements();hidePropsPanel();return;
   }
-  if(tool==='pan'||spaceDown)startPan(e);
 }
 
-function startPan(e){
-  isPanning=true;
-  dragStart={x:e.clientX-panX,y:e.clientY-panY};
-  document.getElementById('viewport').style.cursor='grabbing';
-}
-
-function onVpMouseMove(e){
-  if(isPanning){
-    panX=e.clientX-dragStart.x;panY=e.clientY-dragStart.y;applyTransform();return;
+function onMouseMove(e){
+  if(panning.active){
+    panX=panning.startPX+(e.clientX-panning.startMX);
+    panY=panning.startPY+(e.clientY-panning.startMY);
+    applyT();return;
   }
-  if(isDragging&&selectedId){
-    const el=elements.find(x=>x.id===selectedId);if(!el||el.locked)return;
-    const dx=(e.clientX-dragStart.mouseX)/zoom;
-    const dy=(e.clientY-dragStart.mouseY)/zoom;
-    const{w,h}=getCardDims();
-    el.x=Math.max(0,Math.min(w-el.w,dragStart.elX+dx));
-    el.y=Math.max(0,Math.min(h-el.h,dragStart.elY+dy));
-    if(snapEnabled)snapElement(el);
-    renderElement(el);
-    updatePropsPanel(el);
+
+  if(drag.active){
+    const el=els.find(x=>x.id===drag.elId);if(!el)return;
+    const dx=(e.clientX-drag.startMX)/zoom;
+    const dy=(e.clientY-drag.startMY)/zoom;
+    el.x=drag.startX+dx;
+    el.y=drag.startY+dy;
+    // Clamp to card
+    el.x=Math.max(0,Math.min(dim.w-el.w,el.x));
+    el.y=Math.max(0,Math.min(dim.h-20,el.y));
+    if(snapOn)doSnap(el);
+    renderBox(el);
+    updPP(el);
+    scheduleRender();
     return;
   }
-  if(isResizing&&selectedId){
-    const el=elements.find(x=>x.id===selectedId);if(!el||el.locked)return;
-    const dx=(e.clientX-resizeStart.mouseX)/zoom;
-    const dy=(e.clientY-resizeStart.mouseY)/zoom;
-    if(resizeHandle.includes('r'))el.w=Math.max(20,resizeStart.w+dx);
-    if(resizeHandle.includes('l')){el.w=Math.max(20,resizeStart.w-dx);el.x=resizeStart.x+resizeStart.w-el.w;}
-    if(resizeHandle.includes('b'))el.h=Math.max(10,resizeStart.h+dy);
-    if(resizeHandle.includes('t')){el.h=Math.max(10,resizeStart.h-dy);el.y=resizeStart.y+resizeStart.h-el.h;}
-    if(resizeHandle==='mr'||resizeHandle==='ml')el.h=resizeStart.h;
-    if(resizeHandle==='tm'||resizeHandle==='bm')el.w=resizeStart.w;
-    renderElement(el);
-    updatePropsPanel(el);
+
+  if(resize.active){
+    const el=els.find(x=>x.id===resize.elId);if(!el)return;
+    const dx=(e.clientX-resize.startMX)/zoom;
+    const dy=(e.clientY-resize.startMY)/zoom;
+    const h=resize.handle;
+    if(h.includes('r'))el.w=Math.max(20,resize.startW+dx);
+    if(h.includes('l')){el.w=Math.max(20,resize.startW-dx);el.x=resize.startX+(resize.startW-el.w);}
+    if(h==='bc'||h==='br'||h==='bl')el.h=Math.max(10,resize.startH+dy);
+    if(h==='tc'||h==='tr'||h==='tl'){el.h=Math.max(10,resize.startH-dy);el.y=resize.startY+(resize.startH-el.h);}
+    renderBox(el);updPP(el);scheduleRender();
   }
 }
 
-function onVpMouseUp(e){
-  if(isDragging||isResizing){pushHistory();renderPreview();}
-  isDragging=false;isResizing=false;isPanning=false;
-  clearSnapGuides();
-  document.getElementById('viewport').style.cursor=tool==='pan'?'grab':'default';
-}
-
-function onElMouseDown(e,id){
-  if(tool==='pan'||spaceDown){startPan(e);return;}
-  e.stopPropagation();
-  const el=elements.find(x=>x.id===id);if(!el)return;
-  selectEl(id);
-  if(el.locked)return;
-  isDragging=true;
-  dragStart={mouseX:e.clientX,mouseY:e.clientY,elX:el.x,elY:el.y};
-}
-
-function onResizeStart(e,id,handle){
-  e.stopPropagation();
-  const el=elements.find(x=>x.id===id);if(!el||el.locked)return;
-  isResizing=true;resizeHandle=handle;
-  resizeStart={mouseX:e.clientX,mouseY:e.clientY,x:el.x,y:el.y,w:el.w,h:el.h};
-}
-
-function onDblClick(e){
-  if(!selectedId)return;
-  const el=elements.find(x=>x.id===selectedId);if(!el||el.type!=='text')return;
-  const div=document.getElementById(el.id);
-  const textEl=div.querySelector('.cv-text-el');
-  textEl.contentEditable='true';
-  textEl.classList.add('editing');
-  textEl.focus();
-  document.execCommand('selectAll');
-  textEl.addEventListener('blur',()=>{
-    el.text=textEl.textContent;
-    textEl.contentEditable='false';
-    textEl.classList.remove('editing');
-    pushHistory();renderPreview();renderLayers();
-  },{once:true});
-  textEl.addEventListener('keydown',e=>{if(e.key==='Escape'){textEl.blur();}});
+function onMouseUp(e){
+  if(drag.active||resize.active){pushH();scheduleRender();}
+  drag.active=false;resize.active=false;panning.active=false;
+  clearSnaps();
 }
 
 function onWheel(e){
   e.preventDefault();
-  const delta=e.deltaY>0?0.9:1.1;
-  const vp=document.getElementById('viewport');
-  const rect=vp.getBoundingClientRect();
-  const mx=e.clientX-rect.left,my=e.clientY-rect.top;
-  panX=mx-(mx-panX)*delta;panY=my-(my-panY)*delta;
-  zoom=Math.max(0.1,Math.min(4,zoom*delta));
-  applyTransform();
+  const d=e.deltaY>0?0.9:1.1;
+  const vp=document.getElementById('vp');
+  const r=vp.getBoundingClientRect();
+  const mx=e.clientX-r.left,my=e.clientY-r.top;
+  panX=mx-(mx-panX)*d;panY=my-(my-panY)*d;
+  zoom=Math.max(0.05,Math.min(5,zoom*d));
+  applyT();
 }
 
-// ════════════════════════════════════════════════════════════
-// SELECTION
-// ════════════════════════════════════════════════════════════
+function onDblClick(e){
+  if(!selId)return;
+  const el=els.find(x=>x.id===selId);
+  if(!el||el.type!=='text')return;
+  // Inline edit via prompt for simplicity and reliability
+  const newText=prompt('Edit text:',el.text);
+  if(newText!==null){el.text=newText;pushH();scheduleRender();renderOverlay();renderLayers();}
+}
+
+// ══════════════════════════════════════════════════════
+// ZOOM / PAN
+// ══════════════════════════════════════════════════════
+function applyT(){
+  const r=document.getElementById('croot');
+  r.style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`;
+  document.getElementById('zd').textContent=Math.round(zoom*100)+'%';
+}
+
+function zIn(){zoom=Math.min(5,zoom*1.2);applyT();}
+function zOut(){zoom=Math.max(0.05,zoom/1.2);applyT();}
+function zFit(){
+  const vp=document.getElementById('vp');
+  const{w,h}=dim;
+  const sx=(vp.offsetWidth-40)/w,sy=(vp.offsetHeight-40)/h;
+  zoom=Math.min(sx,sy,.8);
+  panX=(vp.offsetWidth-w*zoom)/2;
+  panY=(vp.offsetHeight-h*zoom)/2;
+  applyT();
+}
+function setTool(t,el){
+  tool=t;
+  document.querySelectorAll('.cb[id^=t]').forEach(b=>b.classList.remove('on'));
+  if(el)el.classList.add('on');
+  document.getElementById('vp').style.cursor=t==='pan'?'grab':'default';
+}
+function toggleSnap(btn){snapOn=!snapOn;btn.classList.toggle('on',snapOn);}
+function toggleGrid(btn){gridOn=!gridOn;btn.classList.toggle('on',gridOn);scheduleRender();}
+
+// ══════════════════════════════════════════════════════
+// SNAP
+// ══════════════════════════════════════════════════════
+const ST=10;
+function doSnap(el){
+  const{w,h}=dim;
+  const guides=[];
+  const cx=el.x+el.w/2,cy=el.y+el.h/2;
+  const gx=[0,w/4,w/2,3*w/4,w];
+  const gy=[0,h/4,h/2,3*h/4,h];
+  gx.forEach(gv=>{
+    if(Math.abs(el.x-gv)<ST){el.x=gv;guides.push({type:'v',p:gv});}
+    if(Math.abs(el.x+el.w-gv)<ST){el.x=gv-el.w;guides.push({type:'v',p:gv});}
+    if(Math.abs(cx-gv)<ST){el.x=gv-el.w/2;guides.push({type:'v',p:gv});}
+  });
+  gy.forEach(gv=>{
+    if(Math.abs(el.y-gv)<ST){el.y=gv;guides.push({type:'h',p:gv});}
+    if(Math.abs(el.y+el.h-gv)<ST){el.y=gv-el.h;guides.push({type:'h',p:gv});}
+    if(Math.abs(cy-gv)<ST){el.y=gv-el.h/2;guides.push({type:'h',p:gv});}
+  });
+  showSnaps(guides);
+}
+function showSnaps(gs){
+  document.getElementById('snaps').innerHTML=gs.map(g=>`<div class="snap-line ${g.type}" style="${g.type==='h'?`top:${g.p}px`:`left:${g.p}px`}"></div>`).join('');
+}
+function clearSnaps(){document.getElementById('snaps').innerHTML='';}
+
+// ══════════════════════════════════════════════════════
+// ELEMENTS
+// ══════════════════════════════════════════════════════
+function uid(){return'el_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,5);}
+
+function getDefaults(){
+  const{w,h}=dim;
+  const pad=Math.round(w*.07);
+  const bg=document.getElementById('cBg').value;
+  const ink=document.getElementById('cInk').value;
+  const muted=blendHex(ink,bg,.45);
+  const fq=document.getElementById('dFQ').value||'Courier Prime';
+  const fm=document.getElementById('dFM').value||'Cormorant Garamond';
+  const szq=Math.round(16*(w/1080));
+  const szm=Math.round(11*(w/1080));
+  const mSz=Math.round(w*.115);
+  const q=document.getElementById('fQuote').value||'Your quote will appear here...';
+  const date=getDateStr();
+  const num=String(document.getElementById('postNum').value||1).padStart(3,'0');
+  return[
+    {id:uid(),name:'From the Margins',type:'text',x:pad,y:pad,w:w-pad*2-80,h:szm*2,text:'From the Margins',font:fm,size:szm,color:muted,opacity:100,italic:true,bold:false,align:'left',letterSpacing:.08,z:2,locked:false},
+    {id:uid(),name:'Post number',type:'text',x:w-pad-80,y:pad,w:80,h:szm*2,text:num,font:fm,size:szm,color:muted,opacity:100,italic:false,bold:false,align:'right',letterSpacing:.4,z:2,locked:false},
+    {id:uid(),name:'Opening mark',type:'text',x:pad-Math.round(mSz*.08),y:Math.round(h*.22),w:Math.round(mSz*1.2),h:Math.round(mSz*1.2),text:'\u201C',font:fm,size:mSz,color:ink,opacity:20,italic:false,bold:false,align:'left',letterSpacing:0,z:2,locked:false},
+    {id:uid(),name:'Quote text',type:'text',x:pad,y:Math.round(h*.32),w:w-pad*2,h:Math.round(h*.32),text:q,font:fq,size:szq,color:ink,opacity:100,italic:true,bold:false,align:'left',letterSpacing:.01,z:3,locked:false},
+    {id:uid(),name:'Closing mark',type:'text',x:w-pad-Math.round(mSz*1.1),y:Math.round(h*.62),w:Math.round(mSz*1.2),h:Math.round(mSz*1.2),text:'\u201D',font:fm,size:mSz,color:ink,opacity:20,italic:false,bold:false,align:'right',letterSpacing:0,z:2,locked:false},
+    {id:uid(),name:'Date',type:'text',x:pad,y:h-pad-Math.round(szm*2.5),w:220,h:Math.round(szm*2),text:date,font:fm,size:szm,color:muted,opacity:100,italic:false,bold:false,align:'left',letterSpacing:.2,z:2,locked:false},
+    {id:uid(),name:'The Anvil Speaks',type:'text',x:w-pad-200,y:h-pad-Math.round(szm*2.5),w:200,h:Math.round(szm*2),text:'The Anvil Speaks',font:fm,size:Math.round(szm*1.08),color:ink,opacity:20,italic:true,bold:false,align:'right',letterSpacing:.12,z:2,locked:false},
+  ];
+}
+
+function getDateStr(){
+  const v=document.getElementById('fDate').value;
+  if(!v)return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  return new Date(v+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+}
+
+function resetLayout(){
+  // Clear overlay boxes
+  document.getElementById('ilay').innerHTML='';
+  selId=null;hidePP();
+  els=getDefaults();
+  pushH();scheduleRender();renderOverlay();renderLayers();
+}
+
+function addTextEl(){
+  const{w,h}=dim;
+  const ink=document.getElementById('cInk').value;
+  const fm=document.getElementById('dFM').value||'Cormorant Garamond';
+  const e={id:uid(),name:'Text',type:'text',x:w*.1,y:h*.4,w:w*.8,h:60,text:'New text',font:fm,size:Math.round(14*(w/1080)),color:ink,opacity:100,italic:false,bold:false,align:'left',letterSpacing:0,z:Math.max(...els.map(e=>e.z),0)+1,locked:false};
+  els.push(e);pushH();scheduleRender();renderOverlay();selectEl(e.id);renderLayers();
+}
+
+function addShape(type){
+  const{w,h}=dim;
+  const bc=document.getElementById('cBrd').value;
+  const base={id:uid(),name:type,type,x:w*.1,y:h*.4,w:w*.8,h:type==='line'||type==='divider'?2:w*.3,fill:'transparent',stroke:bc,strokeWidth:type==='divider'?1:2,color:bc,opacity:60,z:Math.max(...els.map(e=>e.z),0)+1,locked:false};
+  if(type==='circle')base.h=w*.3;
+  els.push(base);pushH();scheduleRender();renderOverlay();selectEl(base.id);renderLayers();
+}
+
+function delEl(){
+  if(!selId)return;
+  removeBox(selId);
+  els=els.filter(x=>x.id!==selId);
+  selId=null;hidePP();
+  pushH();scheduleRender();renderLayers();
+}
+
+function dupEl(){
+  const el=els.find(x=>x.id===selId);if(!el)return;
+  const copy={...el,id:uid(),x:el.x+20,y:el.y+20,z:el.z+1};
+  els.push(copy);pushH();scheduleRender();renderOverlay();selectEl(copy.id);renderLayers();
+}
+
+function lockEl(){
+  const el=els.find(x=>x.id===selId);if(!el)return;
+  el.locked=!el.locked;renderBox(el);renderLayers();
+}
+
+function toFront(){
+  const el=els.find(x=>x.id===selId);if(!el)return;
+  el.z=Math.max(...els.map(e=>e.z))+1;pushH();scheduleRender();renderOverlay();renderLayers();
+}
+
+function toBack(){
+  const el=els.find(x=>x.id===selId);if(!el)return;
+  el.z=Math.max(1,Math.min(...els.map(e=>e.z))-1);pushH();scheduleRender();renderOverlay();renderLayers();
+}
+
+// ══════════════════════════════════════════════════════
+// SELECTION & PROPS
+// ══════════════════════════════════════════════════════
 function selectEl(id){
-  selectedId=id;
-  renderAllElements();
-  const el=elements.find(x=>x.id===id);
-  if(el)showPropsPanel(el);
+  selId=id;
+  renderOverlay();
+  const el=els.find(x=>x.id===id);
+  if(el)showPP(el);
   renderLayers();
 }
 
-function showPropsPanel(el){
-  const pp=document.getElementById('propsPanel');pp.style.display='block';
-  document.getElementById('propsPanelTitle').textContent=el.name||'Element';
-  document.getElementById('propFont').value=el.font;
-  document.getElementById('propSize').value=el.size;
-  document.getElementById('propColor').value=el.color;
-  document.getElementById('propOpacity').value=el.opacity;
-  document.getElementById('propLetterSpacing').value=el.letterSpacing;
-  document.getElementById('propX').value=Math.round(el.x);
-  document.getElementById('propY').value=Math.round(el.y);
-  document.getElementById('propW').value=Math.round(el.w);
-  document.getElementById('propH').value=Math.round(el.h);
-  document.getElementById('propItalic').classList.toggle('active',el.italic);
-  document.getElementById('propBold').classList.toggle('active',el.bold);
-  ['propAlignL','propAlignC','propAlignR'].forEach(id=>document.getElementById(id).classList.remove('active'));
-  document.getElementById('propAlign'+el.align[0].toUpperCase()+el.align.slice(1)).classList.add('active');
+function showPP(el){
+  const pp=document.getElementById('pp');pp.style.display='block';
+  document.getElementById('ppt-title').textContent=el.name||'Element';
+  document.getElementById('pFont').value=el.font||'Cormorant Garamond';
+  document.getElementById('pSz').value=el.size||16;
+  document.getElementById('pCol').value=el.color||'#e8e4dc';
+  document.getElementById('pOp').value=el.opacity||100;
+  document.getElementById('pLS').value=el.letterSpacing||0;
+  document.getElementById('pX').value=Math.round(el.x);
+  document.getElementById('pY').value=Math.round(el.y);
+  document.getElementById('pW').value=Math.round(el.w);
+  document.getElementById('pH').value=Math.round(el.h);
+  document.getElementById('pBold').classList.toggle('on',!!el.bold);
+  document.getElementById('pItal').classList.toggle('on',!!el.italic);
+  ['pAL','pAC','pAR'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  const amap={left:'pAL',center:'pAC',right:'pAR'};
+  if(amap[el.align])document.getElementById(amap[el.align]).classList.add('on');
+  // Shape props
+  const isShape=el.type!=='text';
+  document.getElementById('shapeProps').style.display=isShape?'block':'none';
+  if(isShape){
+    document.getElementById('pFill').value=el.fill||'#2e4a6a';
+    document.getElementById('pStroke').value=el.stroke||'#8aacbf';
+    document.getElementById('pSW').value=el.strokeWidth||1;
+  }
 }
 
-function hidePropsPanel(){document.getElementById('propsPanel').style.display='none';}
+function hidePP(){document.getElementById('pp').style.display='none';}
 
-function updatePropsPanel(el){
-  document.getElementById('propX').value=Math.round(el.x);
-  document.getElementById('propY').value=Math.round(el.y);
-  document.getElementById('propW').value=Math.round(el.w);
-  document.getElementById('propH').value=Math.round(el.h);
+function updPP(el){
+  document.getElementById('pX').value=Math.round(el.x);
+  document.getElementById('pY').value=Math.round(el.y);
+  document.getElementById('pW').value=Math.round(el.w);
+  document.getElementById('pH').value=Math.round(el.h);
 }
 
-function applyProp(key,val){
-  const el=elements.find(x=>x.id===selectedId);if(!el)return;
-  if(key==='size'||key==='opacity'||key==='x'||key==='y'||key==='w'||key==='h'||key==='letterSpacing')val=parseFloat(val);
+function ap(key,val){
+  const el=els.find(x=>x.id===selId);if(!el)return;
   el[key]=val;
-  renderElement(el);renderPreview();
+  renderBox(el);scheduleRender();
 }
 
-function toggleProp(key){
-  const el=elements.find(x=>x.id===selectedId);if(!el)return;
+function tog(key){
+  const el=els.find(x=>x.id===selId);if(!el)return;
   el[key]=!el[key];
-  document.getElementById('prop'+key[0].toUpperCase()+key.slice(1)).classList.toggle('active',el[key]);
-  renderElement(el);renderPreview();pushHistory();
+  document.getElementById('p'+key[0].toUpperCase()+key.slice(1)).classList.toggle('on',el[key]);
+  scheduleRender();pushH();
 }
 
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // LAYERS
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function renderLayers(){
-  const el=document.getElementById('layersList');
-  const sorted=[...elements].sort((a,b)=>b.zIndex-a.zIndex);
+  const el=document.getElementById('layerList');
+  const sorted=[...els].sort((a,b)=>b.z-a.z);
   el.innerHTML=sorted.map(e=>`
-    <div class="layer-item${e.id===selectedId?' active':''}" onclick="selectEl('${e.id}');switchPanel('content',document.querySelector('.panel-tab'))">
-      <span class="layer-icon">${e.type==='text'?'T':'▬'}</span>
-      <span class="layer-name">${e.name||e.text?.slice(0,20)||'Element'}</span>
-      <span class="layer-lock" onclick="event.stopPropagation();toggleLock('${e.id}')">${e.locked?'🔒':'🔓'}</span>
+    <div class="li${e.id===selId?' on':''}" onclick="selectEl('${e.id}')">
+      <span class="li-ic">${e.type==='text'?'T':'▬'}</span>
+      <span class="li-nm">${e.name||e.text?.slice(0,18)||'Element'}</span>
+      <span class="li-lk" onclick="event.stopPropagation();toggleLock('${e.id}')">${e.locked?'🔒':'🔓'}</span>
     </div>`).join('');
 }
 
 function toggleLock(id){
-  const el=elements.find(x=>x.id===id);if(!el)return;
-  el.locked=!el.locked;renderLayers();renderElement(el);
+  const el=els.find(x=>x.id===id);if(!el)return;
+  el.locked=!el.locked;renderBox(el);renderLayers();
 }
 
-// ════════════════════════════════════════════════════════════
-// ELEMENT OPERATIONS
-// ════════════════════════════════════════════════════════════
-function addTextEl(){
-  const{w,h}=getCardDims();
-  const ink=document.getElementById('cInk').value;
-  const fm=document.getElementById('defFontMeta').value||'Cormorant Garamond';
-  const newEl={id:uid(),name:'Text',type:'text',x:w*0.1,y:h*0.4,w:w*0.8,h:60,text:'New text',font:fm,size:Math.round(16*(w/1080)),color:ink,opacity:100,italic:false,bold:false,align:'left',letterSpacing:0,locked:false,zIndex:Math.max(...elements.map(e=>e.zIndex),0)+1};
-  elements.push(newEl);
-  pushHistory();renderAllElements();selectEl(newEl.id);renderPreview();renderLayers();
-}
-
-function deleteEl(){
-  if(!selectedId)return;
-  elements=elements.filter(x=>x.id!==selectedId);
-  selectedId=null;hidePropsPanel();
-  pushHistory();renderAllElements();renderPreview();renderLayers();
-}
-
-function duplicateEl(){
-  const el=elements.find(x=>x.id===selectedId);if(!el)return;
-  const copy={...el,id:uid(),x:el.x+20,y:el.y+20,zIndex:el.zIndex+1};
-  elements.push(copy);
-  pushHistory();renderAllElements();selectEl(copy.id);renderPreview();renderLayers();
-}
-
-function lockEl(){
-  const el=elements.find(x=>x.id===selectedId);if(!el)return;
-  el.locked=!el.locked;renderElement(el);renderLayers();
-}
-
-function bringFront(){
-  const el=elements.find(x=>x.id===selectedId);if(!el)return;
-  el.zIndex=Math.max(...elements.map(e=>e.zIndex))+1;
-  pushHistory();renderAllElements();renderLayers();
-}
-
-function sendBack(){
-  const el=elements.find(x=>x.id===selectedId);if(!el)return;
-  el.zIndex=Math.max(1,Math.min(...elements.map(e=>e.zIndex))-1);
-  pushHistory();renderAllElements();renderLayers();
-}
-
-// ════════════════════════════════════════════════════════════
-// SNAP
-// ════════════════════════════════════════════════════════════
-const SNAP_THRESHOLD=8;
-function snapElement(el){
-  const{w,h}=getCardDims();
-  const cx=el.x+el.w/2,cy=el.y+el.h/2;
-  const guides=[];
-  // Card edges and centre
-  const snapX=[0,w/2,w];const snapY=[0,h/2,h];
-  snapX.forEach(sx=>{if(Math.abs(el.x-sx)<SNAP_THRESHOLD){el.x=sx;guides.push({type:'v',pos:sx});}});
-  snapX.forEach(sx=>{if(Math.abs(el.x+el.w-sx)<SNAP_THRESHOLD){el.x=sx-el.w;guides.push({type:'v',pos:sx});}});
-  snapX.forEach(sx=>{if(Math.abs(cx-sx)<SNAP_THRESHOLD){el.x=sx-el.w/2;guides.push({type:'v',pos:sx});}});
-  snapY.forEach(sy=>{if(Math.abs(el.y-sy)<SNAP_THRESHOLD){el.y=sy;guides.push({type:'h',pos:sy});}});
-  snapY.forEach(sy=>{if(Math.abs(el.y+el.h-sy)<SNAP_THRESHOLD){el.y=sy-el.h;guides.push({type:'h',pos:sy});}});
-  snapY.forEach(sy=>{if(Math.abs(cy-sy)<SNAP_THRESHOLD){el.y=sy-el.h/2;guides.push({type:'h',pos:sy});}});
-  showSnapGuides(guides);
-}
-
-function showSnapGuides(guides){
-  const container=document.getElementById('snapGuides');
-  container.innerHTML=guides.map(g=>`<div class="snap-guide ${g.type}" style="${g.type==='h'?`top:${g.pos}px`:`left:${g.pos}px`}"></div>`).join('');
-}
-function clearSnapGuides(){document.getElementById('snapGuides').innerHTML='';}
-
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // HISTORY
-// ════════════════════════════════════════════════════════════
-function pushHistory(){
-  historyIdx++;
-  history=history.slice(0,historyIdx);
-  history.push(JSON.stringify(elements));
-  if(history.length>MAX_HISTORY){history.shift();historyIdx--;}
+// ══════════════════════════════════════════════════════
+function pushH(){
+  hIdx++;history=history.slice(0,hIdx);
+  history.push(JSON.stringify(els));
+  if(history.length>50){history.shift();hIdx--;}
 }
-
 function undo(){
-  if(historyIdx<=0)return;
-  historyIdx--;
-  elements=JSON.parse(history[historyIdx]);
-  selectedId=null;hidePropsPanel();
-  renderAllElements();renderPreview();renderLayers();toast('Undo','ok');
+  if(hIdx<=0)return;hIdx--;
+  els=JSON.parse(history[hIdx]);
+  selId=null;hidePP();
+  document.getElementById('ilay').innerHTML='';
+  scheduleRender();renderOverlay();renderLayers();toast('Undo','ok');
 }
-
 function redo(){
-  if(historyIdx>=history.length-1)return;
-  historyIdx++;
-  elements=JSON.parse(history[historyIdx]);
-  renderAllElements();renderPreview();renderLayers();toast('Redo','ok');
+  if(hIdx>=history.length-1)return;hIdx++;
+  els=JSON.parse(history[hIdx]);
+  document.getElementById('ilay').innerHTML='';
+  scheduleRender();renderOverlay();renderLayers();toast('Redo','ok');
 }
 
-// ════════════════════════════════════════════════════════════
-// KEYBOARD
-// ════════════════════════════════════════════════════════════
-function setupKeyboard(){
-  document.addEventListener('keydown',e=>{
-    const tag=document.activeElement.tagName;
-    const editing=tag==='INPUT'||tag==='TEXTAREA'||document.activeElement.contentEditable==='true';
-    if(e.code==='Space'&&!editing){spaceDown=true;document.getElementById('viewport').style.cursor='grab';}
-    if(editing)return;
-    if(e.key==='Delete'||e.key==='Backspace')deleteEl();
-    if(e.ctrlKey||e.metaKey){
-      if(e.key==='z'){e.preventDefault();undo();}
-      if(e.key==='y'||e.key==='Z'){e.preventDefault();redo();}
-      if(e.key==='d'){e.preventDefault();duplicateEl();}
-    }
-    if(e.key==='v')setTool('select',document.getElementById('tool-select'));
-    if(e.key==='t')addTextEl();
-    if(e.key==='Escape'){selectedId=null;renderAllElements();hidePropsPanel();}
-    // Arrow keys
-    if(selectedId&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){
-      e.preventDefault();
-      const el=elements.find(x=>x.id===selectedId);if(!el||el.locked)return;
-      const step=e.shiftKey?10:1;
-      if(e.key==='ArrowLeft')el.x-=step;
-      if(e.key==='ArrowRight')el.x+=step;
-      if(e.key==='ArrowUp')el.y-=step;
-      if(e.key==='ArrowDown')el.y+=step;
-      renderElement(el);updatePropsPanel(el);pushHistory();renderPreview();
-    }
-  });
-  document.addEventListener('keyup',e=>{
-    if(e.code==='Space'){spaceDown=false;document.getElementById('viewport').style.cursor=tool==='pan'?'grab':'default';}
-  });
+// ══════════════════════════════════════════════════════
+// SYNC: content → elements
+// ══════════════════════════════════════════════════════
+function syncQuote(){
+  const el=els.find(e=>e.name==='Quote text');
+  if(el){el.text=document.getElementById('fQuote').value||'Your quote...';scheduleRender();}
 }
-
-// ════════════════════════════════════════════════════════════
-// CHANGE HANDLERS
-// ════════════════════════════════════════════════════════════
-function onQuoteChange(){
-  const quoteEl=elements.find(e=>e.name==='Quote text');
-  if(quoteEl){quoteEl.text=document.getElementById('fQuote').value||'Your quote will appear here...';renderElement(quoteEl);renderPreview();}
+function syncCaption(){
+  document.getElementById('pmCap').textContent=document.getElementById('fCap').value||'Your caption...';
 }
-
-function onCaptionChange(){
-  document.getElementById('pmCaption').textContent=document.getElementById('fCaption').value||'Your caption...';
+function syncNum(){
+  const el=els.find(e=>e.name==='Post number');
+  if(el){el.text=String(document.getElementById('postNum').value||1).padStart(3,'0');scheduleRender();}
 }
-
-function onNumChange(){
-  const numEl=elements.find(e=>e.name==='Post number');
-  if(numEl){numEl.text=String(document.getElementById('postNum').value||1).padStart(3,'0');renderElement(numEl);renderPreview();}
-}
-
-function changeNum(d){
+function chNum(d){
   const inp=document.getElementById('postNum');
-  inp.value=Math.max(1,parseInt(inp.value||1)+d);
-  onNumChange();
+  inp.value=Math.max(1,parseInt(inp.value||1)+d);syncNum();
 }
-
-function onColorChange(){
-  updateHexes();
-  renderBg();renderBorder();renderPreview();
-  // Update element colours that match default ink/muted
+function onCol(){
+  updHex();
   const bg=document.getElementById('cBg').value;
   const ink=document.getElementById('cInk').value;
-  const muted=blendHex(ink,bg,0.45);
-  elements.forEach(el=>{
-    if(el.name==='Quote text'||el.name==='Opening quote mark'||el.name==='Closing quote mark'||el.name==='The Anvil Speaks'){el.color=ink;}
-    if(el.name==='From the Margins'||el.name==='Post number'||el.name==='Date'){el.color=muted;}
-    renderElement(el);
+  const muted=blendHex(ink,bg,.45);
+  els.forEach(el=>{
+    if(['Opening mark','Closing mark','Quote text','The Anvil Speaks'].includes(el.name))el.color=ink;
+    if(['From the Margins','Post number','Date'].includes(el.name))el.color=muted;
+  });
+  scheduleRender();
+}
+function onDFont(){
+  const fq=document.getElementById('dFQ').value;
+  const fm=document.getElementById('dFM').value;
+  els.forEach(el=>{
+    if(el.name==='Quote text')el.font=fq;
+    else if(el.type==='text')el.font=fm;
+    renderBox(el);
+  });
+  scheduleRender();
+}
+function updHex(){
+  [['cBg','cBgH'],['cBrd','cBrdH'],['cInk','cInkH']].forEach(([id,hid])=>{
+    const e=document.getElementById(hid);if(e)e.textContent=document.getElementById(id).value;
   });
 }
-
-function onDefaultFontChange(){
-  const fq=document.getElementById('defFontQuote').value;
-  const fm=document.getElementById('defFontMeta').value;
-  const szq=parseInt(document.getElementById('defSzQuote').value)||16;
-  const szm=parseInt(document.getElementById('defSzMeta').value)||11;
-  elements.forEach(el=>{
-    if(el.name==='Quote text'){el.font=fq;el.size=szq;}
-    else{el.font=fm;el.size=szm;}
-    renderElement(el);
-  });
-  renderPreview();
+function setDim(el,l,w,h){
+  document.querySelectorAll('.do').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');dim={l,w,h};
+  document.getElementById('ilay').innerHTML='';
+  resetLayout();zFit();
 }
-
-function updateHexes(){
-  ['cBg','cBorder','cInk'].forEach(id=>{
-    const inp=document.getElementById(id);
-    const hex=document.getElementById(id+'Hex');
-    if(hex)hex.textContent=inp.value;
-  });
-}
-
-function setDim(el,label,w,h){
-  document.querySelectorAll('.dim-opt').forEach(e=>e.classList.remove('active'));
-  el.classList.add('active');dim={label,w,h};
-  rebuildDefaultElements();zoomFit();
-}
-
-function applyPalette(bg,border,ink){
+function setPal(bg,brd,ink){
   document.getElementById('cBg').value=bg;
-  document.getElementById('cBorder').value=border;
+  document.getElementById('cBrd').value=brd;
   document.getElementById('cInk').value=ink;
-  updateHexes();onColorChange();
+  updHex();onCol();
 }
-
-function savePalette(){
+function savePal(){
   const bg=document.getElementById('cBg').value;
-  const border=document.getElementById('cBorder').value;
+  const brd=document.getElementById('cBrd').value;
   const ink=document.getElementById('cInk').value;
-  const el=document.createElement('div');
-  el.className='swatch';el.style.background=bg;
-  el.onclick=()=>applyPalette(bg,border,ink);
-  document.getElementById('palettes').insertBefore(el,document.getElementById('palettes').lastElementChild);
+  const e=document.createElement('div');
+  e.className='sw';e.style.background=bg;
+  e.onclick=()=>setPal(bg,brd,ink);
+  document.getElementById('swatches').insertBefore(e,document.getElementById('swatches').lastElementChild);
   toast('Palette saved','ok');
 }
 
-// ════════════════════════════════════════════════════════════
-// FONT SEARCH
-// ════════════════════════════════════════════════════════════
-function searchFonts(q,targetSelectId){
-  const resId=targetSelectId==='propFont'?'propFontResults':'globalFontResults';
-  const el=document.getElementById(resId);
-  if(!q){el.style.display='none';return;}
-  const matches=GOOGLE_FONTS.filter(f=>f.toLowerCase().includes(q.toLowerCase())).slice(0,8);
-  if(!matches.length){el.style.display='none';return;}
-  el.style.display='block';
-  el.innerHTML=matches.map(f=>`<div class="font-result" onclick="pickFont('${f}','${targetSelectId}','${resId}')">${f}</div>`).join('');
+// ══════════════════════════════════════════════════════
+// PREVIEW (right panel bottom strip)
+// ══════════════════════════════════════════════════════
+function renderPreview(){
+  const canvas=document.getElementById('prevCanvas');
+  const pmCard=canvas.parentElement;
+  const dw=pmCard.offsetWidth||220;
+  const{w,h}=dim;
+  const sc=dw/w;
+  canvas.width=dw;canvas.height=Math.round(h*sc);
+  canvas.style.height=Math.round(h*sc)+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.save();ctx.scale(sc,sc);
+  drawCard(ctx,w,h);
+  ctx.restore();
+  document.getElementById('pmCap').textContent=document.getElementById('fCap').value||'Your caption...';
 }
 
-function pickFont(family,selectId,resId){
-  document.getElementById(selectId).value=family;
-  document.getElementById(resId).style.display='none';
-  loadGFont(family);
-  if(selectId==='propFont')applyProp('font',family);
-  else onDefaultFontChange();
-}
+// ══════════════════════════════════════════════════════
+// KEYBOARD
+// ══════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  const tag=document.activeElement.tagName;
+  const ed=tag==='INPUT'||tag==='TEXTAREA'||document.activeElement.contentEditable==='true';
+  if(e.code==='Space'&&!ed){e.preventDefault();spaceDown=true;document.getElementById('vp').style.cursor='grab';}
+  if(ed)return;
+  if(e.key==='Delete'||e.key==='Backspace')delEl();
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();undo();}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||e.key==='Z')){e.preventDefault();redo();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();dupEl();}
+  if(e.key==='v')setTool('sel',document.getElementById('ts'));
+  if(e.key==='t')addTextEl();
+  if(e.key==='Escape'){selId=null;renderOverlay();hidePP();}
+  if(selId&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){
+    e.preventDefault();
+    const el=els.find(x=>x.id===selId);if(!el||el.locked)return;
+    const s=e.shiftKey?10:1;
+    if(e.key==='ArrowLeft')el.x-=s;
+    if(e.key==='ArrowRight')el.x+=s;
+    if(e.key==='ArrowUp')el.y-=s;
+    if(e.key==='ArrowDown')el.y+=s;
+    renderBox(el);updPP(el);scheduleRender();pushH();
+  }
+});
+document.addEventListener('keyup',e=>{
+  if(e.code==='Space'){spaceDown=false;document.getElementById('vp').style.cursor=tool==='pan'?'grab':'default';}
+});
 
-function loadGFont(f){
-  const link=document.createElement('link');link.rel='stylesheet';
-  link.href=`https://fonts.googleapis.com/css2?family=${encodeURIComponent(f)}:ital,wght@0,300;0,400;1,300;1,400&display=swap`;
-  document.head.appendChild(link);
-}
-
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // PANEL SWITCH
-// ════════════════════════════════════════════════════════════
-function switchPanel(name,el){
-  document.querySelectorAll('.panel-tab').forEach(t=>t.classList.remove('active'));
-  if(el)el.classList.add('active');
+// ══════════════════════════════════════════════════════
+function switchP(name,el){
+  document.querySelectorAll('.pt').forEach(t=>t.classList.remove('on'));
+  if(el)el.classList.add('on');
   ['content','design','schedule','layers'].forEach(n=>{
-    const p=document.getElementById('panel-'+n);
+    const p=document.getElementById('p-'+n);
     if(p)p.style.display=n===name?'block':'none';
   });
   if(name==='layers')renderLayers();
-  if(name==='design')setTimeout(renderPreview,50);
+  setTimeout(renderPreview,30);
 }
 
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// FONT SEARCH
+// ══════════════════════════════════════════════════════
+function searchF(q,selId,resId){
+  const el=document.getElementById(resId);
+  if(!q){el.style.display='none';return;}
+  const m=FONTS.filter(f=>f.toLowerCase().includes(q.toLowerCase())).slice(0,7);
+  if(!m.length){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML=m.map(f=>`<div class="fri" onclick="pickF('${f}','${selId}','${resId}')">${f}</div>`).join('');
+}
+function pickF(f,selId,resId){
+  document.getElementById(selId).value=f;
+  document.getElementById(resId).style.display='none';
+  loadGF(f);
+  if(selId==='pFont')ap('font',f);
+  else onDFont();
+}
+function loadGF(f){
+  const l=document.createElement('link');l.rel='stylesheet';
+  l.href=`https://fonts.googleapis.com/css2?family=${encodeURIComponent(f)}:ital,wght@0,300;0,400;1,300;1,400&display=swap`;
+  document.head.appendChild(l);
+}
+
+// ══════════════════════════════════════════════════════
 // COLOUR UTILS
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function hexToRgb(hex){const h=(hex||'#000').replace('#','').padEnd(6,'0');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
 function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>Math.min(255,Math.max(0,Math.round(v))).toString(16).padStart(2,'0')).join('');}
 function lighten(hex,a){const[r,g,b]=hexToRgb(hex);return rgbToHex(r+255*a,g+255*a,b+255*a);}
 function darken(hex,a){const[r,g,b]=hexToRgb(hex);return rgbToHex(r-255*a,g-255*a,b-255*a);}
 function blendHex(h1,h2,t){const[r1,g1,b1]=hexToRgb(h1),[r2,g2,b2]=hexToRgb(h2);return rgbToHex(r1*(1-t)+r2*t,g1*(1-t)+g2*t,b1*(1-t)+b2*t);}
 
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // TOAST
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function toast(msg,type='ok'){
   const el=document.getElementById('toast');
   el.textContent=msg;el.className=`toast ${type} show`;
-  setTimeout(()=>el.classList.remove('show'),2500);
+  setTimeout(()=>el.classList.remove('show'),2200);
 }
 
-// ════════════════════════════════════════════════════════════
-// RESIZE OBSERVER
-// ════════════════════════════════════════════════════════════
-new ResizeObserver(()=>{
-  renderPreview();
-  if(gridEnabled)drawGrid();
-}).observe(document.getElementById('pmCard'));
-
-window.addEventListener('resize',()=>setTimeout(renderPreview,50));
-document.fonts.ready.then(()=>{renderAll();});
+// ══════════════════════════════════════════════════════
+// RESIZE OBSERVER for preview
+// ══════════════════════════════════════════════════════
+new ResizeObserver(()=>setTimeout(renderPreview,50)).observe(document.querySelector('.preview-strip'));
+window.addEventListener('resize',()=>setTimeout(()=>{renderPreview();},100));
+document.fonts.ready.then(()=>scheduleRender());
 
 init();
 </script>
