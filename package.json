@@ -4,7 +4,8 @@
   "private": true,
   "scripts": { "build": "echo 'no build'" },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0"
+    "@supabase/supabase-js": "^2.39.0",
+    "@vercel/og": "^0.6.2"
   },
   "engines": { "node": "20.x" }
 }
