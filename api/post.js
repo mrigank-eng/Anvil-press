@@ -1,9 +1,8 @@
 // api/post.js
 import { createClient } from '@supabase/supabase-js';
-import satori from 'satori';
-import sharp from 'sharp';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { ImageResponse } from '@vercel/og';
+
+export const config = { runtime: 'edge' };
 
 const db = createClient(
   process.env.SUPABASE_URL,
@@ -34,7 +33,6 @@ function blendHex(h1,h2,t) {
 async function renderCard(post) {
   const {
     quote, bg_color, border_color, ink_color,
-    font_quote, font_header,
     font_size_quote, post_number, scheduled_at, dimension
   } = post;
 
@@ -43,6 +41,7 @@ async function renderCard(post) {
   const num   = String(post_number || 1).padStart(3, '0');
   const pad   = Math.round(w * 0.07);
   const bord  = Math.round(w * 0.035);
+  const tick  = Math.round(bord * 0.7);
   const mSize = Math.round(w * 0.115);
   const qPad  = Math.round(mSize * 0.8);
   const bg    = bg_color || '#2e4a6a';
@@ -52,346 +51,106 @@ async function renderCard(post) {
   const sh    = Math.round(11 * (w / 340));
   const sm    = Math.round(10 * (w / 340));
   const muted = blendHex(ink, bg, 0.45);
-  const tick  = Math.round(bord * 0.7);
 
-  // Fetch fonts from Google Fonts
-  const cormorantUrl = 'https://fonts.gstatic.com/s/cormorantgaramond/v22/co3WmX5slCNuHLi8bLeY9MK7whWMhyjYrEPjuw.woff';
-  const courierUrl   = 'https://fonts.gstatic.com/s/courierprime/v9/u-450q2lgwslOqpF_6gQ8kELaw9pWt_-.woff';
-
-  const [cormorantData, courierData] = await Promise.all([
-    fetch(cormorantUrl).then(r => r.arrayBuffer()),
-    fetch(courierUrl).then(r => r.arrayBuffer()),
+  // Fetch fonts
+  const [cormorantItalic, courierItalic] = await Promise.all([
+    fetch('https://fonts.gstatic.com/s/cormorantgaramond/v22/co3YmX5slCNuHLi8bLeY9MK7whWMhyjYrEPjuw.woff').then(r => r.arrayBuffer()),
+    fetch('https://fonts.gstatic.com/s/courierprime/v9/u-450q2lgwslOqpF_6gQ8kELaw9pWt_-.woff').then(r => r.arrayBuffer()),
   ]);
 
-  // Build the card as a Satori JSX object
-  const card = {
-    type: 'div',
-    props: {
-      style: {
-        width: w,
-        height: h,
-        display: 'flex',
-        flexDirection: 'column',
-        background: `radial-gradient(ellipse at 28% 22%, ${lighten(bg,0.12)} 0%, transparent 52%), radial-gradient(ellipse at 72% 78%, ${darken(bg,0.08)} 0%, transparent 52%), ${bg}`,
-        padding: pad,
-        position: 'relative',
-        overflow: 'hidden',
-      },
-      children: [
-        // Border — top-left corner
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              top: bord, left: bord,
-              width: tick, height: 2,
-              background: bc, opacity: 0.9,
-            }
-          }
+  const imageResponse = new ImageResponse(
+    {
+      type: 'div',
+      props: {
+        style: {
+          width: w, height: h,
+          display: 'flex',
+          flexDirection: 'column',
+          background: `radial-gradient(ellipse at 28% 22%, ${lighten(bg,0.12)} 0%, transparent 52%), radial-gradient(ellipse at 72% 78%, ${darken(bg,0.08)} 0%, transparent 52%), ${bg}`,
+          padding: `${pad}px`,
+          position: 'relative',
         },
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              top: bord, left: bord,
-              width: 2, height: tick,
-              background: bc, opacity: 0.9,
-            }
-          }
-        },
-        // Border — top-right corner
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              top: bord, right: bord,
-              width: tick, height: 2,
-              background: bc, opacity: 0.9,
-            }
-          }
-        },
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              top: bord, right: bord,
-              width: 2, height: tick,
-              background: bc, opacity: 0.9,
-            }
-          }
-        },
-        // Border — bottom-left corner
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              bottom: bord, left: bord,
-              width: tick, height: 2,
-              background: bc, opacity: 0.9,
-            }
-          }
-        },
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              bottom: bord, left: bord,
-              width: 2, height: tick,
-              background: bc, opacity: 0.9,
-            }
-          }
-        },
-        // Border — bottom-right corner
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              bottom: bord, right: bord,
-              width: tick, height: 2,
-              background: bc, opacity: 0.9,
-            }
-          }
-        },
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              bottom: bord, right: bord,
-              width: 2, height: tick,
-              background: bc, opacity: 0.9,
-            }
-          }
-        },
-        // Border rectangle
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              top: bord, left: bord,
-              right: bord, bottom: bord,
-              border: `1px solid ${bc}`,
-              opacity: 0.5,
-            }
-          }
-        },
+        children: [
+          // Border corners
+          { type:'div', props:{ style:{ position:'absolute', top:bord, left:bord, width:tick, height:2, background:bc } } },
+          { type:'div', props:{ style:{ position:'absolute', top:bord, left:bord, width:2, height:tick, background:bc } } },
+          { type:'div', props:{ style:{ position:'absolute', top:bord, right:bord, width:tick, height:2, background:bc } } },
+          { type:'div', props:{ style:{ position:'absolute', top:bord, right:bord, width:2, height:tick, background:bc } } },
+          { type:'div', props:{ style:{ position:'absolute', bottom:bord, left:bord, width:tick, height:2, background:bc } } },
+          { type:'div', props:{ style:{ position:'absolute', bottom:bord, left:bord, width:2, height:tick, background:bc } } },
+          { type:'div', props:{ style:{ position:'absolute', bottom:bord, right:bord, width:tick, height:2, background:bc } } },
+          { type:'div', props:{ style:{ position:'absolute', bottom:bord, right:bord, width:2, height:tick, background:bc } } },
+          // Border rect
+          { type:'div', props:{ style:{ position:'absolute', top:bord, left:bord, right:bord, bottom:bord, border:`1px solid ${bc}`, opacity:0.5 } } },
 
-        // Header row
-        {
-          type: 'div',
-          props: {
-            style: {
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'baseline',
-              marginBottom: Math.round(pad * 0.3),
-            },
-            children: [
-              {
-                type: 'span',
-                props: {
-                  style: {
-                    fontFamily: 'Cormorant',
-                    fontSize: sh,
-                    fontWeight: 300,
-                    fontStyle: 'italic',
-                    letterSpacing: '0.08em',
-                    color: muted,
-                  },
-                  children: 'From the Margins',
-                }
-              },
-              {
-                type: 'span',
-                props: {
-                  style: {
-                    fontFamily: 'Cormorant',
-                    fontSize: sm,
-                    fontWeight: 300,
-                    letterSpacing: '0.45em',
-                    color: muted,
-                  },
-                  children: num,
-                }
-              },
-            ]
-          }
-        },
-
-        // Rule
-        {
-          type: 'div',
-          props: {
-            style: {
-              width: '100%',
-              height: Math.max(1, Math.round(w * 0.001)),
-              background: bc,
-              opacity: 0.4,
-              marginBottom: 0,
+          // Header
+          {
+            type: 'div',
+            props: {
+              style: { display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'baseline', marginBottom: Math.round(pad*0.3) },
+              children: [
+                { type:'span', props:{ style:{ fontFamily:'Cormorant', fontSize:sh, fontStyle:'italic', color:muted, letterSpacing:'0.08em' }, children:'From the Margins' } },
+                { type:'span', props:{ style:{ fontFamily:'Cormorant', fontSize:sm, color:muted, letterSpacing:'0.4em' }, children:num } },
+              ]
             }
-          }
-        },
+          },
 
-        // Quote area
-        {
-          type: 'div',
-          props: {
-            style: {
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'flex-start',
-            },
-            children: [
-              // Opening mark
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    fontFamily: 'Cormorant',
-                    fontSize: mSize,
-                    fontWeight: 300,
-                    lineHeight: 1,
-                    color: ink,
-                    opacity: 0.2,
-                    marginBottom: Math.round(qPad * 0.3),
-                    marginLeft: -Math.round(mSize * 0.08),
-                  },
-                  children: '\u201C',
-                }
-              },
-              // Quote text
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    fontFamily: 'Courier',
-                    fontSize: sq,
-                    fontStyle: 'italic',
-                    lineHeight: 1.78,
-                    letterSpacing: '0.01em',
-                    color: ink,
-                    textAlign: 'left',
-                    width: '100%',
-                  },
-                  children: quote,
-                }
-              },
-              // Closing mark
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    fontFamily: 'Cormorant',
-                    fontSize: mSize,
-                    fontWeight: 300,
-                    lineHeight: 1,
-                    color: ink,
-                    opacity: 0.2,
-                    marginTop: Math.round(qPad * 0.3),
-                    alignSelf: 'flex-end',
-                    marginRight: -Math.round(mSize * 0.08),
-                  },
-                  children: '\u201D',
-                }
-              },
-            ]
-          }
-        },
+          // Rule
+          { type:'div', props:{ style:{ width:'100%', height:1, background:bc, opacity:0.4 } } },
 
-        // Footer
-        {
-          type: 'div',
-          props: {
-            style: {
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
-              paddingTop: Math.round(pad * 0.4),
-            },
-            children: [
-              {
-                type: 'div',
-                props: {
-                  style: { display: 'flex', flexDirection: 'column' },
-                  children: [
-                    {
-                      type: 'div',
-                      props: {
-                        style: {
-                          width: Math.round(w * 0.055),
-                          height: Math.max(1, Math.round(w * 0.001)),
-                          background: bc,
-                          opacity: 0.55,
-                          marginBottom: Math.round(w * 0.008),
-                        }
-                      }
-                    },
-                    {
-                      type: 'span',
-                      props: {
-                        style: {
-                          fontFamily: 'Cormorant',
-                          fontSize: sm,
-                          fontWeight: 300,
-                          letterSpacing: '0.2em',
-                          color: muted,
-                        },
-                        children: date,
-                      }
-                    },
-                  ]
-                }
-              },
-              {
-                type: 'span',
-                props: {
-                  style: {
-                    fontFamily: 'Cormorant',
-                    fontSize: Math.round(sm * 1.08),
-                    fontStyle: 'italic',
-                    fontWeight: 300,
-                    letterSpacing: '0.12em',
-                    color: ink,
-                    opacity: 0.2,
-                  },
-                  children: 'The Anvil Speaks',
-                }
-              },
-            ]
-          }
-        },
-      ]
+          // Quote area
+          {
+            type: 'div',
+            props: {
+              style: { flex:1, display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'flex-start' },
+              children: [
+                { type:'div', props:{ style:{ fontFamily:'Cormorant', fontSize:mSize, color:ink, opacity:0.2, marginBottom: Math.round(qPad*0.3), marginLeft:-Math.round(mSize*0.08) }, children:'\u201C' } },
+                { type:'div', props:{ style:{ fontFamily:'Courier', fontSize:sq, fontStyle:'italic', lineHeight:1.78, color:ink, textAlign:'left', width:'100%' }, children: quote } },
+                { type:'div', props:{ style:{ fontFamily:'Cormorant', fontSize:mSize, color:ink, opacity:0.2, marginTop: Math.round(qPad*0.3), alignSelf:'flex-end', marginRight:-Math.round(mSize*0.08) }, children:'\u201D' } },
+              ]
+            }
+          },
+
+          // Footer
+          {
+            type: 'div',
+            props: {
+              style: { display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'flex-end', paddingTop: Math.round(pad*0.4) },
+              children: [
+                {
+                  type: 'div',
+                  props: {
+                    style: { display:'flex', flexDirection:'column' },
+                    children: [
+                      { type:'div', props:{ style:{ width: Math.round(w*0.055), height:1, background:bc, opacity:0.55, marginBottom: Math.round(w*0.008) } } },
+                      { type:'span', props:{ style:{ fontFamily:'Cormorant', fontSize:sm, color:muted, letterSpacing:'0.2em' }, children: date } },
+                    ]
+                  }
+                },
+                { type:'span', props:{ style:{ fontFamily:'Cormorant', fontSize: Math.round(sm*1.08), fontStyle:'italic', color:ink, opacity:0.2, letterSpacing:'0.12em' }, children:'The Anvil Speaks' } },
+              ]
+            }
+          },
+        ]
+      }
+    },
+    {
+      width: w,
+      height: h,
+      fonts: [
+        { name:'Cormorant', data: cormorantItalic, weight:300, style:'italic' },
+        { name:'Courier',   data: courierItalic,   weight:400, style:'italic' },
+      ],
     }
-  };
+  );
 
-  const svg = await satori(card, {
-    width: w,
-    height: h,
-    fonts: [
-      { name: 'Cormorant', data: cormorantData, weight: 300, style: 'italic' },
-      { name: 'Courier',   data: courierData,   weight: 400, style: 'italic' },
-    ],
-  });
-
-  const png = await sharp(Buffer.from(svg)).png().toBuffer();
+  const buffer = Buffer.from(await imageResponse.arrayBuffer());
 
   // Upload to Supabase Storage
   const fileName = `cards/${post.id}.png`;
   const { error: uploadErr } = await db.storage
     .from('anvil-cards')
-    .upload(fileName, png, { contentType: 'image/png', upsert: true });
+    .upload(fileName, buffer, { contentType: 'image/png', upsert: true });
   if (uploadErr) throw new Error(`Storage upload failed: ${uploadErr.message}`);
 
   const { data: { publicUrl } } = db.storage.from('anvil-cards').getPublicUrl(fileName);
@@ -429,17 +188,17 @@ async function postToInstagram(post, imageUrl) {
   return published.id;
 }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+export default async function handler(req) {
+  if (req.method !== 'POST') return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
 
-  const { post_id } = req.body;
-  if (!post_id) return res.status(400).json({ error: 'post_id required' });
+  const { post_id } = await req.json();
+  if (!post_id) return new Response(JSON.stringify({ error: 'post_id required' }), { status: 400 });
 
   const { data: post, error: fetchErr } = await db
     .from('anvil_posts').select('*').eq('id', post_id).single();
 
-  if (fetchErr || !post) return res.status(404).json({ error: 'Post not found' });
-  if (post.status !== 'pending') return res.status(400).json({ error: `Post is ${post.status}` });
+  if (fetchErr || !post) return new Response(JSON.stringify({ error: 'Post not found' }), { status: 404 });
+  if (post.status !== 'pending') return new Response(JSON.stringify({ error: `Post is ${post.status}` }), { status: 400 });
 
   await db.from('anvil_posts').update({ status: 'rendering' }).eq('id', post_id);
 
@@ -451,12 +210,12 @@ export default async function handler(req, res) {
       instagram_post_id: igPostId,
       posted_at: new Date().toISOString(),
     }).eq('id', post_id);
-    return res.status(200).json({ success: true, instagram_post_id: igPostId });
+    return new Response(JSON.stringify({ success: true, instagram_post_id: igPostId }), { status: 200 });
   } catch (err) {
     await db.from('anvil_posts').update({
       status: 'failed',
       error_message: err.message,
     }).eq('id', post_id);
-    return res.status(500).json({ error: err.message });
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }
