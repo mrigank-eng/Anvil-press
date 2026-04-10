@@ -9,430 +9,188 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Courier+Prime:ital,wght@0,400;1,400&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* ── Reset & Base ── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg:        #0d0d0f;
-    --surface:   #141416;
-    --panel:     #1a1a1e;
-    --border:    rgba(255,255,255,0.07);
-    --border-md: rgba(255,255,255,0.12);
-    --text:      #e8e4dc;
-    --muted:     #6a6870;
-    --accent:    #8aacbf;
-    --accent2:   #c9a84c;
-    --danger:    #bf5a5a;
-    --success:   #5abf8a;
-    --font-ui:   'Cormorant Garamond', Georgia, serif;
-    --font-mono: 'Courier Prime', 'Courier New', monospace;
-    --radius:    6px;
-    --radius-lg: 12px;
-  }
-
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-ui); overflow: hidden; }
-
-  /* ── Layout ── */
-  .app { display: grid; grid-template-columns: 260px 1fr 380px; grid-template-rows: 56px 1fr; height: 100vh; }
-
-  /* ── Topbar ── */
-  .topbar {
-    grid-column: 1 / -1;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 24px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .topbar-brand {
-    font-family: var(--font-ui);
-    font-size: 15px; font-weight: 300; letter-spacing: 0.25em;
-    text-transform: uppercase; color: var(--accent);
-  }
-  .topbar-brand span { color: var(--accent2); }
-  .topbar-right { display: flex; align-items: center; gap: 12px; }
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
-  .status-label { font-size: 11px; letter-spacing: 0.15em; color: var(--muted); }
-
-  /* ── Sidebar (queue) ── */
-  .sidebar {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    overflow: hidden;
-  }
-  .sidebar-header {
-    padding: 16px 18px 12px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .sidebar-title { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
-  .queue-list { flex: 1; overflow-y: auto; padding: 8px; }
-  .queue-list::-webkit-scrollbar { width: 3px; }
-  .queue-list::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 2px; }
-
-  .queue-item {
-    padding: 10px 12px; border-radius: var(--radius);
-    border: 1px solid transparent;
-    cursor: pointer; margin-bottom: 4px;
-    transition: all 0.15s;
-    position: relative;
-  }
-  .queue-item:hover { background: var(--panel); border-color: var(--border); }
-  .queue-item.active { background: var(--panel); border-color: var(--accent); }
-  .qi-number { font-size: 9px; letter-spacing: 0.3em; color: var(--muted); margin-bottom: 4px; }
-  .qi-quote { font-size: 12px; font-style: italic; color: var(--text); line-height: 1.5;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-  .qi-meta { font-size: 10px; color: var(--muted); margin-top: 4px; display: flex; gap: 8px; }
-  .qi-status {
-    position: absolute; top: 10px; right: 10px;
-    width: 6px; height: 6px; border-radius: 50%;
-  }
-  .qi-status.pending  { background: var(--accent2); }
-  .qi-status.posted   { background: var(--success); }
-  .qi-status.failed   { background: var(--danger); }
-
-  .btn-new {
-    width: 28px; height: 28px; border-radius: var(--radius);
-    background: var(--panel); border: 1px solid var(--border-md);
-    color: var(--accent); font-size: 18px; line-height: 1;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  .btn-new:hover { background: var(--accent); color: var(--bg); }
-
-  /* ── Editor (centre) ── */
-  .editor {
-    display: flex; flex-direction: column;
-    overflow: hidden; background: var(--bg);
-  }
-  .editor-scroll { flex: 1; overflow-y: auto; padding: 28px 32px; }
-  .editor-scroll::-webkit-scrollbar { width: 3px; }
-  .editor-scroll::-webkit-scrollbar-thumb { background: var(--border-md); }
-
-  .section-label {
-    font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 10px;
-  }
-
-  .field-group { margin-bottom: 24px; }
-
-  textarea, input[type=text], input[type=date], input[type=time], input[type=number], select {
-    width: 100%; background: var(--panel);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    color: var(--text); font-family: var(--font-ui); font-size: 14px;
-    padding: 10px 13px; outline: none; resize: none;
-    transition: border 0.15s;
-  }
-  textarea:focus, input:focus, select:focus { border-color: var(--accent); }
-  textarea { min-height: 90px; line-height: 1.65; font-style: italic; }
-
-  /* ── Schedule Grid ── */
-  .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .time-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .preset-btn {
-    padding: 4px 10px; border-radius: 20px;
-    background: var(--panel); border: 1px solid var(--border);
-    color: var(--muted); font-size: 11px; font-family: var(--font-mono);
-    cursor: pointer; letter-spacing: 0.05em; transition: all 0.15s;
-  }
-  .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .posts-per-day { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-  .posts-per-day label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-  .posts-per-day input { width: 60px; text-align: center; }
-
-  /* scheduled times list */
-  .scheduled-times { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-  .time-row { display: flex; gap: 8px; align-items: center; }
-  .time-row input[type=time] { flex: 1; }
-  .btn-remove-time {
-    width: 26px; height: 26px; border-radius: var(--radius);
-    background: transparent; border: 1px solid var(--border);
-    color: var(--muted); cursor: pointer; font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s; flex-shrink: 0;
-  }
-  .btn-remove-time:hover { border-color: var(--danger); color: var(--danger); }
-  .btn-add-time {
-    margin-top: 6px; padding: 6px 12px; border-radius: var(--radius);
-    background: transparent; border: 1px solid var(--border);
-    color: var(--muted); font-size: 11px; font-family: var(--font-ui);
-    letter-spacing: 0.15em; cursor: pointer; transition: all 0.15s; width: 100%;
-    text-transform: uppercase;
-  }
-  .btn-add-time:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* ── Dimensions ── */
-  .dim-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .dim-option {
-    border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 10px 6px; cursor: pointer; text-align: center;
-    transition: all 0.15s; background: var(--panel);
-  }
-  .dim-option:hover { border-color: var(--accent); }
-  .dim-option.active { border-color: var(--accent); background: rgba(138,172,191,0.08); }
-  .dim-thumb {
-    margin: 0 auto 6px;
-    border: 1px solid var(--border-md);
-    background: var(--bg);
-  }
-  .dim-label { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
-  .dim-ratio { font-size: 10px; color: var(--text); margin-bottom: 2px; }
-
-  /* ── Colour Pickers ── */
-  .colour-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .colour-field label {
-    display: block; font-size: 9px; letter-spacing: 0.25em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
-  }
-  .colour-input-wrap { position: relative; }
-  .colour-input-wrap input[type=color] {
-    width: 100%; height: 38px; padding: 3px;
-    border-radius: var(--radius); cursor: pointer;
-    border: 1px solid var(--border);
-  }
-  .colour-hex {
-    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    font-size: 11px; font-family: var(--font-mono); color: var(--muted);
-    pointer-events: none;
-  }
-  .saved-palettes { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-  .palette-swatch {
-    width: 28px; height: 28px; border-radius: 50%;
-    cursor: pointer; border: 2px solid transparent;
-    transition: all 0.15s; position: relative;
-  }
-  .palette-swatch:hover { border-color: var(--text); transform: scale(1.1); }
-  .palette-swatch.active { border-color: var(--accent); }
-
-  /* ── Font Picker ── */
-  .font-elements { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .font-field label {
-    display: block; font-size: 9px; letter-spacing: 0.25em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
-  }
-  .font-select-wrap { display: flex; gap: 6px; }
-  .font-select-wrap select { flex: 1; font-size: 13px; }
-  .font-size-input { width: 56px; text-align: center; }
-
-  .font-search {
-    width: 100%; margin-bottom: 10px;
-  }
-
-  /* ── Editor Footer ── */
-  .editor-footer {
-    padding: 14px 32px;
-    border-top: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--surface);
-  }
-  .btn {
-    padding: 9px 20px; border-radius: var(--radius);
-    font-family: var(--font-ui); font-size: 12px;
-    letter-spacing: 0.2em; text-transform: uppercase;
-    cursor: pointer; border: 1px solid; transition: all 0.15s;
-  }
-  .btn-ghost { background: transparent; border-color: var(--border); color: var(--muted); }
-  .btn-ghost:hover { border-color: var(--text); color: var(--text); }
-  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 400; }
-  .btn-primary:hover { background: #9bbdcf; }
-  .btn-danger { background: transparent; border-color: var(--danger); color: var(--danger); }
-  .btn-danger:hover { background: var(--danger); color: var(--bg); }
-
-  /* ── Preview Panel ── */
-  .preview-panel {
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    overflow: hidden;
-  }
-  .preview-header {
-    padding: 16px 18px 12px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .preview-title { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
-
-  .preview-scroll { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; align-items: center; }
-  .preview-scroll::-webkit-scrollbar { width: 3px; }
-
-  /* Instagram phone mockup */
-  .insta-mockup {
-    width: 260px;
-    background: #000;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid #333;
-    flex-shrink: 0;
-  }
-  .insta-top-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 12px;
-    border-bottom: 1px solid #222;
-  }
-  .insta-avatar { width: 24px; height: 24px; border-radius: 50%; background: #333; }
-  .insta-handle { font-size: 11px; color: #fff; font-family: -apple-system, sans-serif; }
-  .insta-dots { color: #888; font-size: 14px; font-family: sans-serif; }
-
-  .insta-card-wrap {
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-    background: #1a1a2e;
-  }
-
-  /* The actual card preview */
-  .card-preview {
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-    font-family: var(--font-ui);
-  }
-  .cp-bg { position: absolute; inset: 0; }
-  .cp-noise {
-    position: absolute; inset: 0; opacity: 0.13;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.1'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 120px;
-  }
-  .cp-vignette {
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.25) 100%);
-  }
-  .cp-border-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .cp-content {
-    position: relative; z-index: 4;
-    padding: 14px 16px 12px;
-    height: 100%; display: flex; flex-direction: column;
-  }
-  .cp-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
-  .cp-from { font-size: 8px; font-weight: 300; font-style: italic; letter-spacing: 0.08em; }
-  .cp-num { font-size: 7px; font-weight: 300; letter-spacing: 0.4em; }
-  .cp-rule { width: 100%; height: 0.5px; opacity: 0.4; margin-bottom: 0; }
-  .cp-quote-area { flex: 1; display: flex; align-items: center; justify-content: center; }
-  .cp-quote-wrap { width: 100%; position: relative; }
-  .cp-marks-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 2; }
-  .cp-quote-text {
-    font-family: 'Courier Prime', monospace;
-    font-size: 10px; font-style: italic;
-    line-height: 1.75; color: #e8e4dc;
-    padding: 36px 0; position: relative; z-index: 3;
-  }
-  .cp-footer { display: flex; align-items: flex-end; justify-content: space-between; padding-top: 6px; }
-  .cp-date-rule { width: 14px; height: 0.5px; opacity: 0.55; margin-bottom: 3px; }
-  .cp-date { font-size: 7px; font-weight: 300; letter-spacing: 0.18em; }
-  .cp-watermark { font-size: 7px; font-style: italic; font-weight: 300; letter-spacing: 0.1em; opacity: 0.2; }
-
-  /* Insta action bar */
-  .insta-actions {
-    padding: 8px 12px 6px;
-    display: flex; gap: 12px;
-  }
-  .insta-icon { width: 20px; height: 20px; opacity: 0.8; }
-  .insta-caption-preview {
-    padding: 0 12px 10px;
-    font-size: 10px; color: #ccc;
-    font-family: -apple-system, sans-serif;
-    line-height: 1.4;
-  }
-  .insta-caption-preview strong { color: #fff; }
-
-  /* Dimension selector in preview */
-  .preview-dims { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
-  .pdim {
-    padding: 3px 9px; border-radius: 20px;
-    font-size: 10px; letter-spacing: 0.12em;
-    border: 1px solid var(--border); color: var(--muted);
-    cursor: pointer; transition: all 0.15s; font-family: var(--font-mono);
-  }
-  .pdim:hover { border-color: var(--accent); color: var(--accent); }
-  .pdim.active { border-color: var(--accent); color: var(--accent); background: rgba(138,172,191,0.08); }
-
-  /* ── Queue Stats ── */
-  .queue-stats {
-    padding: 10px 18px;
-    border-top: 1px solid var(--border);
-    display: flex; gap: 16px;
-  }
-  .stat { text-align: center; }
-  .stat-num { font-size: 16px; font-weight: 300; color: var(--text); }
-  .stat-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
-
-  /* ── Toast ── */
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    padding: 10px 20px; border-radius: var(--radius);
-    font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase;
-    z-index: 1000; opacity: 0; transition: opacity 0.3s;
-    pointer-events: none;
-  }
-  .toast.show { opacity: 1; }
-  .toast.success { background: var(--success); color: var(--bg); }
-  .toast.error   { background: var(--danger);  color: #fff; }
-
-  /* ── Modal ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7); z-index: 500;
-    align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--panel); border: 1px solid var(--border-md);
-    border-radius: var(--radius-lg); padding: 28px; width: 360px;
-    max-width: 90vw;
-  }
-  .modal h3 { font-size: 14px; font-weight: 300; letter-spacing: 0.15em; margin-bottom: 16px; color: var(--accent); }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-
-  /* Scrollbar for editor */
-  .editor-scroll::-webkit-scrollbar { width: 3px; }
-  .editor-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-
-  /* Divider */
-  .divider { height: 1px; background: var(--border); margin: 20px 0; }
-
-  /* Font search results */
-  .font-results {
-    max-height: 120px; overflow-y: auto;
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--radius); margin-top: 4px;
-  }
-  .font-result-item {
-    padding: 6px 10px; font-size: 13px; cursor: pointer;
-    transition: background 0.1s; border-bottom: 1px solid var(--border);
-  }
-  .font-result-item:hover { background: var(--panel); }
-  .font-result-item:last-child { border-bottom: none; }
-
-  input[type=range] {
-    width: 100%; accent-color: var(--accent);
-    background: transparent; height: 20px;
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#0d0d0f;--surface:#141416;--panel:#1a1a1e;--border:rgba(255,255,255,0.07);--border-md:rgba(255,255,255,0.12);--text:#e8e4dc;--muted:#6a6870;--accent:#8aacbf;--accent2:#c9a84c;--danger:#bf5a5a;--success:#5abf8a;--font-ui:'Cormorant Garamond',Georgia,serif;--font-mono:'Courier Prime','Courier New',monospace;--radius:6px;--radius-lg:12px;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-ui);overflow:hidden;}
+.app{display:grid;grid-template-columns:260px 1fr 420px;grid-template-rows:56px 1fr;height:100vh;}
+.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);}
+.topbar-brand{font-size:15px;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);}
+.topbar-brand span{color:var(--accent2);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);}
+.status-label{font-size:11px;letter-spacing:0.15em;color:var(--muted);}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-header{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sidebar-title{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);}
+.queue-list{flex:1;overflow-y:auto;padding:8px;}
+.queue-list::-webkit-scrollbar{width:3px;}
+.queue-list::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:2px;}
+.queue-item{padding:10px 12px;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;margin-bottom:4px;transition:all 0.15s;position:relative;}
+.queue-item:hover{background:var(--panel);border-color:var(--border);}
+.queue-item.active{background:var(--panel);border-color:var(--accent);}
+.qi-number{font-size:9px;letter-spacing:0.3em;color:var(--muted);margin-bottom:4px;font-family:var(--font-mono);}
+.qi-quote{font-size:12px;font-style:italic;color:var(--text);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+.qi-meta{font-size:10px;color:var(--muted);margin-top:4px;display:flex;gap:8px;}
+.qi-status{position:absolute;top:10px;right:10px;width:6px;height:6px;border-radius:50%;}
+.qi-status.pending{background:var(--accent2);}
+.qi-status.posted{background:var(--success);}
+.qi-status.failed{background:var(--danger);}
+.qi-status.draft{background:var(--muted);}
+.btn-new{width:28px;height:28px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--border-md);color:var(--accent);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.btn-new:hover{background:var(--accent);color:var(--bg);}
+.queue-stats{padding:10px 18px;border-top:1px solid var(--border);display:flex;gap:16px;}
+.stat{text-align:center;}
+.stat-num{font-size:16px;font-weight:300;color:var(--text);}
+.stat-label{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
+.editor{display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
+.editor-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);}
+.editor-tab{padding:14px 20px;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;}
+.editor-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.editor-tab:hover{color:var(--text);}
+.editor-scroll{flex:1;overflow-y:auto;padding:24px 28px;}
+.editor-scroll::-webkit-scrollbar{width:3px;}
+.editor-scroll::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+.canvas-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.canvas-toolbar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap;}
+.canvas-tool-btn{padding:5px 12px;border-radius:var(--radius);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;border:1px solid var(--border);color:var(--muted);cursor:pointer;background:transparent;transition:all 0.15s;font-family:var(--font-ui);}
+.canvas-tool-btn:hover{border-color:var(--accent);color:var(--accent);}
+.canvas-tool-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(138,172,191,0.08);}
+.canvas-area{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);}
+.canvas-wrap{position:relative;box-shadow:0 0 0 1px var(--border-md);}
+.canvas-card{position:relative;overflow:hidden;user-select:none;}
+.card-element{position:absolute;cursor:move;border:1px solid transparent;transition:border-color 0.1s;}
+.card-element:hover{border-color:rgba(138,172,191,0.4);}
+.card-element.selected{border-color:var(--accent);}
+.card-element.selected .resize-handle{display:block;}
+.resize-handle{display:none;position:absolute;width:8px;height:8px;background:var(--accent);border-radius:50%;z-index:10;}
+.resize-handle.br{bottom:-4px;right:-4px;cursor:se-resize;}
+.resize-handle.bl{bottom:-4px;left:-4px;cursor:sw-resize;}
+.resize-handle.tr{top:-4px;right:-4px;cursor:ne-resize;}
+.resize-handle.tl{top:-4px;left:-4px;cursor:nw-resize;}
+.element-props{padding:12px 16px;border-top:1px solid var(--border);background:var(--surface);display:none;}
+.element-props.visible{display:block;}
+.props-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
+.prop-field label{display:block;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.prop-field input,.prop-field select{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-ui);font-size:12px;padding:5px 8px;outline:none;}
+.prop-field input:focus,.prop-field select:focus{border-color:var(--accent);}
+.prop-field input[type=color]{height:30px;padding:2px;}
+.section-label{font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.field-group{margin-bottom:20px;}
+textarea,input[type=text],input[type=date],input[type=time],input[type=number],select{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-ui);font-size:14px;padding:10px 13px;outline:none;resize:none;transition:border 0.15s;}
+textarea:focus,input:focus,select:focus{border-color:var(--accent);}
+textarea{min-height:90px;line-height:1.65;font-style:italic;}
+.schedule-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.time-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.preset-btn{padding:4px 10px;border-radius:20px;background:var(--panel);border:1px solid var(--border);color:var(--muted);font-size:11px;font-family:var(--font-mono);cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;}
+.preset-btn:hover{border-color:var(--accent);color:var(--accent);}
+.post-time-row{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--border);margin-bottom:6px;}
+.post-time-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.post-time-row input[type=time]{flex:1;}
+.btn-remove-time{width:24px;height:24px;border-radius:var(--radius);background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;}
+.btn-remove-time:hover{border-color:var(--danger);color:var(--danger);}
+.btn-add-time{margin-top:6px;padding:6px 12px;border-radius:var(--radius);background:transparent;border:1px solid var(--border);color:var(--muted);font-size:10px;font-family:var(--font-ui);letter-spacing:0.2em;cursor:pointer;transition:all 0.15s;width:100%;text-transform:uppercase;}
+.btn-add-time:hover{border-color:var(--accent);color:var(--accent);}
+.dim-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.dim-option{border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px;cursor:pointer;text-align:center;transition:all 0.15s;background:var(--panel);}
+.dim-option:hover,.dim-option.active{border-color:var(--accent);}
+.dim-option.active{background:rgba(138,172,191,0.08);}
+.dim-thumb{margin:0 auto 6px;border:1px solid var(--border-md);background:var(--bg);}
+.dim-ratio{font-size:10px;color:var(--text);margin-bottom:2px;}
+.dim-label{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+.colour-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.colour-field label{display:block;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.colour-input-wrap{position:relative;}
+.colour-input-wrap input[type=color]{width:100%;height:38px;padding:3px;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border);}
+.colour-hex{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-family:var(--font-mono);color:var(--muted);pointer-events:none;}
+.saved-palettes{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.palette-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.15s;}
+.palette-swatch:hover{border-color:var(--text);transform:scale(1.1);}
+.palette-swatch.active{border-color:var(--accent);}
+.font-elements{display:flex;flex-direction:column;gap:10px;}
+.font-field label{display:block;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.font-select-wrap{display:flex;gap:6px;}
+.font-select-wrap select{flex:1;font-size:13px;}
+.font-size-input{width:60px;text-align:center;}
+.post-num-wrap{display:flex;align-items:center;gap:8px;}
+.post-num-btn{width:32px;height:32px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--border-md);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;}
+.post-num-btn:hover{border-color:var(--accent);color:var(--accent);}
+.post-num-input{width:80px;text-align:center;font-family:var(--font-mono);font-size:18px;letter-spacing:0.1em;}
+.btn{padding:9px 20px;border-radius:var(--radius);font-family:var(--font-ui);font-size:12px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;border:1px solid;transition:all 0.15s;}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--text);color:var(--text);}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--bg);}
+.btn-primary:hover{background:#9bbdcf;}
+.btn-danger{background:transparent;border-color:var(--danger);color:var(--danger);}
+.btn-danger:hover{background:var(--danger);color:var(--bg);}
+.editor-footer{padding:14px 28px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);}
+.preview-panel{background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.preview-header{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.preview-title{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);}
+.preview-scroll{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.preview-scroll::-webkit-scrollbar{width:3px;}
+.insta-mockup{width:260px;background:#000;border-radius:16px;overflow:hidden;border:1px solid #333;flex-shrink:0;}
+.insta-top-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #222;}
+.insta-avatar{width:24px;height:24px;border-radius:50%;background:#333;}
+.insta-handle{font-size:11px;color:#fff;font-family:-apple-system,sans-serif;}
+.insta-dots{color:#888;font-size:14px;}
+.insta-card-wrap{width:100%;position:relative;overflow:hidden;}
+.card-preview{width:100%;position:relative;overflow:hidden;}
+.cp-bg{position:absolute;inset:0;}
+.cp-noise{position:absolute;inset:0;opacity:0.13;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.1'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");background-size:120px;}
+.cp-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.22) 100%);}
+.cp-border-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.cp-content{position:absolute;inset:0;z-index:4;padding:14px 16px 12px;display:flex;flex-direction:column;}
+.cp-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;}
+.cp-from{font-size:8px;font-weight:300;font-style:italic;letter-spacing:0.08em;}
+.cp-num{font-size:7px;font-weight:300;letter-spacing:0.4em;}
+.cp-rule{width:100%;height:0.5px;opacity:0.4;margin-bottom:0;}
+.cp-quote-area{flex:1;display:flex;align-items:center;justify-content:center;}
+.cp-quote-wrap{width:100%;position:relative;}
+.cp-marks-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:2;}
+.cp-quote-text{font-family:'Courier Prime',monospace;font-size:10px;font-style:italic;line-height:1.75;color:#e8e4dc;padding:36px 0;position:relative;z-index:3;}
+.cp-footer{display:flex;align-items:flex-end;justify-content:space-between;padding-top:6px;}
+.cp-date-rule{width:14px;height:0.5px;opacity:0.55;margin-bottom:3px;}
+.cp-date{font-size:7px;font-weight:300;letter-spacing:0.18em;}
+.cp-watermark{font-size:7px;font-style:italic;font-weight:300;letter-spacing:0.1em;opacity:0.2;}
+.insta-actions{padding:8px 12px 6px;display:flex;gap:12px;}
+.insta-icon{width:20px;height:20px;opacity:0.8;}
+.insta-caption-preview{padding:0 12px 10px;font-size:10px;color:#ccc;font-family:-apple-system,sans-serif;line-height:1.4;}
+.insta-caption-preview strong{color:#fff;}
+.preview-dims{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+.pdim{padding:3px 9px;border-radius:20px;font-size:10px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:var(--font-mono);}
+.pdim:hover{border-color:var(--accent);color:var(--accent);}
+.pdim.active{border-color:var(--accent);color:var(--accent);background:rgba(138,172,191,0.08);}
+.tz-badge{font-size:10px;font-family:var(--font-mono);color:var(--accent2);letter-spacing:0.1em;padding:3px 8px;border-radius:20px;border:1px solid rgba(201,168,76,0.3);}
+.divider{height:1px;background:var(--border);margin:18px 0;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--panel);border:1px solid var(--border-md);border-radius:var(--radius-lg);padding:28px;width:360px;max-width:90vw;}
+.modal h3{font-size:14px;font-weight:300;letter-spacing:0.15em;margin-bottom:16px;color:var(--accent);}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:var(--radius);font-size:12px;letter-spacing:0.15em;text-transform:uppercase;z-index:1000;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+.toast.success{background:var(--success);color:var(--bg);}
+.toast.error{background:var(--danger);color:#fff;}
 </style>
 </head>
 <body>
-
 <div class="app">
-
-  <!-- ── Topbar ── -->
   <header class="topbar">
     <div class="topbar-brand">Anvil <span>Press</span></div>
     <div class="topbar-right">
+      <span class="tz-badge" id="tzBadge">—</span>
       <div class="status-dot" id="statusDot"></div>
       <span class="status-label" id="statusLabel">Connecting...</span>
     </div>
   </header>
 
-  <!-- ── Sidebar ── -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <span class="sidebar-title">Queue</span>
-      <button class="btn-new" id="btnNew" title="New post">+</button>
+      <button class="btn-new" onclick="newPost()" title="New post">+</button>
     </div>
     <div class="queue-list" id="queueList">
-      <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;letter-spacing:0.1em;">
-        Loading queue...
-      </div>
+      <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;letter-spacing:0.1em;">Loading...</div>
     </div>
     <div class="queue-stats">
       <div class="stat"><div class="stat-num" id="statPending">—</div><div class="stat-label">Pending</div></div>
@@ -441,163 +199,192 @@
     </div>
   </aside>
 
-  <!-- ── Editor ── -->
   <main class="editor">
-    <div class="editor-scroll" id="editorScroll">
+    <div class="editor-tabs">
+      <div class="editor-tab active" onclick="switchTab('content',this)">Content</div>
+      <div class="editor-tab" onclick="switchTab('schedule',this)">Schedule</div>
+      <div class="editor-tab" onclick="switchTab('design',this)">Design</div>
+      <div class="editor-tab" onclick="switchTab('canvas',this)">Canvas</div>
+    </div>
 
-      <!-- Content -->
+    <!-- Content Tab -->
+    <div class="editor-scroll" id="tab-content">
       <div class="field-group">
         <div class="section-label">Quote</div>
         <textarea id="fQuote" placeholder="Your thought, pressed into the margins..." oninput="updatePreview()"></textarea>
       </div>
-
       <div class="field-group">
         <div class="section-label">Caption</div>
         <textarea id="fCaption" placeholder="Caption for the Instagram post..." style="min-height:60px;" oninput="updatePreview()"></textarea>
       </div>
-
       <div class="divider"></div>
-
-      <!-- Schedule -->
       <div class="field-group">
-        <div class="section-label">Schedule</div>
-        <div class="schedule-grid">
-          <div>
-            <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Date</div>
-            <input type="date" id="fDate"/>
-          </div>
-          <div>
-            <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Posts per day</div>
-            <div class="posts-per-day">
-              <input type="number" id="fPostsPerDay" value="3" min="1" max="24" onchange="updateTimesCount()"/>
-            </div>
-          </div>
+        <div class="section-label">Post Number</div>
+        <div class="post-num-wrap">
+          <button class="post-num-btn" onclick="changePostNum(-1)">−</button>
+          <input type="number" class="post-num-input" id="postNumInput" value="1" min="1" max="9999" oninput="updatePreview()"/>
+          <button class="post-num-btn" onclick="changePostNum(1)">+</button>
         </div>
-        <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px;">Post times</div>
+      </div>
+    </div>
+
+    <!-- Schedule Tab -->
+    <div class="editor-scroll" id="tab-schedule" style="display:none;">
+      <div class="field-group">
+        <div class="section-label">Date</div>
+        <input type="date" id="fDate"/>
+      </div>
+      <div class="divider"></div>
+      <div class="field-group">
+        <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Post Times</span>
+          <span class="tz-badge" id="tzBadge2">—</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;letter-spacing:0.05em;">Each time slot = one independent post. No duplicates.</div>
         <div class="time-presets">
           <button class="preset-btn" onclick="setPresetTimes([6,14,22])">06 · 14 · 22</button>
           <button class="preset-btn" onclick="setPresetTimes([8,16,22])">08 · 16 · 22</button>
           <button class="preset-btn" onclick="setPresetTimes([7,13,20])">07 · 13 · 20</button>
           <button class="preset-btn" onclick="setPresetTimes([9,15,21])">09 · 15 · 21</button>
         </div>
-        <div class="scheduled-times" id="scheduledTimes"></div>
-        <button class="btn-add-time" onclick="addTimeRow()">+ Add time slot</button>
+        <div style="margin-top:10px;" id="postTimesList"></div>
+        <button class="btn-add-time" onclick="addTimeSlot()">+ Add time slot</button>
       </div>
+    </div>
 
-      <div class="divider"></div>
-
-      <!-- Dimensions -->
+    <!-- Design Tab -->
+    <div class="editor-scroll" id="tab-design" style="display:none;">
       <div class="field-group">
         <div class="section-label">Dimensions</div>
         <div class="dim-grid">
           <div class="dim-option active" data-dim="1:1" onclick="setDim(this,'1:1',1080,1080)">
             <div class="dim-thumb" style="width:36px;height:36px;"></div>
-            <div class="dim-ratio">1 : 1</div>
-            <div class="dim-label">Square</div>
+            <div class="dim-ratio">1 : 1</div><div class="dim-label">Square</div>
           </div>
           <div class="dim-option" data-dim="4:5" onclick="setDim(this,'4:5',1080,1350)">
             <div class="dim-thumb" style="width:32px;height:40px;"></div>
-            <div class="dim-ratio">4 : 5</div>
-            <div class="dim-label">Portrait</div>
+            <div class="dim-ratio">4 : 5</div><div class="dim-label">Portrait</div>
           </div>
           <div class="dim-option" data-dim="9:16" onclick="setDim(this,'9:16',1080,1920)">
             <div class="dim-thumb" style="width:22px;height:40px;"></div>
-            <div class="dim-ratio">9 : 16</div>
-            <div class="dim-label">Story</div>
+            <div class="dim-ratio">9 : 16</div><div class="dim-label">Story</div>
           </div>
           <div class="dim-option" data-dim="16:9" onclick="setDim(this,'16:9',1920,1080)">
             <div class="dim-thumb" style="width:44px;height:26px;"></div>
-            <div class="dim-ratio">16 : 9</div>
-            <div class="dim-label">Landscape</div>
+            <div class="dim-ratio">16 : 9</div><div class="dim-label">Wide</div>
           </div>
         </div>
       </div>
-
       <div class="divider"></div>
-
-      <!-- Colours -->
       <div class="field-group">
         <div class="section-label">Colours</div>
         <div class="colour-row">
-          <div class="colour-field">
-            <label>Background</label>
+          <div class="colour-field"><label>Background</label>
             <div class="colour-input-wrap">
-              <input type="color" id="cBg" value="#2e4a6a" oninput="updatePreview();updateHex(this)"/>
+              <input type="color" id="cBg" value="#2e4a6a" oninput="updatePreview();updateHex(this,'cBgHex')"/>
               <span class="colour-hex" id="cBgHex">#2e4a6a</span>
             </div>
           </div>
-          <div class="colour-field">
-            <label>Border</label>
+          <div class="colour-field"><label>Border</label>
             <div class="colour-input-wrap">
-              <input type="color" id="cBorder" value="#8aacbf" oninput="updatePreview();updateHex(this)"/>
+              <input type="color" id="cBorder" value="#8aacbf" oninput="updatePreview();updateHex(this,'cBorderHex')"/>
               <span class="colour-hex" id="cBorderHex">#8aacbf</span>
             </div>
           </div>
-          <div class="colour-field">
-            <label>Ink</label>
+          <div class="colour-field"><label>Ink</label>
             <div class="colour-input-wrap">
-              <input type="color" id="cInk" value="#e8e4dc" oninput="updatePreview();updateHex(this)"/>
+              <input type="color" id="cInk" value="#e8e4dc" oninput="updatePreview();updateHex(this,'cInkHex')"/>
               <span class="colour-hex" id="cInkHex">#e8e4dc</span>
             </div>
           </div>
         </div>
-
-        <!-- Saved palettes -->
         <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px;">Saved palettes</div>
         <div class="saved-palettes" id="savedPalettes">
-          <!-- Rosy -->
-          <div class="palette-swatch" style="background:#c9a49a;" title="Rosy"
-            onclick="applyPalette('#c9a49a','#8a4a40','#1e0e0a')"></div>
-          <!-- Stone -->
-          <div class="palette-swatch" style="background:#a8a8aa;" title="Stone"
-            onclick="applyPalette('#a8a8aa','#505052','#101012')"></div>
-          <!-- Prussian -->
-          <div class="palette-swatch active" style="background:#2e4a6a;" title="Prussian"
-            onclick="applyPalette('#2e4a6a','#8aacbf','#e8e4dc')"></div>
-          <!-- Midnight -->
-          <div class="palette-swatch" style="background:#1a1a2e;" title="Midnight"
-            onclick="applyPalette('#1a1a2e','#9a8abf','#e4e0f0')"></div>
-          <!-- Forest -->
-          <div class="palette-swatch" style="background:#2a3d2e;" title="Forest"
-            onclick="applyPalette('#2a3d2e','#7abf8a','#e0f0e4')"></div>
-          <!-- Ember -->
-          <div class="palette-swatch" style="background:#3d1a0a;" title="Ember"
-            onclick="applyPalette('#3d1a0a','#bf7a4a','#f0e4dc')"></div>
-          <!-- Save current -->
-          <div class="palette-swatch" style="background:var(--panel);border:1px dashed var(--border-md);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);"
-            title="Save current palette" onclick="saveCurrentPalette()">+</div>
+          <div class="palette-swatch" style="background:#c9a49a;" onclick="applyPalette('#c9a49a','#8a4a40','#1e0e0a')"></div>
+          <div class="palette-swatch" style="background:#a8a8aa;" onclick="applyPalette('#a8a8aa','#505052','#101012')"></div>
+          <div class="palette-swatch active" style="background:#2e4a6a;" onclick="applyPalette('#2e4a6a','#8aacbf','#e8e4dc')"></div>
+          <div class="palette-swatch" style="background:#1a1a2e;" onclick="applyPalette('#1a1a2e','#9a8abf','#e4e0f0')"></div>
+          <div class="palette-swatch" style="background:#2a3d2e;" onclick="applyPalette('#2a3d2e','#7abf8a','#e0f0e4')"></div>
+          <div class="palette-swatch" style="background:#3d1a0a;" onclick="applyPalette('#3d1a0a','#bf7a4a','#f0e4dc')"></div>
+          <div class="palette-swatch" style="background:var(--panel);border:1px dashed var(--border-md);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);" onclick="saveCurrentPalette()">+</div>
         </div>
       </div>
-
       <div class="divider"></div>
-
-      <!-- Fonts -->
       <div class="field-group">
         <div class="section-label">Fonts</div>
-        <input type="text" class="font-search" id="fontSearch" placeholder="Search Google Fonts..." oninput="searchFonts(this.value)"/>
-        <div class="font-results" id="fontResults" style="display:none;"></div>
-
-        <div class="font-elements" id="fontElements">
-          <!-- populated by JS -->
+        <div class="font-elements">
+          <div class="font-field"><label>Quote text</label>
+            <div class="font-select-wrap">
+              <select id="fontQuote" onchange="updatePreview()"></select>
+              <input type="number" class="font-size-input" id="fsQuote" value="16" min="8" max="72" oninput="updatePreview()"/>
+            </div>
+          </div>
+          <div class="font-field"><label>Header & meta</label>
+            <div class="font-select-wrap">
+              <select id="fontHeader" onchange="updatePreview()"></select>
+              <input type="number" class="font-size-input" id="fsHeader" value="11" min="8" max="72" oninput="updatePreview()"/>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <input type="text" id="fontSearch" placeholder="Search Google Fonts..." oninput="searchFonts(this.value)" style="margin-bottom:6px;"/>
+          <div id="fontResults" style="display:none;max-height:120px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);"></div>
         </div>
       </div>
-
     </div>
 
-    <!-- Editor footer -->
+    <!-- Canvas Tab -->
+    <div id="tab-canvas" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+      <div class="canvas-toolbar">
+        <span style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-right:8px;">Elements</span>
+        <button class="canvas-tool-btn active" onclick="setTool('select',this)">Select</button>
+        <button class="canvas-tool-btn" onclick="addTextElement()">+ Text</button>
+        <div style="flex:1;"></div>
+        <button class="canvas-tool-btn" onclick="resetLayout()">Reset</button>
+        <button class="canvas-tool-btn" onclick="saveLayout()">Save layout</button>
+      </div>
+      <div class="canvas-area" id="canvasArea">
+        <div class="canvas-wrap" id="canvasWrap">
+          <div class="canvas-card" id="canvasCard">
+            <div id="cvBg" style="position:absolute;inset:0;"></div>
+            <div style="position:absolute;inset:0;opacity:0.13;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27200%27 height=%27200%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27turbulence%27 baseFrequency=%270.7%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3CfeColorMatrix type=%27saturate%27 values=%270.1%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E');background-size:100px;pointer-events:none;"></div>
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.22) 100%);pointer-events:none;"></div>
+            <svg id="cvBorderSvg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div id="cvElements"></div>
+          </div>
+        </div>
+      </div>
+      <div class="element-props" id="elementProps">
+        <div class="props-row">
+          <div class="prop-field"><label>Font size</label><input type="number" id="propFontSize" value="16" min="6" max="200" oninput="applyPropChange()"/></div>
+          <div class="prop-field"><label>Color</label><input type="color" id="propColor" value="#e8e4dc" oninput="applyPropChange()"/></div>
+          <div class="prop-field"><label>Opacity %</label><input type="number" id="propOpacity" value="100" min="0" max="100" oninput="applyPropChange()"/></div>
+        </div>
+        <div class="props-row">
+          <div class="prop-field"><label>Font</label><select id="propFont" onchange="applyPropChange()"></select></div>
+          <div class="prop-field"><label>Style</label><select id="propStyle" onchange="applyPropChange()"><option value="normal">Normal</option><option value="italic">Italic</option></select></div>
+          <div class="prop-field"><label>Align</label><select id="propAlign" onchange="applyPropChange()"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="canvas-tool-btn" onclick="deleteSelectedElement()" style="border-color:var(--danger);color:var(--danger);">Delete</button>
+          <button class="canvas-tool-btn" onclick="bringForward()">Forward</button>
+          <button class="canvas-tool-btn" onclick="sendBackward()">Back</button>
+        </div>
+      </div>
+    </div>
+
     <div class="editor-footer">
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-ghost" id="btnDelete" onclick="deletePost()" style="display:none;">Delete</button>
+        <button class="btn btn-danger" id="btnDelete" onclick="deletePost()" style="display:none;">Delete</button>
         <button class="btn btn-ghost" onclick="newPost()">Clear</button>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-ghost" onclick="saveDraft()">Save Draft</button>
-        <button class="btn btn-primary" onclick="schedulePost()">Schedule Post</button>
+        <button class="btn btn-primary" onclick="schedulePost()">Schedule</button>
       </div>
     </div>
   </main>
 
-  <!-- ── Preview Panel ── -->
   <aside class="preview-panel">
     <div class="preview-header">
       <span class="preview-title">Live Preview</span>
@@ -610,8 +397,6 @@
         <span class="pdim" onclick="syncDimPreview(this,'9:16')">9:16</span>
         <span class="pdim" onclick="syncDimPreview(this,'16:9')">16:9</span>
       </div>
-
-      <!-- Instagram mockup -->
       <div class="insta-mockup">
         <div class="insta-top-bar">
           <div style="display:flex;align-items:center;gap:8px;">
@@ -620,7 +405,6 @@
           </div>
           <span class="insta-dots">···</span>
         </div>
-
         <div class="insta-card-wrap" id="instaCardWrap">
           <div class="card-preview" id="cardPreview">
             <div class="cp-bg" id="cpBg"></div>
@@ -642,14 +426,13 @@
               <div class="cp-footer">
                 <div>
                   <div class="cp-date-rule" id="cpDateRule"></div>
-                  <span class="cp-date" id="cpDate">— April 2026</span>
+                  <span class="cp-date" id="cpDate">—</span>
                 </div>
                 <span class="cp-watermark" id="cpWatermark">The Anvil Speaks</span>
               </div>
             </div>
           </div>
         </div>
-
         <div class="insta-actions">
           <svg class="insta-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           <svg class="insta-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -659,532 +442,343 @@
           <strong>quiet_anvil</strong> <span id="previewCaption">Your caption appears here...</span>
         </div>
       </div>
-
-      <!-- Post number selector -->
-      <div style="margin-top:16px;width:100%;padding:0 4px;">
-        <div style="font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;text-align:center;">Post number</div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <input type="range" min="1" max="999" value="1" id="postNumSlider" oninput="updatePostNum(this.value)"/>
-          <span style="font-size:12px;font-family:var(--font-mono);color:var(--muted);width:32px;text-align:right;" id="postNumDisplay">001</span>
-        </div>
-      </div>
-
     </div>
   </aside>
 </div>
 
-<!-- Delete confirm modal -->
 <div class="modal-overlay" id="deleteModal">
   <div class="modal">
     <h3>Delete this post?</h3>
-    <p style="font-size:13px;color:var(--muted);line-height:1.6;">This will permanently remove the post from the queue. This cannot be undone.</p>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;">This will permanently remove the post. Cannot be undone.</p>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('deleteModal')">Cancel</button>
       <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Supabase ──
-const SUPA_URL = 'https://oshyrxekeqobkhmfnseq.supabase.co';
-const SUPA_KEY = 'sb_publishable_dQxgWep_h9-9wOnpkI6O-A_mS7EwBiA';
-const { createClient } = supabase;
-const db = createClient(SUPA_URL, SUPA_KEY);
+const SUPA_URL='https://oshyrxekeqobkhmfnseq.supabase.co';
+const SUPA_KEY='sb_publishable_dQxgWep_h9-9wOnpkI6O-A_mS7EwBiA';
+const {createClient}=supabase;
+const db=createClient(SUPA_URL,SUPA_KEY);
 
-// ── State ──
-let currentPost = null;
-let posts = [];
-let currentDim = { label:'1:1', w:1080, h:1080 };
-let scheduledTimes = ['06:00','14:00','22:00'];
-let fontElements = {
-  quote:  { family:'Courier Prime', size:16 },
-  header: { family:'Cormorant Garamond', size:11 },
-  meta:   { family:'Cormorant Garamond', size:10 },
-};
-let postCounter = 1;
+let currentPost=null,posts=[],currentDim={label:'1:1',w:1080,h:1080};
+let timeSlots=['06:00','14:00','22:00'],selectedElement=null,isDragging=false,isResizing=false;
+let dragOffset={x:0,y:0},resizeStart={},canvasScale=1;
 
-// Google Fonts list (curated 80 excellent options)
-const GOOGLE_FONTS = [
-  'Cormorant Garamond','Courier Prime','EB Garamond','Playfair Display',
-  'Libre Baskerville','Lora','DM Serif Display','Merriweather','Crimson Text',
-  'Spectral','Source Serif 4','Bitter','Zilla Slab','Arvo','Cardo',
-  'GFS Didot','Bodoni Moda','Didact Gothic','Old Standard TT','Vollkorn',
-  'Alegreya','Alegreya Sans','PT Serif','PT Sans','Noto Serif','Noto Sans',
-  'IBM Plex Serif','IBM Plex Sans','IBM Plex Mono','Space Mono','Space Grotesk',
-  'Roboto Slab','Roboto Serif','Roboto Mono','DM Sans','DM Mono',
-  'Josefin Slab','Josefin Sans','Raleway','Nunito','Nunito Sans',
-  'Oswald','Fjalla One','Anton','Bebas Neue','Barlow','Barlow Condensed',
-  'Work Sans','Cabin','Karla','Rubik','Manrope','Plus Jakarta Sans',
-  'Outfit','Syne','Epilogue','Urbanist','Lexend','Be Vietnam Pro',
-  'Libre Franklin','Source Sans 3','Public Sans','Red Hat Display','Red Hat Text',
-  'Mulish','Poppins','Montserrat','Quicksand','Exo 2','Jost','Readex Pro',
-  'Chivo','Asap','Asap Condensed','Saira','Saira Condensed','Titillium Web',
-  'Ubuntu','Ubuntu Mono','Fira Sans','Fira Code','Inconsolata','Anonymous Pro',
-  'Share Tech Mono','Rajdhani','Oxanium','Orbitron',
-];
+const USER_TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
+const TZ_SHORT=new Date().toLocaleTimeString('en',{timeZoneName:'short'}).split(' ').pop();
 
-// ── Init ──
-async function init() {
-  setToday();
-  renderTimeRows();
-  renderFontElements();
-  renderBorderSvg();
-  updatePreview();
-  await checkSupabase();
-  await loadQueue();
+const GOOGLE_FONTS=['Cormorant Garamond','Courier Prime','EB Garamond','Playfair Display','Libre Baskerville','Lora','DM Serif Display','Merriweather','Crimson Text','Spectral','Source Serif 4','Bitter','Zilla Slab','Arvo','Cardo','Bodoni Moda','Old Standard TT','Vollkorn','Alegreya','Alegreya Sans','PT Serif','PT Sans','Noto Serif','Noto Sans','IBM Plex Serif','IBM Plex Mono','Space Mono','DM Sans','DM Mono','Josefin Slab','Josefin Sans','Raleway','Nunito','Oswald','Barlow','Barlow Condensed','Work Sans','Cabin','Rubik','Manrope','Outfit','Syne','Epilogue','Urbanist','Lexend','Libre Franklin','Source Sans 3','Mulish','Poppins','Montserrat','Quicksand','Fira Sans','Fira Code','Inconsolata','Anonymous Pro','Share Tech Mono','Rajdhani','Oxanium','Orbitron','Ubuntu','Ubuntu Mono'];
+
+async function init(){
+  setTimezone();setToday();renderTimeSlots();populateFontSelects();
+  updateCardAspect();updatePreview();
+  await checkSupabase();await loadQueue();
 }
 
-function setToday() {
-  const d = new Date();
-  document.getElementById('fDate').value = d.toISOString().split('T')[0];
+function setTimezone(){
+  document.getElementById('tzBadge').textContent=TZ_SHORT;
+  document.getElementById('tzBadge2').textContent=TZ_SHORT;
 }
 
-// ── Supabase health ──
-async function checkSupabase() {
-  try {
-    const { error } = await db.from('anvil_posts').select('id').limit(1);
-    if (error && error.code === '42P01') {
-      await createTable();
-    }
-    setStatus(true);
-  } catch(e) {
-    setStatus(false);
-  }
+function setToday(){
+  const d=new Date();
+  document.getElementById('fDate').value=d.toLocaleDateString('en-CA');
 }
 
-async function createTable() {
-  // Table needs to be created via Supabase dashboard SQL editor
-  // Show instructions
-  showToast('Run the SQL setup in Supabase — see console', 'error');
-  console.log(`
--- Run this in your Supabase SQL editor:
-CREATE TABLE anvil_posts (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  quote text NOT NULL,
-  caption text,
-  scheduled_at timestamptz NOT NULL,
-  dimension text DEFAULT '1:1',
-  bg_color text DEFAULT '#2e4a6a',
-  border_color text DEFAULT '#8aacbf',
-  ink_color text DEFAULT '#e8e4dc',
-  font_quote text DEFAULT 'Courier Prime',
-  font_header text DEFAULT 'Cormorant Garamond',
-  font_meta text DEFAULT 'Cormorant Garamond',
-  font_size_quote int DEFAULT 16,
-  font_size_header int DEFAULT 11,
-  font_size_meta int DEFAULT 10,
-  post_number int,
-  status text DEFAULT 'pending',
-  instagram_post_id text,
-  created_at timestamptz DEFAULT now()
-);
-`);
+function populateFontSelects(){
+  ['fontQuote','fontHeader','propFont'].forEach(id=>{
+    const sel=document.getElementById(id);if(!sel)return;
+    const cur=id==='fontQuote'?'Courier Prime':'Cormorant Garamond';
+    sel.innerHTML=GOOGLE_FONTS.map(f=>`<option value="${f}"${f===cur?' selected':''}>${f}</option>`).join('');
+  });
 }
 
-function setStatus(ok) {
-  document.getElementById('statusDot').style.background = ok ? 'var(--success)' : 'var(--danger)';
-  document.getElementById('statusDot').style.boxShadow = ok ? '0 0 6px var(--success)' : '0 0 6px var(--danger)';
-  document.getElementById('statusLabel').textContent = ok ? 'Supabase connected' : 'Connection error';
+async function checkSupabase(){
+  try{
+    const{error}=await db.from('anvil_posts').select('id').limit(1);
+    setStatus(!error||error.code==='42P01');
+  }catch{setStatus(false);}
 }
 
-// ── Queue ──
-async function loadQueue() {
-  const { data, error } = await db
-    .from('anvil_posts')
-    .select('*')
-    .order('scheduled_at', { ascending: true });
-
-  if (error) { showToast('Failed to load queue', 'error'); return; }
-  posts = data || [];
-  renderQueue();
-  updateStats();
+function setStatus(ok){
+  document.getElementById('statusDot').style.background=ok?'var(--success)':'var(--danger)';
+  document.getElementById('statusDot').style.boxShadow=ok?'0 0 6px var(--success)':'0 0 6px var(--danger)';
+  document.getElementById('statusLabel').textContent=ok?'Connected':'Connection error';
 }
 
-function renderQueue() {
-  const el = document.getElementById('queueList');
-  if (!posts.length) {
-    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;letter-spacing:0.1em;">Queue is empty</div>';
-    return;
-  }
-  el.innerHTML = posts.map((p,i) => `
-    <div class="queue-item ${currentPost?.id === p.id ? 'active':''}" onclick="loadPost('${p.id}')">
-      <div class="qi-number" style="font-family:var(--font-mono);">${String(p.post_number||i+1).padStart(3,'0')}</div>
+async function loadQueue(){
+  const{data,error}=await db.from('anvil_posts').select('*').order('scheduled_at',{ascending:true});
+  if(error){showToast('Failed to load queue','error');return;}
+  posts=data||[];renderQueue();updateStats();
+}
+
+function renderQueue(){
+  const el=document.getElementById('queueList');
+  if(!posts.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;letter-spacing:0.1em;">Queue is empty</div>';return;}
+  el.innerHTML=posts.map(p=>`
+    <div class="queue-item${currentPost?.id===p.id?' active':''}" onclick="loadPost('${p.id}')">
+      <div class="qi-number">${String(p.post_number||'—').padStart(3,'0')}</div>
       <div class="qi-quote">${p.quote}</div>
-      <div class="qi-meta">
-        <span>${formatDate(p.scheduled_at)}</span>
-        <span>${p.dimension||'1:1'}</span>
-      </div>
+      <div class="qi-meta"><span>${formatLocalDate(p.scheduled_at)}</span><span>${p.dimension||'1:1'}</span></div>
       <div class="qi-status ${p.status}"></div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-function updateStats() {
-  document.getElementById('statPending').textContent = posts.filter(p=>p.status==='pending').length;
-  document.getElementById('statPosted').textContent  = posts.filter(p=>p.status==='posted').length;
-  document.getElementById('statFailed').textContent  = posts.filter(p=>p.status==='failed').length;
+function updateStats(){
+  document.getElementById('statPending').textContent=posts.filter(p=>p.status==='pending').length;
+  document.getElementById('statPosted').textContent=posts.filter(p=>p.status==='posted').length;
+  document.getElementById('statFailed').textContent=posts.filter(p=>p.status==='failed').length;
 }
 
-function formatDate(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ' ' +
-         d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+function formatLocalDate(iso){
+  if(!iso)return'—';
+  const d=new Date(iso);
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
 
-function loadPost(id) {
-  const p = posts.find(x=>x.id===id);
-  if (!p) return;
-  currentPost = p;
-  document.getElementById('fQuote').value   = p.quote || '';
-  document.getElementById('fCaption').value = p.caption || '';
-  document.getElementById('fDate').value    = p.scheduled_at?.split('T')[0] || '';
-  document.getElementById('cBg').value      = p.bg_color || '#2e4a6a';
-  document.getElementById('cBorder').value  = p.border_color || '#8aacbf';
-  document.getElementById('cInk').value     = p.ink_color || '#e8e4dc';
-  updateHexAll();
-  document.getElementById('btnDelete').style.display = 'block';
-  renderQueue();
+function loadPost(id){
+  const p=posts.find(x=>x.id===id);if(!p)return;
+  currentPost=p;
+  document.getElementById('fQuote').value=p.quote||'';
+  document.getElementById('fCaption').value=p.caption||'';
+  const d=new Date(p.scheduled_at);
+  document.getElementById('fDate').value=d.toLocaleDateString('en-CA');
+  document.getElementById('postNumInput').value=p.post_number||1;
+  document.getElementById('cBg').value=p.bg_color||'#2e4a6a';
+  document.getElementById('cBorder').value=p.border_color||'#8aacbf';
+  document.getElementById('cInk').value=p.ink_color||'#e8e4dc';
+  updateHex(document.getElementById('cBg'),'cBgHex');
+  updateHex(document.getElementById('cBorder'),'cBorderHex');
+  updateHex(document.getElementById('cInk'),'cInkHex');
+  document.getElementById('btnDelete').style.display='block';
+  renderQueue();updatePreview();
+}
+
+function newPost(){
+  currentPost=null;
+  document.getElementById('fQuote').value='';
+  document.getElementById('fCaption').value='';
+  setToday();timeSlots=['06:00','14:00','22:00'];renderTimeSlots();
+  document.getElementById('btnDelete').style.display='none';
+  renderQueue();updatePreview();
+}
+
+function localDateTimeToUTC(dateStr,timeStr){
+  const[y,m,d]=dateStr.split('-').map(Number);
+  const[h,min]=timeStr.split(':').map(Number);
+  return new Date(y,m-1,d,h,min,0).toISOString();
+}
+
+function renderTimeSlots(){
+  const el=document.getElementById('postTimesList');
+  el.innerHTML=timeSlots.map((t,i)=>`
+    <div class="post-time-row">
+      <span class="post-time-label">Post ${i+1}</span>
+      <input type="time" value="${t}" onchange="timeSlots[${i}]=this.value"/>
+      <button class="btn-remove-time" onclick="removeTimeSlot(${i})"${timeSlots.length<=1?' disabled':''}>×</button>
+    </div>`).join('');
+}
+
+function addTimeSlot(){timeSlots.push('12:00');renderTimeSlots();}
+function removeTimeSlot(i){if(timeSlots.length<=1)return;timeSlots.splice(i,1);renderTimeSlots();}
+function setPresetTimes(hours){timeSlots=hours.map(h=>`${String(h).padStart(2,'0')}:00`);renderTimeSlots();}
+
+function changePostNum(delta){
+  const inp=document.getElementById('postNumInput');
+  inp.value=Math.max(1,parseInt(inp.value||1)+delta);
   updatePreview();
 }
 
-function newPost() {
-  currentPost = null;
-  document.getElementById('fQuote').value = '';
-  document.getElementById('fCaption').value = '';
-  setToday();
-  document.getElementById('btnDelete').style.display = 'none';
-  renderQueue();
-  updatePreview();
-}
+async function schedulePost(){
+  const quote=document.getElementById('fQuote').value.trim();
+  if(!quote){showToast('Quote cannot be empty','error');return;}
+  const date=document.getElementById('fDate').value;
+  if(!date){showToast('Please select a date','error');return;}
+  const caption=document.getElementById('fCaption').value.trim();
+  const baseNum=parseInt(document.getElementById('postNumInput').value)||1;
+  const bg=document.getElementById('cBg').value;
+  const border=document.getElementById('cBorder').value;
+  const ink=document.getElementById('cInk').value;
+  const fQuote=document.getElementById('fontQuote').value;
+  const fHeader=document.getElementById('fontHeader').value;
+  const fsQuote=parseInt(document.getElementById('fsQuote').value)||16;
+  const fsHeader=parseInt(document.getElementById('fsHeader').value)||11;
 
-// ── Save / Schedule ──
-async function schedulePost() {
-  const quote = document.getElementById('fQuote').value.trim();
-  if (!quote) { showToast('Quote cannot be empty', 'error'); return; }
-
-  const date  = document.getElementById('fDate').value;
-  const times = scheduledTimes;
-
-  // Create one post per scheduled time
-  const postsToCreate = times.map((t, i) => ({
-    quote,
-    caption: document.getElementById('fCaption').value.trim(),
-    scheduled_at: `${date}T${t}:00`,
-    dimension:    currentDim.label,
-    bg_color:     document.getElementById('cBg').value,
-    border_color: document.getElementById('cBorder').value,
-    ink_color:    document.getElementById('cInk').value,
-    font_quote:   fontElements.quote.family,
-    font_header:  fontElements.header.family,
-    font_meta:    fontElements.meta.family,
-    font_size_quote:  fontElements.quote.size,
-    font_size_header: fontElements.header.size,
-    font_size_meta:   fontElements.meta.size,
-    post_number: postCounter + i,
-    status: 'pending',
+  const postsToCreate=timeSlots.map((t,i)=>({
+    quote,caption,scheduled_at:localDateTimeToUTC(date,t),
+    dimension:currentDim.label,width_px:currentDim.w,height_px:currentDim.h,
+    bg_color:bg,border_color:border,ink_color:ink,
+    font_quote:fQuote,font_header:fHeader,font_meta:fHeader,
+    font_size_quote:fsQuote,font_size_header:fsHeader,font_size_meta:10,
+    post_number:baseNum+i,status:'pending',
   }));
 
-  const { error } = await db.from('anvil_posts').insert(postsToCreate);
-  if (error) { showToast('Failed to schedule: ' + error.message, 'error'); return; }
-
-  postCounter += times.length;
-  showToast(`Scheduled ${times.length} post${times.length>1?'s':''}`, 'success');
-  newPost();
-  await loadQueue();
+  const{error}=await db.from('anvil_posts').insert(postsToCreate);
+  if(error){showToast('Failed: '+error.message,'error');return;}
+  showToast(`Scheduled ${postsToCreate.length} post${postsToCreate.length>1?'s':''}`, 'success');
+  newPost();await loadQueue();
 }
 
-async function saveDraft() {
-  const quote = document.getElementById('fQuote').value.trim();
-  if (!quote) { showToast('Quote cannot be empty', 'error'); return; }
-
-  const draft = {
-    quote,
-    caption: document.getElementById('fCaption').value.trim(),
-    scheduled_at: `${document.getElementById('fDate').value}T00:00:00`,
-    dimension: currentDim.label,
-    bg_color: document.getElementById('cBg').value,
-    border_color: document.getElementById('cBorder').value,
-    ink_color: document.getElementById('cInk').value,
-    font_quote: fontElements.quote.family,
-    font_header: fontElements.header.family,
-    font_meta: fontElements.meta.family,
-    status: 'draft',
+async function saveDraft(){
+  const quote=document.getElementById('fQuote').value.trim();
+  if(!quote){showToast('Quote cannot be empty','error');return;}
+  const date=document.getElementById('fDate').value;
+  const draft={
+    quote,caption:document.getElementById('fCaption').value.trim(),
+    scheduled_at:localDateTimeToUTC(date,timeSlots[0]||'00:00'),
+    dimension:currentDim.label,
+    bg_color:document.getElementById('cBg').value,
+    border_color:document.getElementById('cBorder').value,
+    ink_color:document.getElementById('cInk').value,
+    font_quote:document.getElementById('fontQuote').value,
+    font_header:document.getElementById('fontHeader').value,
+    font_meta:document.getElementById('fontHeader').value,
+    post_number:parseInt(document.getElementById('postNumInput').value)||1,
+    status:'draft',
   };
-
-  if (currentPost) {
-    const { error } = await db.from('anvil_posts').update(draft).eq('id', currentPost.id);
-    if (error) { showToast('Update failed', 'error'); return; }
-  } else {
-    const { error } = await db.from('anvil_posts').insert([draft]);
-    if (error) { showToast('Save failed', 'error'); return; }
+  if(currentPost){
+    const{error}=await db.from('anvil_posts').update(draft).eq('id',currentPost.id);
+    if(error){showToast('Update failed','error');return;}
+  }else{
+    const{error}=await db.from('anvil_posts').insert([draft]);
+    if(error){showToast('Save failed','error');return;}
   }
-
-  showToast('Draft saved', 'success');
-  await loadQueue();
+  showToast('Draft saved','success');await loadQueue();
 }
 
-// ── Delete ──
-function deletePost() { document.getElementById('deleteModal').classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-async function confirmDelete() {
-  if (!currentPost) return;
-  const { error } = await db.from('anvil_posts').delete().eq('id', currentPost.id);
-  closeModal('deleteModal');
-  if (error) { showToast('Delete failed', 'error'); return; }
-  showToast('Post deleted', 'success');
-  newPost();
-  await loadQueue();
+function deletePost(){document.getElementById('deleteModal').classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+async function confirmDelete(){
+  if(!currentPost)return;
+  await db.from('anvil_posts').delete().eq('id',currentPost.id);
+  closeModal('deleteModal');showToast('Post deleted','success');newPost();await loadQueue();
 }
 
-// ── Times ──
-function renderTimeRows() {
-  const el = document.getElementById('scheduledTimes');
-  el.innerHTML = scheduledTimes.map((t, i) => `
-    <div class="time-row">
-      <input type="time" value="${t}" onchange="scheduledTimes[${i}]=this.value"/>
-      <button class="btn-remove-time" onclick="removeTimeRow(${i})">×</button>
-    </div>
-  `).join('');
-}
-
-function addTimeRow() {
-  scheduledTimes.push('12:00');
-  document.getElementById('fPostsPerDay').value = scheduledTimes.length;
-  renderTimeRows();
-}
-
-function removeTimeRow(i) {
-  if (scheduledTimes.length <= 1) return;
-  scheduledTimes.splice(i, 1);
-  document.getElementById('fPostsPerDay').value = scheduledTimes.length;
-  renderTimeRows();
-}
-
-function updateTimesCount() {
-  const n = parseInt(document.getElementById('fPostsPerDay').value) || 1;
-  while (scheduledTimes.length < n) scheduledTimes.push('12:00');
-  while (scheduledTimes.length > n) scheduledTimes.pop();
-  renderTimeRows();
-}
-
-function setPresetTimes(hours) {
-  scheduledTimes = hours.map(h => `${String(h).padStart(2,'0')}:00`);
-  document.getElementById('fPostsPerDay').value = scheduledTimes.length;
-  renderTimeRows();
-}
-
-// ── Dimensions ──
-function setDim(el, label, w, h) {
+function setDim(el,label,w,h){
   document.querySelectorAll('.dim-option').forEach(e=>e.classList.remove('active'));
-  el.classList.add('active');
-  currentDim = { label, w, h };
-  document.getElementById('previewDimLabel').textContent = `${w} × ${h}`;
-  // sync preview dims buttons
-  document.querySelectorAll('.pdim').forEach(e=>{
-    e.classList.toggle('active', e.textContent.trim()===label);
-  });
-  updateCardAspect();
+  el.classList.add('active');currentDim={label,w,h};
+  document.getElementById('previewDimLabel').textContent=`${w} × ${h}`;
+  document.querySelectorAll('.pdim').forEach(e=>e.classList.toggle('active',e.textContent.trim()===label));
+  updateCardAspect();updateCanvasSize();
 }
 
-function syncDimPreview(el, label) {
+function syncDimPreview(el,label){
   document.querySelectorAll('.pdim').forEach(e=>e.classList.remove('active'));
   el.classList.add('active');
-  // sync main editor
-  document.querySelectorAll('.dim-option').forEach(e=>{
-    if (e.dataset.dim===label) e.classList.add('active');
-    else e.classList.remove('active');
-  });
-  const dims = {'1:1':[1080,1080],'4:5':[1080,1350],'9:16':[1080,1920],'16:9':[1920,1080]};
-  const [w,h] = dims[label]||[1080,1080];
-  currentDim = { label, w, h };
-  document.getElementById('previewDimLabel').textContent = `${w} × ${h}`;
-  updateCardAspect();
+  document.querySelectorAll('.dim-option').forEach(e=>{if(e.dataset.dim===label)e.classList.add('active');else e.classList.remove('active');});
+  const dims={'1:1':[1080,1080],'4:5':[1080,1350],'9:16':[1080,1920],'16:9':[1920,1080]};
+  const[w,h]=dims[label]||[1080,1080];
+  currentDim={label,w,h};
+  document.getElementById('previewDimLabel').textContent=`${w} × ${h}`;
+  updateCardAspect();updateCanvasSize();
 }
 
-function updateCardAspect() {
-  const wrap = document.getElementById('instaCardWrap');
-  const ratio = currentDim.h / currentDim.w;
-  const card  = document.getElementById('cardPreview');
-  card.style.paddingBottom = (ratio * 100) + '%';
-  card.style.height = '0';
-  card.style.position = 'relative';
-  // reposition cp-content
-  document.querySelector('.cp-content').style.position = 'absolute';
-  document.querySelector('.cp-content').style.inset = '0';
-  renderBorderSvg();
-  renderMarks();
+function updateCardAspect(){
+  const ratio=currentDim.h/currentDim.w;
+  const card=document.getElementById('cardPreview');
+  card.style.paddingBottom=(ratio*100)+'%';card.style.height='0';card.style.position='relative';
+  document.querySelector('.cp-content').style.position='absolute';
+  document.querySelector('.cp-content').style.inset='0';
+  renderBorderSvg();renderMarks();
 }
 
-// ── Colour helpers ──
-function updateHex(input) {
-  const map = {
-    cBg:'cBgHex', cBorder:'cBorderHex', cInk:'cInkHex'
-  };
-  const hexEl = document.getElementById(map[input.id]);
-  if (hexEl) hexEl.textContent = input.value;
+function updateHex(input,hexId){const el=document.getElementById(hexId);if(el)el.textContent=input.value;}
+
+function applyPalette(bg,border,ink){
+  document.getElementById('cBg').value=bg;
+  document.getElementById('cBorder').value=border;
+  document.getElementById('cInk').value=ink;
+  updateHex(document.getElementById('cBg'),'cBgHex');
+  updateHex(document.getElementById('cBorder'),'cBorderHex');
+  updateHex(document.getElementById('cInk'),'cInkHex');
+  updatePreview();updateCanvasBg();
 }
 
-function updateHexAll() {
-  ['cBg','cBorder','cInk'].forEach(id=>{
-    const inp = document.getElementById(id);
-    updateHex(inp);
-  });
+function saveCurrentPalette(){
+  const bg=document.getElementById('cBg').value;
+  const border=document.getElementById('cBorder').value;
+  const ink=document.getElementById('cInk').value;
+  const el=document.createElement('div');
+  el.className='palette-swatch';el.style.background=bg;
+  el.onclick=()=>applyPalette(bg,border,ink);
+  document.getElementById('savedPalettes').insertBefore(el,document.getElementById('savedPalettes').lastElementChild);
+  showToast('Palette saved','success');
 }
 
-function applyPalette(bg, border, ink) {
-  document.getElementById('cBg').value = bg;
-  document.getElementById('cBorder').value = border;
-  document.getElementById('cInk').value = ink;
-  updateHexAll();
-  updatePreview();
+function searchFonts(q){
+  const el=document.getElementById('fontResults');
+  if(!q){el.style.display='none';return;}
+  const matches=GOOGLE_FONTS.filter(f=>f.toLowerCase().includes(q.toLowerCase())).slice(0,8);
+  if(!matches.length){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML=matches.map(f=>`<div style="padding:6px 10px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--border);" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''" onclick="applyFontSearch('${f}')">${f}</div>`).join('');
 }
 
-function saveCurrentPalette() {
-  const bg = document.getElementById('cBg').value;
-  const border = document.getElementById('cBorder').value;
-  const ink = document.getElementById('cInk').value;
-  const el = document.createElement('div');
-  el.className = 'palette-swatch';
-  el.style.background = bg;
-  el.title = 'Custom';
-  el.onclick = () => applyPalette(bg, border, ink);
-  const container = document.getElementById('savedPalettes');
-  container.insertBefore(el, container.lastElementChild);
-  showToast('Palette saved', 'success');
-}
-
-// ── Font Elements ──
-function renderFontElements() {
-  const el = document.getElementById('fontElements');
-  const elements = [
-    { key:'quote',  label:'Quote text' },
-    { key:'header', label:'Header' },
-    { key:'meta',   label:'Date / watermark' },
-  ];
-  el.innerHTML = elements.map(e => `
-    <div class="font-field" style="grid-column:1/-1;">
-      <label>${e.label}</label>
-      <div class="font-select-wrap">
-        <select onchange="setFont('${e.key}',this.value)">
-          ${GOOGLE_FONTS.map(f=>`<option value="${f}" ${fontElements[e.key].family===f?'selected':''}>${f}</option>`).join('')}
-        </select>
-        <input type="number" class="font-size-input" value="${fontElements[e.key].size}" min="8" max="72"
-          onchange="setFontSize('${e.key}',this.value)"/>
-      </div>
-    </div>
-  `).join('');
-}
-
-function setFont(key, family) {
-  fontElements[key].family = family;
-  // Load from Google Fonts
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:ital,wght@0,300;0,400;1,300;1,400&display=swap`;
+function applyFontSearch(family){
+  document.getElementById('fontQuote').value=family;
+  document.getElementById('fontSearch').value='';
+  document.getElementById('fontResults').style.display='none';
+  const link=document.createElement('link');link.rel='stylesheet';
+  link.href=`https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:ital,wght@0,300;0,400;1,300;1,400&display=swap`;
   document.head.appendChild(link);
   updatePreview();
 }
 
-function setFontSize(key, size) {
-  fontElements[key].size = parseInt(size);
-  updatePreview();
+function switchTab(name,el){
+  document.querySelectorAll('.editor-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['content','schedule','design','canvas'].forEach(t=>{
+    const panel=document.getElementById(`tab-${t}`);if(!panel)return;
+    panel.style.display=t===name?(t==='canvas'?'flex':'block'):'none';
+  });
+  if(name==='canvas')setTimeout(()=>{updateCanvasSize();updateCanvasBg();initDefaultElements();},50);
 }
 
-function searchFonts(q) {
-  const el = document.getElementById('fontResults');
-  if (!q) { el.style.display='none'; return; }
-  const matches = GOOGLE_FONTS.filter(f=>f.toLowerCase().includes(q.toLowerCase())).slice(0,8);
-  if (!matches.length) { el.style.display='none'; return; }
-  el.style.display = 'block';
-  el.innerHTML = matches.map(f=>`
-    <div class="font-result-item" onclick="applyFontSearch('${f}')">${f}</div>
-  `).join('');
+function updatePreview(){
+  const quote=document.getElementById('fQuote').value||'Your quote will appear here...';
+  const caption=document.getElementById('fCaption').value||'Your caption appears here...';
+  const bg=document.getElementById('cBg').value;
+  const border=document.getElementById('cBorder').value;
+  const ink=document.getElementById('cInk').value;
+  const date=document.getElementById('fDate').value;
+  const postNum=document.getElementById('postNumInput').value||'1';
+  const fQuote=document.getElementById('fontQuote').value;
+  const fHeader=document.getElementById('fontHeader').value;
+
+  document.getElementById('cpBg').style.background=`radial-gradient(ellipse at 28% 22%,${lighten(bg,0.12)} 0%,transparent 52%),radial-gradient(ellipse at 72% 78%,${darken(bg,0.08)} 0%,transparent 52%),${bg}`;
+  document.getElementById('cpRule').style.background=border;
+  document.getElementById('cpDateRule').style.background=border;
+  const muted=blendHex(ink,bg,0.45);
+  document.getElementById('cpFrom').style.color=muted;
+  document.getElementById('cpFrom').style.fontFamily=fHeader;
+  document.getElementById('cpNum').style.color=muted;
+  document.getElementById('cpNum').style.fontFamily=fHeader;
+  document.getElementById('cpNum').textContent=String(postNum).padStart(3,'0');
+  document.getElementById('cpQuoteText').style.color=ink;
+  document.getElementById('cpQuoteText').style.fontFamily=fQuote;
+  document.getElementById('cpQuoteText').textContent=quote;
+  document.getElementById('cpDate').style.color=muted;
+  document.getElementById('cpDate').style.fontFamily=fHeader;
+  document.getElementById('cpWatermark').style.color=ink;
+  document.getElementById('cpWatermark').style.fontFamily=fHeader;
+  document.getElementById('previewCaption').textContent=caption;
+  if(date){const d=new Date(date+'T00:00:00');document.getElementById('cpDate').textContent=d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
+  renderBorderSvg();setTimeout(renderMarks,60);
 }
 
-function applyFontSearch(family) {
-  // Apply to quote font as default
-  fontElements.quote.family = family;
-  setFont('quote', family);
-  renderFontElements();
-  document.getElementById('fontSearch').value = '';
-  document.getElementById('fontResults').style.display = 'none';
-}
-
-// ── Post number ──
-function updatePostNum(val) {
-  const n = parseInt(val);
-  document.getElementById('postNumDisplay').textContent = String(n).padStart(3,'0');
-  document.getElementById('cpNum').textContent = String(n).padStart(3,'0');
-}
-
-// ── Preview ──
-function updatePreview() {
-  const quote   = document.getElementById('fQuote').value || 'Your quote will appear here...';
-  const caption = document.getElementById('fCaption').value || 'Your caption appears here...';
-  const bg      = document.getElementById('cBg').value;
-  const border  = document.getElementById('cBorder').value;
-  const ink     = document.getElementById('cInk').value;
-  const date    = document.getElementById('fDate').value;
-
-  // Background
-  document.getElementById('cpBg').style.background =
-    `radial-gradient(ellipse at 28% 22%, ${lighten(bg,0.12)} 0%, transparent 52%),
-     radial-gradient(ellipse at 72% 78%, ${darken(bg,0.08)} 0%, transparent 52%),
-     ${bg}`;
-
-  // Rule colours
-  document.getElementById('cpRule').style.background = border;
-  document.getElementById('cpDateRule').style.background = border;
-
-  // Text colours
-  const muted = blendHex(ink, bg, 0.45);
-  document.getElementById('cpFrom').style.color = muted;
-  document.getElementById('cpFrom').style.fontFamily = fontElements.header.family;
-  document.getElementById('cpNum').style.color  = muted;
-  document.getElementById('cpQuoteText').style.color = ink;
-  document.getElementById('cpQuoteText').style.fontFamily = fontElements.quote.family;
-  document.getElementById('cpDate').style.color = muted;
-  document.getElementById('cpDate').style.fontFamily = fontElements.meta.family;
-  document.getElementById('cpWatermark').style.color = ink;
-  document.getElementById('cpWatermark').style.fontFamily = fontElements.meta.family;
-
-  // Quote
-  document.getElementById('cpQuoteText').textContent = quote;
-
-  // Caption
-  document.getElementById('previewCaption').textContent = caption;
-
-  // Date
-  if (date) {
-    const d = new Date(date + 'T00:00:00');
-    document.getElementById('cpDate').textContent =
-      d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  }
-
-  renderBorderSvg();
-
-  // Defer marks render until layout settles
-  setTimeout(renderMarks, 60);
-}
-
-function renderBorderSvg() {
-  const border = document.getElementById('cBorder').value;
-  const card   = document.getElementById('cardPreview');
-  const W = card.offsetWidth || 260;
-  const H = card.offsetHeight || 260;
-  const m = Math.max(4, W*0.04);
-  const svg = document.getElementById('cpBorderSvg');
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  const c = m; // corner start
-  const r = W - m; const b = H - m;
-  const tick = m * 0.7;
-  svg.innerHTML = `
-    <rect x="${m}" y="${m}" width="${W-m*2}" height="${H-m*2}"
-      stroke="${border}" stroke-width="0.6" fill="none" opacity="0.5"/>
+function renderBorderSvg(){
+  const border=document.getElementById('cBorder').value;
+  const card=document.getElementById('cardPreview');
+  const W=card.offsetWidth||260,H=card.offsetHeight||260;
+  const m=Math.max(4,W*0.04);
+  const svg=document.getElementById('cpBorderSvg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const c=m,r=W-m,b=H-m,tick=m*0.7;
+  svg.innerHTML=`<rect x="${m}" y="${m}" width="${W-m*2}" height="${H-m*2}" stroke="${border}" stroke-width="0.6" fill="none" opacity="0.5"/>
     <line x1="${c}" y1="${c+tick}" x2="${c}" y2="${c}" stroke="${border}" stroke-width="0.7" opacity="0.9"/>
     <line x1="${c}" y1="${c}" x2="${c+tick}" y2="${c}" stroke="${border}" stroke-width="0.7" opacity="0.9"/>
     <circle cx="${c}" cy="${c}" r="1.2" fill="${border}" opacity="0.65"/>
@@ -1196,77 +790,258 @@ function renderBorderSvg() {
     <circle cx="${c}" cy="${b}" r="1.2" fill="${border}" opacity="0.65"/>
     <line x1="${r}" y1="${b}" x2="${r-tick}" y2="${b}" stroke="${border}" stroke-width="0.7" opacity="0.9"/>
     <line x1="${r}" y1="${b}" x2="${r}" y2="${b-tick}" stroke="${border}" stroke-width="0.7" opacity="0.9"/>
-    <circle cx="${r}" cy="${b}" r="1.2" fill="${border}" opacity="0.65"/>
-  `;
+    <circle cx="${r}" cy="${b}" r="1.2" fill="${border}" opacity="0.65"/>`;
 }
 
-function renderMarks() {
-  const wrap  = document.getElementById('cpQuoteWrap');
-  const text  = document.getElementById('cpQuoteText');
-  const svg   = document.getElementById('cpMarksSvg');
-  const ink   = document.getElementById('cInk').value;
-
-  const wrapRect = wrap.getBoundingClientRect();
-  const textRect = text.getBoundingClientRect();
-  if (!wrapRect.height) return;
-
-  const W = wrapRect.width;
-  const H = wrapRect.height;
-  const FONT_SIZE = Math.max(W * 0.18, 22);
-  const GAP = FONT_SIZE * 0.18;
-  const capHeight = FONT_SIZE * 0.68;
-
-  const openY  = (textRect.top - wrapRect.top) - GAP;
-  const closeY = (textRect.bottom - wrapRect.top) + GAP + capHeight;
-
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.innerHTML = `
-    <text x="-3" y="${openY}"
-      font-family="${fontElements.quote.family}, Georgia, serif"
-      font-size="${FONT_SIZE}" font-weight="300"
-      fill="${ink}" opacity="0.2">"</text>
-    <text x="${W+3}" y="${closeY}" text-anchor="end"
-      font-family="${fontElements.quote.family}, Georgia, serif"
-      font-size="${FONT_SIZE}" font-weight="300"
-      fill="${ink}" opacity="0.2">"</text>
-  `;
+function renderMarks(){
+  const wrap=document.getElementById('cpQuoteWrap');
+  const text=document.getElementById('cpQuoteText');
+  const svg=document.getElementById('cpMarksSvg');
+  const ink=document.getElementById('cInk').value;
+  const fHeader=document.getElementById('fontHeader').value;
+  const wrapRect=wrap.getBoundingClientRect();
+  const textRect=text.getBoundingClientRect();
+  if(!wrapRect.height)return;
+  const W=wrapRect.width,H=wrapRect.height;
+  const FONT_SIZE=Math.max(W*0.18,22);
+  const GAP=FONT_SIZE*0.18;
+  const capHeight=FONT_SIZE*0.68;
+  const openY=(textRect.top-wrapRect.top)-GAP;
+  const closeY=(textRect.bottom-wrapRect.top)+GAP+capHeight;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML=`<text x="-3" y="${openY}" font-family="${fHeader},Georgia,serif" font-size="${FONT_SIZE}" font-weight="300" fill="${ink}" opacity="0.2">\u201C</text>
+    <text x="${W+3}" y="${closeY}" text-anchor="end" font-family="${fHeader},Georgia,serif" font-size="${FONT_SIZE}" font-weight="300" fill="${ink}" opacity="0.2">\u201D</text>`;
 }
 
-// ── Colour utils ──
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1,3),16);
-  const g = parseInt(hex.slice(3,5),16);
-  const b = parseInt(hex.slice(5,7),16);
-  return [r,g,b];
-}
-function rgbToHex(r,g,b) {
-  return '#'+[r,g,b].map(v=>Math.min(255,Math.max(0,Math.round(v))).toString(16).padStart(2,'0')).join('');
-}
-function lighten(hex, amt) {
-  const [r,g,b] = hexToRgb(hex);
-  return rgbToHex(r+255*amt, g+255*amt, b+255*amt);
-}
-function darken(hex, amt) {
-  const [r,g,b] = hexToRgb(hex);
-  return rgbToHex(r-255*amt, g-255*amt, b-255*amt);
-}
-function blendHex(hex1, hex2, t) {
-  const [r1,g1,b1] = hexToRgb(hex1);
-  const [r2,g2,b2] = hexToRgb(hex2);
-  return rgbToHex(r1*(1-t)+r2*t, g1*(1-t)+g2*t, b1*(1-t)+b2*t);
+// Canvas
+let canvasInitialized=false;
+
+function updateCanvasSize(){
+  const area=document.getElementById('canvasArea');
+  const wrap=document.getElementById('canvasWrap');
+  const card=document.getElementById('canvasCard');
+  if(!area||!wrap||!card)return;
+  const areaW=area.offsetWidth-40,areaH=area.offsetHeight-40;
+  const ratio=currentDim.h/currentDim.w;
+  let dW=areaW,dH=dW*ratio;
+  if(dH>areaH){dH=areaH;dW=dH/ratio;}
+  canvasScale=dW/currentDim.w;
+  card.style.width=dW+'px';card.style.height=dH+'px';
+  wrap.style.width=dW+'px';wrap.style.height=dH+'px';
+  updateCanvasBorderSvg();
 }
 
-// ── Toast ──
-function showToast(msg, type='success') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = `toast ${type} show`;
-  setTimeout(()=>el.classList.remove('show'), 2800);
+function updateCanvasBg(){
+  const bg=document.getElementById('cBg').value;
+  const cvBg=document.getElementById('cvBg');if(!cvBg)return;
+  cvBg.style.background=`radial-gradient(ellipse at 28% 22%,${lighten(bg,0.12)} 0%,transparent 52%),radial-gradient(ellipse at 72% 78%,${darken(bg,0.08)} 0%,transparent 52%),${bg}`;
 }
 
-// ── Boot ──
-window.addEventListener('resize', ()=>{ renderBorderSvg(); renderMarks(); });
-document.fonts.ready.then(()=>{ updatePreview(); });
+function updateCanvasBorderSvg(){
+  const border=document.getElementById('cBorder').value;
+  const card=document.getElementById('canvasCard');
+  const W=card.offsetWidth,H=card.offsetHeight;
+  const svg=document.getElementById('cvBorderSvg');
+  const m=Math.max(4,W*0.04),c=m,r=W-m,b=H-m,tick=m*0.7;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML=`<rect x="${m}" y="${m}" width="${W-m*2}" height="${H-m*2}" stroke="${border}" stroke-width="0.8" fill="none" opacity="0.5"/>
+    <line x1="${c}" y1="${c+tick}" x2="${c}" y2="${c}" stroke="${border}" stroke-width="1" opacity="0.9"/>
+    <line x1="${c}" y1="${c}" x2="${c+tick}" y2="${c}" stroke="${border}" stroke-width="1" opacity="0.9"/>
+    <circle cx="${c}" cy="${c}" r="1.5" fill="${border}" opacity="0.65"/>
+    <line x1="${r}" y1="${c}" x2="${r-tick}" y2="${c}" stroke="${border}" stroke-width="1" opacity="0.9"/>
+    <line x1="${r}" y1="${c}" x2="${r}" y2="${c+tick}" stroke="${border}" stroke-width="1" opacity="0.9"/>
+    <circle cx="${r}" cy="${c}" r="1.5" fill="${border}" opacity="0.65"/>
+    <line x1="${c}" y1="${b}" x2="${c+tick}" y2="${b}" stroke="${border}" stroke-width="1" opacity="0.9"/>
+    <line x1="${c}" y1="${b}" x2="${c}" y2="${b-tick}" stroke="${border}" stroke-width="1" opacity="0.9"/>
+    <circle cx="${c}" cy="${b}" r="1.5" fill="${border}" opacity="0.65"/>
+    <line x1="${r}" y1="${b}" x2="${r-tick}" y2="${b}" stroke="${border}" stroke-width="1" opacity="0.9"/>
+    <line x1="${r}" y1="${b}" x2="${r}" y2="${b-tick}" stroke="${border}" stroke-width="1" opacity="0.9"/>
+    <circle cx="${r}" cy="${b}" r="1.5" fill="${border}" opacity="0.65"/>`;
+}
+
+function initDefaultElements(){
+  if(canvasInitialized)return;
+  canvasInitialized=true;
+  const card=document.getElementById('canvasCard');
+  const W=card.offsetWidth,H=card.offsetHeight;
+  const pad=W*0.07,bg=document.getElementById('cBg').value;
+  const border=document.getElementById('cBorder').value;
+  const ink=document.getElementById('cInk').value;
+  const muted=blendHex(ink,bg,0.45);
+  const s=W/340;
+
+  [
+    {id:'el-header',x:pad,y:pad,w:W-pad*2,h:28,text:'From the Margins',fontSize:Math.round(11*s),color:muted,font:'Cormorant Garamond',style:'italic',align:'left',opacity:100,zIndex:2},
+    {id:'el-num',x:W-pad-70,y:pad,w:70,h:28,text:'001',fontSize:Math.round(10*s),color:muted,font:'Cormorant Garamond',style:'normal',align:'right',opacity:100,zIndex:2},
+    {id:'el-rule',x:pad,y:pad+26,w:W-pad*2,h:1,type:'rule',color:border,opacity:40,zIndex:2},
+    {id:'el-openmark',x:pad-8,y:H*0.22,w:90,h:90,text:'\u201C',fontSize:Math.round(W*0.115),color:ink,font:'Cormorant Garamond',style:'normal',align:'left',opacity:20,zIndex:2},
+    {id:'el-quote',x:pad,y:H*0.3,w:W-pad*2,h:H*0.35,text:document.getElementById('fQuote').value||'Your quote...',fontSize:Math.round(16*s),color:ink,font:'Courier Prime',style:'italic',align:'left',opacity:100,zIndex:3},
+    {id:'el-closemark',x:W-pad-80,y:H*0.6,w:80,h:80,text:'\u201D',fontSize:Math.round(W*0.115),color:ink,font:'Cormorant Garamond',style:'normal',align:'right',opacity:20,zIndex:2},
+    {id:'el-date',x:pad,y:H-pad-26,w:220,h:26,text:getLocalDateDisplay(),fontSize:Math.round(10*s),color:muted,font:'Cormorant Garamond',style:'normal',align:'left',opacity:100,zIndex:2},
+    {id:'el-watermark',x:W-pad-160,y:H-pad-26,w:160,h:26,text:'The Anvil Speaks',fontSize:Math.round(11*s),color:ink,font:'Cormorant Garamond',style:'italic',align:'right',opacity:20,zIndex:2},
+  ].forEach(renderCanvasElement);
+
+  document.getElementById('canvasCard').addEventListener('click',e=>{
+    if(e.target===document.getElementById('canvasCard')||e.target.id==='cvElements'||e.target.id==='cvBg'){
+      document.querySelectorAll('.card-element').forEach(el=>el.classList.remove('selected'));
+      selectedElement=null;
+      document.getElementById('elementProps').classList.remove('visible');
+    }
+  });
+}
+
+function getLocalDateDisplay(){
+  const date=document.getElementById('fDate').value;
+  if(!date)return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  return new Date(date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+}
+
+function renderCanvasElement(data){
+  const container=document.getElementById('cvElements');
+  let el=document.getElementById(data.id);
+  if(!el){el=document.createElement('div');el.id=data.id;el.className='card-element';container.appendChild(el);}
+  el.style.left=data.x+'px';el.style.top=data.y+'px';
+  el.style.width=data.w+'px';el.style.minHeight=data.h+'px';
+  el.style.zIndex=data.zIndex||2;
+  el.dataset.config=JSON.stringify(data);
+  if(data.type==='rule'){
+    el.style.height='2px';el.style.minHeight='2px';
+    el.style.backgroundColor=data.color;el.style.opacity=(data.opacity||40)/100;
+    el.style.cursor='move';el.innerHTML='<div class="resize-handle br"></div>';
+  }else{
+    el.style.fontFamily=`'${data.font}',Georgia,serif`;
+    el.style.fontSize=data.fontSize+'px';el.style.color=data.color;
+    el.style.fontStyle=data.style||'normal';el.style.textAlign=data.align||'left';
+    el.style.opacity=(data.opacity||100)/100;el.style.lineHeight='1.65';
+    el.style.overflow='hidden';el.style.wordBreak='break-word';
+    el.innerHTML=`<div style="pointer-events:none;">${data.text}</div>
+      <div class="resize-handle br"></div><div class="resize-handle bl"></div>
+      <div class="resize-handle tr"></div><div class="resize-handle tl"></div>`;
+  }
+  el.addEventListener('mousedown',onElementMouseDown);
+}
+
+function onElementMouseDown(e){
+  if(e.target.classList.contains('resize-handle')){startResize(e);return;}
+  e.preventDefault();selectElement(e.currentTarget);isDragging=true;
+  const rect=e.currentTarget.getBoundingClientRect();
+  dragOffset={x:e.clientX-rect.left,y:e.clientY-rect.top};
+  const onMove=ev=>{
+    if(!isDragging)return;
+    const cardRect=document.getElementById('canvasCard').getBoundingClientRect();
+    const x=Math.max(0,ev.clientX-cardRect.left-dragOffset.x);
+    const y=Math.max(0,ev.clientY-cardRect.top-dragOffset.y);
+    selectedElement.style.left=x+'px';selectedElement.style.top=y+'px';
+  };
+  const onUp=()=>{isDragging=false;document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+  document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+}
+
+function startResize(e){
+  e.preventDefault();e.stopPropagation();
+  const el=e.currentTarget.closest('.card-element');selectElement(el);isResizing=true;
+  resizeStart={x:e.clientX,y:e.clientY,w:el.offsetWidth,h:el.offsetHeight};
+  const onMove=ev=>{
+    if(!isResizing)return;
+    const dx=ev.clientX-resizeStart.x,dy=ev.clientY-resizeStart.y;
+    el.style.width=Math.max(20,resizeStart.w+dx)+'px';
+    el.style.minHeight=Math.max(10,resizeStart.h+dy)+'px';
+  };
+  const onUp=()=>{isResizing=false;document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+  document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+}
+
+function selectElement(el){
+  document.querySelectorAll('.card-element').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');selectedElement=el;showElementProps(el);
+}
+
+function showElementProps(el){
+  document.getElementById('elementProps').classList.add('visible');
+  const data=JSON.parse(el.dataset.config||'{}');
+  document.getElementById('propFontSize').value=data.fontSize||16;
+  document.getElementById('propColor').value=data.color||'#e8e4dc';
+  document.getElementById('propOpacity').value=data.opacity||100;
+  document.getElementById('propFont').value=data.font||'Cormorant Garamond';
+  document.getElementById('propStyle').value=data.style||'normal';
+  document.getElementById('propAlign').value=data.align||'left';
+}
+
+function applyPropChange(){
+  if(!selectedElement)return;
+  const fontSize=parseInt(document.getElementById('propFontSize').value);
+  const color=document.getElementById('propColor').value;
+  const opacity=parseInt(document.getElementById('propOpacity').value);
+  const font=document.getElementById('propFont').value;
+  const style=document.getElementById('propStyle').value;
+  const align=document.getElementById('propAlign').value;
+  selectedElement.style.fontSize=fontSize+'px';
+  selectedElement.style.color=color;
+  selectedElement.style.opacity=opacity/100;
+  selectedElement.style.fontFamily=`'${font}',Georgia,serif`;
+  selectedElement.style.fontStyle=style;
+  selectedElement.style.textAlign=align;
+  const data=JSON.parse(selectedElement.dataset.config||'{}');
+  Object.assign(data,{fontSize,color,opacity,font,style,align});
+  selectedElement.dataset.config=JSON.stringify(data);
+}
+
+function deleteSelectedElement(){
+  if(!selectedElement)return;
+  selectedElement.remove();selectedElement=null;
+  document.getElementById('elementProps').classList.remove('visible');
+}
+
+function bringForward(){if(!selectedElement)return;selectedElement.style.zIndex=parseInt(selectedElement.style.zIndex||2)+1;}
+function sendBackward(){if(!selectedElement)return;selectedElement.style.zIndex=Math.max(1,parseInt(selectedElement.style.zIndex||2)-1);}
+
+function addTextElement(){
+  const card=document.getElementById('canvasCard');
+  const W=card.offsetWidth,H=card.offsetHeight;
+  const ink=document.getElementById('cInk').value;
+  renderCanvasElement({
+    id:'el-custom-'+Date.now(),type:'text',
+    x:W*0.1,y:H*0.4,w:W*0.8,h:40,
+    text:'New text',fontSize:Math.round(14*(W/340)),
+    color:ink,font:'Cormorant Garamond',style:'normal',align:'left',opacity:100,zIndex:5,
+  });
+}
+
+function setTool(name,el){
+  document.querySelectorAll('.canvas-tool-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function resetLayout(){
+  document.getElementById('cvElements').innerHTML='';
+  selectedElement=null;canvasInitialized=false;
+  document.getElementById('elementProps').classList.remove('visible');
+  initDefaultElements();
+}
+
+function saveLayout(){
+  const elements=[];
+  document.querySelectorAll('.card-element').forEach(el=>{
+    elements.push({id:el.id,x:parseInt(el.style.left),y:parseInt(el.style.top),w:el.offsetWidth,h:el.offsetHeight,config:JSON.parse(el.dataset.config||'{}')});
+  });
+  localStorage.setItem('anvil_layout',JSON.stringify(elements));
+  showToast('Layout saved','success');
+}
+
+function hexToRgb(hex){const h=(hex||'#000000').replace('#','').padEnd(6,'0');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>Math.min(255,Math.max(0,Math.round(v))).toString(16).padStart(2,'0')).join('');}
+function lighten(hex,a){const[r,g,b]=hexToRgb(hex);return rgbToHex(r+255*a,g+255*a,b+255*a);}
+function darken(hex,a){const[r,g,b]=hexToRgb(hex);return rgbToHex(r-255*a,g-255*a,b-255*a);}
+function blendHex(h1,h2,t){const[r1,g1,b1]=hexToRgb(h1),[r2,g2,b2]=hexToRgb(h2);return rgbToHex(r1*(1-t)+r2*t,g1*(1-t)+g2*t,b1*(1-t)+b2*t);}
+
+function showToast(msg,type='success'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className=`toast ${type} show`;
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+window.addEventListener('resize',()=>{renderBorderSvg();renderMarks();updateCanvasSize();updateCanvasBorderSvg();});
+document.fonts.ready.then(()=>updatePreview());
 init();
 </script>
 </body>
