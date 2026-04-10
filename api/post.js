@@ -54,8 +54,14 @@ async function renderCard(post) {
 
   // Fetch fonts
   const [cormorantItalic, courierItalic] = await Promise.all([
-    fetch('https://fonts.gstatic.com/s/cormorantgaramond/v22/co3YmX5slCNuHLi8bLeY9MK7whWMhyjYrEPjuw.woff').then(r => r.arrayBuffer()),
-    fetch('https://fonts.gstatic.com/s/courierprime/v9/u-450q2lgwslOqpF_6gQ8kELaw9pWt_-.woff').then(r => r.arrayBuffer()),
+    fetch('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300&display=swap')
+      .then(r => r.text())
+      .then(css => css.match(/src: url\((.+?)\) format/)?.[1])
+      .then(url => fetch(url).then(r => r.arrayBuffer())),
+    fetch('https://fonts.googleapis.com/css2?family=Courier+Prime:ital@1&display=swap')
+      .then(r => r.text())
+      .then(css => css.match(/src: url\((.+?)\) format/)?.[1])
+      .then(url => fetch(url).then(r => r.arrayBuffer())),
   ]);
 
   const imageResponse = new ImageResponse(
