@@ -2,6 +2,7 @@
 export const config = { runtime: 'edge' };
 
 import { createClient } from '@supabase/supabase-js';
+import { ImageResponse } from '@vercel/og';
 
 const db = createClient(
   process.env.SUPABASE_URL,
@@ -30,8 +31,6 @@ function blendHex(h1,h2,t) {
 }
 
 async function renderCard(post) {
-  const { default: satori } = await import('https://esm.sh/satori@0.10.13');
-
   const {
     quote, bg_color, border_color, ink_color,
     font_size_quote, post_number, scheduled_at, dimension
@@ -52,6 +51,8 @@ async function renderCard(post) {
   const sh    = Math.round(11 * (w / 340));
   const sm    = Math.round(10 * (w / 340));
   const muted = blendHex(ink, bg, 0.45);
+  const bgLight = lighten(bg, 0.12);
+  const bgDark  = darken(bg, 0.08);
 
   // Fetch fonts via Google Fonts API
   const [cormorantCss, courierCss] = await Promise.all([
@@ -67,12 +68,13 @@ async function renderCard(post) {
     fetch(courierUrl).then(r => r.arrayBuffer()),
   ]);
 
-  const svg = await satori(
+  const imageResponse = new ImageResponse(
     {
       type: 'div',
       props: {
         style: {
-          width: w, height: h,
+          width: w,
+          height: h,
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: bg,
@@ -81,9 +83,28 @@ async function renderCard(post) {
           overflow: 'hidden',
         },
         children: [
-          // Gradient overlays
-          { type:'div', props:{ style:{ position:'absolute', top:0, left:0, right:0, bottom:0, background:`radial-gradient(ellipse at 28% 22%, ${lighten(bg,0.12)} 0%, transparent 52%)` } } },
-          { type:'div', props:{ style:{ position:'absolute', top:0, left:0, right:0, bottom:0, background:`radial-gradient(ellipse at 72% 78%, ${darken(bg,0.08)} 0%, transparent 52%)` } } },
+          // Gradient overlay 1
+          {
+            type: 'div',
+            props: {
+              style: {
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: `radial-gradient(ellipse at 28% 22%, ${bgLight} 0%, transparent 52%)`,
+              }
+            }
+          },
+          // Gradient overlay 2
+          {
+            type: 'div',
+            props: {
+              style: {
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: `radial-gradient(ellipse at 72% 78%, ${bgDark} 0%, transparent 52%)`,
+              }
+            }
+          },
 
           // Border corners TL
           { type:'div', props:{ style:{ position:'absolute', top:bord, left:bord, width:tick, height:2, backgroundColor:bc } } },
@@ -97,14 +118,20 @@ async function renderCard(post) {
           // BR
           { type:'div', props:{ style:{ position:'absolute', bottom:bord, right:bord, width:tick, height:2, backgroundColor:bc } } },
           { type:'div', props:{ style:{ position:'absolute', bottom:bord, right:bord, width:2, height:tick, backgroundColor:bc } } },
-          // Border rect outline
+          // Border rect
           { type:'div', props:{ style:{ position:'absolute', top:bord, left:bord, right:bord, bottom:bord, border:`1px solid ${bc}`, opacity:0.5 } } },
 
-          // Content wrapper
+          // Content
           {
             type: 'div',
             props: {
-              style: { display:'flex', flexDirection:'column', flex:1, position:'relative', zIndex:4 },
+              style: {
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                position: 'relative',
+                zIndex: 4,
+              },
               children: [
                 // Header
                 {
@@ -167,15 +194,13 @@ async function renderCard(post) {
     }
   );
 
-  // Convert SVG to PNG using sharp via esm.sh
-  const { default: sharp } = await import('https://esm.sh/sharp@0.33.3');
-  const png = await sharp(Buffer.from(svg)).png().toBuffer();
+  const buffer = Buffer.from(await imageResponse.arrayBuffer());
 
   // Upload to Supabase Storage
   const fileName = `cards/${post.id}.png`;
   const { error: uploadErr } = await db.storage
     .from('anvil-cards')
-    .upload(fileName, png, { contentType: 'image/png', upsert: true });
+    .upload(fileName, buffer, { contentType: 'image/png', upsert: true });
   if (uploadErr) throw new Error(`Storage upload failed: ${uploadErr.message}`);
 
   const { data: { publicUrl } } = db.storage.from('anvil-cards').getPublicUrl(fileName);
@@ -215,7 +240,9 @@ async function postToInstagram(post, imageUrl) {
 
 export default async function handler(req) {
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405, headers: { 'Content-Type': 'application/json' }
+    });
   }
 
   let post_id;
@@ -223,16 +250,25 @@ export default async function handler(req) {
     const body = await req.json();
     post_id = body.post_id;
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
+      status: 400, headers: { 'Content-Type': 'application/json' }
+    });
   }
 
-  if (!post_id) return new Response(JSON.stringify({ error: 'post_id required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  if (!post_id) return new Response(JSON.stringify({ error: 'post_id required' }), {
+    status: 400, headers: { 'Content-Type': 'application/json' }
+  });
 
   const { data: post, error: fetchErr } = await db
     .from('anvil_posts').select('*').eq('id', post_id).single();
 
-  if (fetchErr || !post) return new Response(JSON.stringify({ error: 'Post not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
-  if (post.status !== 'pending') return new Response(JSON.stringify({ error: `Post is ${post.status}` }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  if (fetchErr || !post) return new Response(JSON.stringify({ error: 'Post not found' }), {
+    status: 404, headers: { 'Content-Type': 'application/json' }
+  });
+
+  if (post.status !== 'pending') return new Response(JSON.stringify({ error: `Post is ${post.status}` }), {
+    status: 400, headers: { 'Content-Type': 'application/json' }
+  });
 
   await db.from('anvil_posts').update({ status: 'rendering' }).eq('id', post_id);
 
@@ -244,12 +280,16 @@ export default async function handler(req) {
       instagram_post_id: igPostId,
       posted_at: new Date().toISOString(),
     }).eq('id', post_id);
-    return new Response(JSON.stringify({ success: true, instagram_post_id: igPostId }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ success: true, instagram_post_id: igPostId }), {
+      status: 200, headers: { 'Content-Type': 'application/json' }
+    });
   } catch (err) {
     await db.from('anvil_posts').update({
       status: 'failed',
       error_message: err.message,
     }).eq('id', post_id);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500, headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
