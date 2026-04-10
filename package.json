@@ -6,9 +6,9 @@
     "build": "echo 'no build'"
   },
   "dependencies": {
-    "@sparticuz/chromium": "^131.0.0",
     "@supabase/supabase-js": "^2.39.0",
-    "puppeteer-core": "^23.0.0"
+    "satori": "^0.10.13",
+    "sharp": "^0.33.3"
   },
   "engines": {
     "node": "20.x"
