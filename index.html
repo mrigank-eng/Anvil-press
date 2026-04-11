@@ -14,25 +14,25 @@
   --bg:#0d0d0f;--surface:#141416;--panel:#1a1a1e;
   --border:rgba(255,255,255,0.07);--border-md:rgba(255,255,255,0.14);
   --text:#e8e4dc;--muted:#6a6870;--accent:#8aacbf;--accent2:#c9a84c;
-  --danger:#bf5a5a;--success:#5abf8a;--queued:#8a7abf;
+  --danger:#bf5a5a;--success:#5abf8a;--queued:#9a8abf;
   --font-ui:'Cormorant Garamond',Georgia,serif;
   --font-mono:'Courier Prime',monospace;
   --r:6px;--rlg:12px;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-ui);overflow:hidden;}
-.app{display:grid;grid-template-columns:220px 1fr 290px;grid-template-rows:50px 1fr;height:100vh;}
+.app{display:grid;grid-template-columns:220px 1fr 280px;grid-template-rows:50px 1fr;height:100vh;}
 
 /* Topbar */
 .topbar{grid-column:1/-1;display:flex;align-items:center;padding:0 18px;gap:8px;border-bottom:1px solid var(--border);background:var(--surface);}
 .brand{font-size:13px;font-weight:300;letter-spacing:0.28em;text-transform:uppercase;color:var(--accent);margin-right:6px;}
 .brand span{color:var(--accent2);}
-.tb{padding:4px 12px;border-radius:var(--r);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;border:1px solid var(--border);color:var(--muted);cursor:pointer;background:transparent;transition:all 0.12s;font-family:var(--font-ui);}
+.tb{padding:4px 12px;border-radius:var(--r);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;border:1px solid var(--border);color:var(--muted);cursor:pointer;background:transparent;transition:all 0.12s;font-family:var(--font-ui);}
 .tb:hover{border-color:var(--accent);color:var(--accent);}
 .tb.p{background:var(--accent);border-color:var(--accent);color:var(--bg);}
 .tb.d{border-color:var(--danger);color:var(--danger);}
 .tb.d:hover{background:var(--danger);color:var(--bg);}
 .tb.warn{border-color:var(--accent2);color:var(--accent2);}
-.sep{width:1px;height:14px;background:var(--border);margin:0 3px;}
+.sep{width:1px;height:14px;background:var(--border);margin:0 2px;}
 .tr{margin-left:auto;display:flex;align-items:center;gap:8px;}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 5px var(--success);}
 .slbl{font-size:9px;letter-spacing:0.12em;color:var(--muted);}
@@ -70,7 +70,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .pt:hover{color:var(--text);}
 .pscroll{flex:1;overflow-y:auto;padding:20px 24px;}
 .pscroll::-webkit-scrollbar{width:3px;}
-.pscroll::-webkit-scrollbar-thumb{background:#333;}
 
 /* Fields */
 .fl{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;}
@@ -83,70 +82,57 @@ textarea:focus,input:focus,select:focus{border-color:var(--accent);}
 textarea{line-height:1.65;font-style:italic;}
 .divv{height:1px;background:var(--border);margin:14px 0;}
 
-/* Status badges */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:9px;letter-spacing:0.1em;}
-.badge.unpublished{background:rgba(106,104,112,0.15);border:1px solid rgba(106,104,112,0.3);color:var(--muted);}
-.badge.queued{background:rgba(138,122,191,0.15);border:1px solid rgba(138,122,191,0.3);color:var(--queued);}
-.badge.published{background:rgba(90,191,138,0.15);border:1px solid rgba(90,191,138,0.3);color:var(--success);}
-
-/* Quotes Pipeline */
-.quote-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:6px;display:flex;gap:10px;align-items:flex-start;transition:all 0.1s;position:relative;}
-.quote-card:hover{border-color:var(--border-md);}
-.quote-card.dragging{opacity:0.4;border-color:var(--accent);}
-.quote-card.drag-over{border-color:var(--accent);border-style:dashed;}
-.qc-num{font-size:10px;font-family:var(--font-mono);color:var(--muted);min-width:28px;padding-top:2px;}
-.qc-body{flex:1;min-width:0;}
-.qc-text{font-size:13px;font-style:italic;line-height:1.6;color:var(--text);margin-bottom:6px;}
-.qc-text-edit{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--font-ui);font-size:13px;font-style:italic;line-height:1.6;padding:2px 0;outline:none;resize:none;}
-.qc-text-edit:focus{border-bottom-color:var(--accent);}
-.qc-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
-.qc-drag{cursor:grab;color:var(--muted);padding:2px 4px;font-size:14px;user-select:none;flex-shrink:0;}
-.qc-drag:active{cursor:grabbing;}
-
-/* Content Pipeline */
-.cp-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:0;overflow:hidden;margin-bottom:10px;display:flex;gap:0;}
-.cp-thumb{width:100px;flex-shrink:0;position:relative;background:var(--bg);}
-.cp-thumb canvas{display:block;width:100%;height:100%;object-fit:cover;}
-.cp-info{flex:1;padding:12px;}
-.cp-quote-text{font-size:12px;font-style:italic;line-height:1.5;margin-bottom:8px;color:var(--text);}
-.cp-actions{display:flex;gap:5px;flex-wrap:wrap;}
-
-/* Template editor canvas */
-.tmpl-stage{position:relative;margin:0 auto;display:block;}
-.tmpl-canvas{display:block;}
-.tmpl-overlay{position:absolute;inset:0;pointer-events:none;}
-.tmpl-el{position:absolute;pointer-events:all;cursor:move;user-select:none;}
-.tmpl-el.sel .tmpl-sel-ring{display:block;}
-.tmpl-sel-ring{display:none;position:absolute;inset:-2px;border:1.5px solid var(--accent);border-radius:1px;pointer-events:none;}
-.tmpl-rh{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);display:none;z-index:5;}
-.tmpl-el.sel .tmpl-rh{display:block;}
-.tmpl-rh.br{bottom:-4px;right:-4px;cursor:se-resize;}
-.tmpl-rh.bl{bottom:-4px;left:-4px;cursor:sw-resize;}
-.tmpl-rh.tr{top:-4px;right:-4px;cursor:ne-resize;}
-.tmpl-rh.tl{top:-4px;left:-4px;cursor:nw-resize;}
-.tmpl-text-inner{position:absolute;inset:0;overflow:hidden;word-break:break-word;white-space:pre-wrap;}
-
-/* Props bar */
-.props-bar{background:var(--surface);border-top:1px solid var(--border);padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0;}
-.props-bar label{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
-.props-bar input,.props-bar select{width:auto;padding:4px 6px;font-size:11px;}
-.props-bar input[type=color]{width:32px;height:26px;padding:1px;}
-.props-bar input[type=number]{width:52px;}
-.pb-sep{width:1px;height:16px;background:var(--border);}
-.pb-btn{padding:3px 8px;border-radius:var(--r);font-size:9px;letter-spacing:0.1em;border:1px solid var(--border);color:var(--muted);cursor:pointer;background:transparent;transition:all 0.1s;font-family:var(--font-ui);}
-.pb-btn:hover{border-color:var(--accent);color:var(--accent);}
-.pb-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(138,172,191,0.1);}
-
 /* Upload zone */
-.upload-zone{border:2px dashed var(--border-md);border-radius:var(--rlg);padding:36px 20px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.upload-zone{border:2px dashed var(--border-md);border-radius:var(--rlg);padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
 .upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(138,172,191,0.04);}
 .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.sbadge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:9px;letter-spacing:0.1em;}
+.sbadge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:9px;}
 .sbadge.uploading{background:rgba(138,172,191,0.1);border:1px solid rgba(138,172,191,0.3);color:var(--accent);}
 .sbadge.done{background:rgba(90,191,138,0.1);border:1px solid rgba(90,191,138,0.3);color:var(--success);}
 .sbadge.err{background:rgba(191,90,90,0.1);border:1px solid rgba(191,90,90,0.3);color:var(--danger);}
 .prog-bar{height:3px;background:var(--panel);border-radius:2px;overflow:hidden;margin-top:6px;}
 .prog-fill{height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width 0.3s;}
+
+/* Status badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:9px;letter-spacing:0.08em;}
+.badge.unpublished{background:rgba(106,104,112,0.15);border:1px solid rgba(106,104,112,0.3);color:var(--muted);}
+.badge.queued{background:rgba(154,138,191,0.15);border:1px solid rgba(154,138,191,0.3);color:var(--queued);}
+.badge.published{background:rgba(90,191,138,0.15);border:1px solid rgba(90,191,138,0.3);color:var(--success);}
+
+/* Quotes pipeline */
+.quote-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;margin-bottom:5px;display:flex;gap:10px;align-items:flex-start;transition:border 0.1s;}
+.quote-card.drag-over{border-color:var(--accent);border-style:dashed;}
+.quote-card.dragging{opacity:0.4;}
+.qc-drag{cursor:grab;color:var(--muted);font-size:14px;user-select:none;padding-top:2px;flex-shrink:0;}
+.qc-num{font-size:9px;font-family:var(--font-mono);color:var(--muted);min-width:26px;padding-top:3px;}
+.qc-body{flex:1;min-width:0;}
+.qc-text{font-size:12px;font-style:italic;line-height:1.6;margin-bottom:6px;}
+.qc-edit{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--font-ui);font-size:12px;font-style:italic;line-height:1.6;padding:2px 0;outline:none;resize:none;display:none;}
+.qc-edit:focus{border-bottom-color:var(--accent);}
+.qc-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+
+/* Content pipeline */
+.cp-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;}
+.cp-card-header{display:flex;align-items:center;gap:10px;padding:12px 14px;}
+.cp-thumb{width:56px;height:56px;border-radius:4px;overflow:hidden;flex-shrink:0;background:var(--bg);border:1px solid var(--border);}
+.cp-thumb canvas{width:100%;height:100%;display:block;}
+.cp-meta{flex:1;min-width:0;}
+.cp-order{font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.cp-quote{font-size:11px;font-style:italic;line-height:1.5;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cp-actions{display:flex;gap:5px;margin-top:6px;}
+.cp-postnum{display:flex;align-items:center;gap:6px;padding:8px 14px;border-top:1px solid var(--border);background:rgba(0,0,0,0.15);}
+.cp-postnum label{font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
+.cp-postnum input{width:80px;font-family:var(--font-mono);font-size:13px;text-align:center;}
+
+/* Presets */
+.presets{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;}
+.prs{padding:2px 8px;border-radius:20px;background:var(--panel);border:1px solid var(--border);color:var(--muted);font-size:9px;font-family:var(--font-mono);cursor:pointer;transition:all 0.1s;}
+.prs:hover,.prs.on{border-color:var(--accent);color:var(--accent);}
+
+/* Dim btns */
+.dim-btn{border:1px solid var(--border);border-radius:var(--r);padding:6px 3px;cursor:pointer;text-align:center;background:var(--panel);transition:all 0.1s;}
+.dim-btn.on{border-color:var(--accent);background:rgba(138,172,191,0.08);}
+.dim-btn:hover{border-color:var(--accent);}
 
 /* Calendar */
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
@@ -156,7 +142,7 @@ textarea{line-height:1.65;font-style:italic;}
 .cvs-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(138,172,191,0.08);}
 .week-grid,.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
 .wdh{text-align:center;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);padding:3px 0 6px;}
-.wday{min-height:70px;border:1px solid var(--border);border-radius:var(--r);padding:5px;cursor:pointer;transition:all 0.1s;position:relative;}
+.wday{min-height:68px;border:1px solid var(--border);border-radius:var(--r);padding:5px;cursor:pointer;transition:all 0.1s;}
 .wday:hover{border-color:var(--accent);}
 .wday.today{border-color:var(--accent2);}
 .wd-num{font-size:10px;color:var(--muted);margin-bottom:3px;}
@@ -165,7 +151,7 @@ textarea{line-height:1.65;font-style:italic;}
 .cal-pill.pending{background:rgba(201,168,76,0.2);color:var(--accent2);}
 .cal-pill.posted{background:rgba(90,191,138,0.2);color:var(--success);}
 .cal-pill.failed{background:rgba(191,90,90,0.2);color:var(--danger);}
-.mday{min-height:52px;border:1px solid var(--border);border-radius:var(--r);padding:4px;cursor:pointer;transition:all 0.1s;}
+.mday{min-height:50px;border:1px solid var(--border);border-radius:var(--r);padding:4px;cursor:pointer;transition:all 0.1s;}
 .mday:hover{border-color:var(--accent);}
 .mday.today{border-color:var(--accent2);}
 .mday.om .md-n{color:rgba(106,104,112,0.35);}
@@ -189,46 +175,71 @@ textarea{line-height:1.65;font-style:italic;}
 .insta-cap{padding:0 9px 9px;font-size:8px;color:#ccc;font-family:-apple-system,sans-serif;line-height:1.4;}
 .insta-cap strong{color:#fff;}
 
+/* ── CARD EDITOR MODAL ── */
+.editor-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:900;flex-direction:column;}
+.editor-modal-bg.open{display:flex;}
+.editor-topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.editor-title{font-size:12px;font-weight:300;letter-spacing:0.15em;color:var(--accent);flex:1;}
+.editor-body{flex:1;display:flex;overflow:hidden;}
+.editor-canvas-area{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:20px;background:#111113;}
+.editor-sidebar{width:240px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.editor-sidebar-scroll{flex:1;overflow-y:auto;padding:14px;}
+.editor-sidebar-scroll::-webkit-scrollbar{width:2px;}
+.editor-footer{display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+
+/* Canvas stage */
+.stage-wrap{position:relative;box-shadow:0 0 40px rgba(0,0,0,0.5);}
+.stage-wrap canvas{display:block;}
+/* Interaction boxes */
+.ibox{position:absolute;cursor:move;pointer-events:all;}
+.ibox.sel .sel-ring{display:block;}
+.sel-ring{display:none;position:absolute;inset:-2px;border:1.5px solid var(--accent);border-radius:1px;pointer-events:none;}
+.sel-ring::after{content:attr(data-lbl);position:absolute;top:-18px;left:0;font-size:8px;font-family:var(--font-mono);color:var(--accent);background:rgba(13,13,15,0.9);padding:1px 5px;border-radius:2px;white-space:nowrap;}
+.rh{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);display:none;z-index:10;}
+.ibox.sel .rh{display:block;}
+.rh.tl{top:-5px;left:-5px;cursor:nw-resize;}
+.rh.tr{top:-5px;right:-5px;cursor:ne-resize;}
+.rh.bl{bottom:-5px;left:-5px;cursor:sw-resize;}
+.rh.br{bottom:-5px;right:-5px;cursor:se-resize;}
+.rh.ml{top:calc(50% - 4px);left:-5px;cursor:w-resize;}
+.rh.mr{top:calc(50% - 4px);right:-5px;cursor:e-resize;}
+
+/* Props in editor sidebar */
+.ep-section{margin-bottom:14px;}
+.ep-label{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.ep-row{display:flex;gap:5px;align-items:center;margin-bottom:5px;}
+.ep-lbl{font-size:8px;color:var(--muted);min-width:40px;}
+.ep-row input,.ep-row select{flex:1;font-size:11px;padding:4px 6px;}
+.ep-row input[type=color]{flex:0 0 36px;height:26px;padding:1px;}
+.ep-row input[type=number]{flex:0 0 50px;}
+.ep-btn{padding:3px 8px;border-radius:var(--r);font-size:9px;border:1px solid var(--border);color:var(--muted);cursor:pointer;background:transparent;transition:all 0.1s;font-family:var(--font-ui);}
+.ep-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ep-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(138,172,191,0.1);}
+.ep-hint{font-size:9px;color:var(--muted);line-height:1.5;margin-top:4px;}
+
 /* Modals */
 .mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;}
 .mbg.open{display:flex;}
 .modal{background:var(--panel);border:1px solid var(--border-md);border-radius:var(--rlg);padding:22px;width:360px;max-width:90vw;}
-.modal.wide{width:560px;}
 .modal h3{font-size:13px;font-weight:300;letter-spacing:0.12em;margin-bottom:10px;color:var(--accent);}
 .mact{display:flex;gap:7px;justify-content:flex-end;margin-top:14px;}
-.cal-modal-slots .tsr{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+.cal-slots .tsr{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
 .tsr input[type=time]{flex:1;}
 .rmb{width:20px;height:20px;border-radius:3px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.1s;}
 .rmb:hover{border-color:var(--danger);color:var(--danger);}
 .add-ts{width:100%;padding:5px;border-radius:var(--r);background:transparent;border:1px dashed var(--border-md);color:var(--muted);font-size:8px;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:all 0.1s;font-family:var(--font-ui);margin-top:2px;}
 .add-ts:hover{border-color:var(--accent);color:var(--accent);}
 
-/* Presets */
-.presets{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;}
-.prs{padding:2px 8px;border-radius:20px;background:var(--panel);border:1px solid var(--border);color:var(--muted);font-size:9px;font-family:var(--font-mono);cursor:pointer;transition:all 0.1s;}
-.prs:hover,.prs.on{border-color:var(--accent);color:var(--accent);}
-
-/* Dim btns */
-.dim-btn{border:1px solid var(--border);border-radius:var(--r);padding:6px 3px;cursor:pointer;text-align:center;background:var(--panel);transition:all 0.1s;}
-.dim-btn.on{border-color:var(--accent);background:rgba(138,172,191,0.08);}
-.dim-btn:hover{border-color:var(--accent);}
-
-/* Toast */
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);padding:7px 16px;border-radius:var(--r);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;z-index:2000;opacity:0;transition:opacity 0.2s;pointer-events:none;}
 .toast.show{opacity:1;}
 .toast.ok{background:var(--success);color:var(--bg);}
 .toast.err{background:var(--danger);color:#fff;}
 .toast.info{background:var(--accent);color:var(--bg);}
-
-/* Template editor layout */
-.tmpl-editor-wrap{display:flex;flex-direction:column;height:100%;overflow:hidden;}
-.tmpl-canvas-area{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:16px;background:#111113;}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- Topbar -->
 <header class="topbar">
   <div class="brand">Anvil <span>Press</span></div>
   <div class="sep"></div>
@@ -242,9 +253,8 @@ textarea{line-height:1.65;font-style:italic;}
   </div>
 </header>
 
-<!-- Sidebar: Queue -->
 <aside class="sidebar">
-  <div class="sh"><span>Queue</span><button class="tb" style="padding:1px 7px;font-size:8px;" onclick="newPost()">+</button></div>
+  <div class="sh"><span>Queue</span><button class="tb" style="padding:1px 6px;font-size:8px;" onclick="newPost()">+</button></div>
   <div class="qlist" id="qlist"><div style="padding:12px;text-align:center;color:var(--muted);font-size:10px;">Loading...</div></div>
   <div class="qfooter">
     <div class="stat"><div class="sn" id="sp">—</div><div class="sl">Pending</div></div>
@@ -253,7 +263,6 @@ textarea{line-height:1.65;font-style:italic;}
   </div>
 </aside>
 
-<!-- Main tabs -->
 <main class="main">
   <div class="ptabs">
     <div class="pt on" onclick="switchTab('design',this)">Design</div>
@@ -263,18 +272,13 @@ textarea{line-height:1.65;font-style:italic;}
     <div class="pt" onclick="switchTab('calendar',this)">Calendar</div>
   </div>
 
-  <!-- ── DESIGN TAB ── -->
+  <!-- DESIGN TAB -->
   <div class="pscroll" id="tab-design">
-    <div style="background:var(--panel);border-radius:var(--rlg);padding:16px;margin-bottom:16px;border:1px solid var(--border);">
-      <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent2);margin-bottom:10px;">✦ Canva workflow</div>
-      <div style="font-size:12px;line-height:1.7;color:var(--text);">
-        Design in Canva → Download PNG → Upload here → Caption & Schedule → Done.<br/>
-        <span style="color:var(--muted);">Or use the Quotes & Content Pipeline for batch posting.</span>
-      </div>
-      <div style="margin-top:10px;"><a style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--r);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:var(--accent2);font-size:9px;text-decoration:none;" href="https://canva.com" target="_blank">Open Canva →</a></div>
+    <div style="background:var(--panel);border-radius:var(--rlg);padding:14px;margin-bottom:14px;border:1px solid var(--border);">
+      <div style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent2);margin-bottom:8px;">✦ Canva workflow</div>
+      <div style="font-size:12px;line-height:1.7;color:var(--text);">Design in Canva → Download PNG → Upload here → Caption & Schedule → Done.</div>
+      <div style="margin-top:8px;"><a style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:var(--r);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:var(--accent2);font-size:9px;text-decoration:none;" href="https://canva.com" target="_blank">Open Canva →</a></div>
     </div>
-
-    <!-- Dimension -->
     <div class="fg">
       <div class="fl">Format</div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:5px;">
@@ -285,19 +289,17 @@ textarea{line-height:1.65;font-style:italic;}
       </div>
       <div style="font-size:9px;color:var(--muted);">Export from Canva at <span id="dimHint" style="color:var(--accent);">1080 × 1080px</span></div>
     </div>
-
-    <!-- Upload -->
     <div class="fg">
       <div class="fl">Upload design</div>
       <div class="upload-zone" id="uploadZone" ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
         <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" onchange="onFileSelect(event)"/>
         <div style="font-size:28px;margin-bottom:8px;color:var(--muted);">⬆</div>
-        <div style="font-size:13px;font-weight:300;margin-bottom:4px;">Drop your image here</div>
+        <div style="font-size:13px;font-weight:300;margin-bottom:3px;">Drop your image here</div>
         <div style="font-size:10px;color:var(--muted);">PNG or JPG · Click or drag</div>
       </div>
     </div>
     <div id="imgPreviewWrap" style="display:none;">
-      <div style="position:relative;border-radius:var(--rlg);overflow:hidden;background:var(--panel);">
+      <div style="position:relative;border-radius:var(--rlg);overflow:hidden;">
         <img id="imgPreview" src="" alt="" style="width:100%;display:block;border-radius:var(--rlg);"/>
         <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);opacity:0;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;border-radius:var(--rlg);" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
           <button class="tb" onclick="clearImage()" style="background:rgba(0,0,0,0.8);border-color:rgba(255,255,255,0.3);color:#fff;">Change image</button>
@@ -308,7 +310,7 @@ textarea{line-height:1.65;font-style:italic;}
     </div>
   </div>
 
-  <!-- ── CAPTION & SCHEDULE TAB ── -->
+  <!-- CAPTION & SCHEDULE TAB -->
   <div class="pscroll" id="tab-caption" style="display:none;">
     <div class="fg">
       <div class="fl"><span>Caption</span><span id="capMeta" style="color:var(--muted);">0 chars · 0 #tags</span></div>
@@ -316,7 +318,7 @@ textarea{line-height:1.65;font-style:italic;}
     </div>
     <div class="divv"></div>
     <div class="fg">
-      <div class="fl">Date <span class="tzbadge" style="font-size:8px;" id="tzB2">—</span></div>
+      <div class="fl">Date <span class="tzbadge" style="font-size:7px;" id="tzB2">—</span></div>
       <input type="date" id="fDate"/>
     </div>
     <div class="fg">
@@ -336,53 +338,60 @@ textarea{line-height:1.65;font-style:italic;}
     <div id="postSummary" style="font-size:10px;color:var(--muted);line-height:1.8;">Upload an image to schedule.</div>
   </div>
 
-  <!-- ── QUOTES PIPELINE TAB ── -->
+  <!-- QUOTES PIPELINE TAB -->
   <div class="pscroll" id="tab-quotes" style="display:none;">
-    <!-- Add quote -->
     <div class="fg" style="display:flex;gap:8px;">
-      <textarea id="newQuoteText" placeholder="Write a new quote..." style="flex:1;min-height:60px;"></textarea>
-      <button class="tb p" onclick="addQuote()" style="align-self:flex-end;padding:7px 14px;">Add</button>
+      <textarea id="newQuoteText" placeholder="Write a new quote..." style="flex:1;min-height:56px;"></textarea>
+      <button class="tb p" onclick="addQuote()" style="align-self:flex-end;">Add</button>
     </div>
     <div class="divv"></div>
-    <div style="display:flex;gap:6px;margin-bottom:12px;align-items:center;">
-      <span style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);">Filter:</span>
+    <div style="display:flex;gap:5px;margin-bottom:10px;">
       <button class="cvs-btn on" onclick="setQFilter('all',this)">All</button>
       <button class="cvs-btn" onclick="setQFilter('unpublished',this)">Unpublished</button>
       <button class="cvs-btn" onclick="setQFilter('queued',this)">Queued</button>
       <button class="cvs-btn" onclick="setQFilter('published',this)">Published</button>
     </div>
-    <div id="quotesList" style="min-height:100px;"></div>
+    <div id="quotesList"></div>
   </div>
 
-  <!-- ── CONTENT PIPELINE TAB ── -->
+  <!-- CONTENT PIPELINE TAB -->
   <div class="pscroll" id="tab-content" style="display:none;">
     <!-- Template section -->
-    <div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:16px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);">Master Template</span>
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);">Master Template</span>
         <div style="display:flex;gap:5px;">
-          <button class="tb" onclick="openTemplateUpload()">Change template</button>
+          <button class="tb" onclick="document.getElementById('tmplInput').click()">Upload template</button>
           <button class="tb warn" id="btnSetDefault" onclick="setAsDefault()" style="display:none;">Set as default</button>
         </div>
       </div>
-      <div id="tmplStatus" style="font-size:10px;color:var(--muted);">Loading template...</div>
-      <div id="tmplThumbWrap" style="display:none;margin-top:8px;">
-        <img id="tmplThumb" src="" style="width:80px;height:80px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border);"/>
+      <div id="tmplStatus" style="font-size:10px;color:var(--muted);">Loading...</div>
+      <div id="tmplThumbWrap" style="display:none;margin-top:8px;display:flex;gap:8px;align-items:center;">
+        <img id="tmplThumb" src="" style="width:56px;height:56px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border);display:block;"/>
+        <div>
+          <div style="font-size:10px;color:var(--text);" id="tmplThumbLabel">Template</div>
+          <button class="tb" style="margin-top:5px;font-size:8px;" onclick="openEditorForTemplate()">Edit layout</button>
+        </div>
+      </div>
+      <input type="file" id="tmplInput" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="onTmplFile(event)"/>
+    </div>
+
+    <!-- Batch controls -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <span style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);">Unpublished quotes</span>
+        <span style="font-size:9px;color:var(--muted);margin-left:8px;" id="unpubCount"></span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <label style="font-size:9px;color:var(--muted);">Start #</label>
+        <input type="number" id="batchStartNum" value="1" min="1" style="width:60px;font-family:var(--font-mono);font-size:12px;text-align:center;"/>
+        <button class="tb p" onclick="generateAll()">Queue all</button>
       </div>
     </div>
-
-    <!-- Hidden template upload -->
-    <input type="file" id="tmplFileInput" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="onTmplFileSelect(event)"/>
-
-    <!-- Unpublished quotes -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <span style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);">Unpublished quotes</span>
-      <button class="tb p" onclick="generateAll()">Generate & Queue all</button>
-    </div>
-    <div id="contentList" style="min-height:60px;"></div>
+    <div id="contentList"></div>
   </div>
 
-  <!-- ── CALENDAR TAB ── -->
+  <!-- CALENDAR TAB -->
   <div class="pscroll" id="tab-calendar" style="display:none;">
     <div class="cal-nav">
       <button class="tb" onclick="calNav(-1)">← Prev</button>
@@ -415,69 +424,124 @@ textarea{line-height:1.65;font-style:italic;}
       </div>
       <div class="insta-cap"><strong>quiet_anvil</strong> <span id="pmCap">Caption appears here...</span></div>
     </div>
-    <div style="margin-top:12px;font-size:9px;color:var(--muted);line-height:1.8;">
+    <div style="margin-top:10px;font-size:9px;color:var(--muted);line-height:1.8;">
       <div style="color:var(--accent);font-size:7px;letter-spacing:0.25em;text-transform:uppercase;margin-bottom:4px;">Tips</div>
       <div>· Max 30 hashtags per post</div>
       <div>· Cron fires every 30 min</div>
-      <div>· Queue auto-updates every 30s</div>
+      <div>· Queue updates every 30s</div>
       <div>· Drag quotes to reorder</div>
     </div>
   </div>
 </aside>
 </div>
 
-<!-- Template editor modal -->
-<div class="mbg" id="tmplEditorModal">
-  <div class="modal wide" style="padding:0;overflow:hidden;max-height:90vh;display:flex;flex-direction:column;">
-    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="font-size:13px;font-weight:300;letter-spacing:0.12em;color:var(--accent);" id="tmplEditorTitle">Template Editor</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Drag elements to reposition · Double-click to edit text</div>
-      </div>
-      <div style="display:flex;gap:6px;">
-        <button class="tb warn" onclick="setAsDefault()">Set as default</button>
-        <button class="tb p" onclick="saveTmplAndClose()">Done</button>
-        <button class="tb" onclick="closeTmplEditor()">Cancel</button>
-      </div>
-    </div>
-    <!-- Props bar -->
-    <div class="props-bar" id="propsBar" style="display:none;">
-      <label>Font</label>
-      <select id="pbFont" onchange="applyPb('font',this.value)" style="width:140px;font-size:10px;"></select>
-      <input type="number" id="pbSize" value="16" min="4" max="400" oninput="applyPb('size',+this.value)" title="Size"/>
-      <div class="pb-sep"></div>
-      <input type="color" id="pbColor" value="#e8e4dc" oninput="applyPb('color',this.value)" title="Color"/>
-      <input type="number" id="pbOpacity" value="100" min="0" max="100" title="Opacity %" style="width:48px;" oninput="applyPb('opacity',+this.value)"/>
-      <div class="pb-sep"></div>
-      <button class="pb-btn" id="pbBold" onclick="togglePb('bold')">B</button>
-      <button class="pb-btn" id="pbItal" onclick="togglePb('italic')">I</button>
-      <button class="pb-btn" onclick="applyPb('align','left')">⬅</button>
-      <button class="pb-btn" onclick="applyPb('align','center')">↔</button>
-      <button class="pb-btn" onclick="applyPb('align','right')">➡</button>
-      <div class="pb-sep"></div>
-      <button class="pb-btn" onclick="deleteTmplEl()" style="border-color:var(--danger);color:var(--danger);">Delete</button>
-    </div>
-    <div class="tmpl-canvas-area" id="tmplCanvasArea">
-      <div style="position:relative;" id="tmplStage">
-        <canvas id="tmplCanvas"></canvas>
-        <div id="tmplOverlay" style="position:absolute;inset:0;pointer-events:none;"></div>
+<!-- ════ CARD EDITOR MODAL ════ -->
+<div class="editor-modal-bg" id="editorModal">
+  <div class="editor-topbar">
+    <div class="editor-title" id="editorTitle">Card Editor</div>
+    <button class="tb" onclick="editorZoomOut()">−</button>
+    <span style="font-size:10px;font-family:var(--font-mono);color:var(--muted);min-width:40px;text-align:center;" id="editorZoomLabel">100%</span>
+    <button class="tb" onclick="editorZoomIn()">+</button>
+    <button class="tb" onclick="editorZoomFit()">Fit</button>
+    <div class="sep"></div>
+    <button class="tb" onclick="addEditorEl('quote')">+ Quote</button>
+    <button class="tb" onclick="addEditorEl('number')">+ Number</button>
+    <button class="tb" onclick="addEditorEl('text')">+ Text</button>
+    <div class="sep"></div>
+    <button class="tb d" onclick="closeEditor()">Cancel</button>
+    <button class="tb p" onclick="approveAndQueue()">Approve & Queue</button>
+  </div>
+  <div class="editor-body">
+    <div class="editor-canvas-area" id="editorCanvasArea">
+      <div class="stage-wrap" id="stageWrap" style="position:relative;">
+        <canvas id="editorCanvas"></canvas>
+        <div id="iboxLayer" style="position:absolute;inset:0;pointer-events:none;"></div>
       </div>
     </div>
-    <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;">
-      <button class="tb" onclick="addTmplTextEl('quote')">+ Quote text</button>
-      <button class="tb" onclick="addTmplTextEl('number')">+ Post number</button>
-      <button class="tb" onclick="addTmplTextEl('custom')">+ Custom text</button>
-      <button class="tb" onclick="resetTmplEls()">Reset positions</button>
+    <div class="editor-sidebar">
+      <div class="editor-sidebar-scroll">
+        <!-- Selected element props -->
+        <div id="noSelMsg" style="padding:20px 0;text-align:center;font-size:11px;color:var(--muted);">Click an element to select it</div>
+        <div id="elProps" style="display:none;">
+          <div class="ep-section">
+            <div class="ep-label" id="epElLabel">Element</div>
+            <div class="ep-row">
+              <span class="ep-lbl">Font</span>
+              <select id="epFont" onchange="applyEp('font',this.value)" style="font-size:10px;"></select>
+            </div>
+            <div class="ep-row">
+              <span class="ep-lbl">Size</span>
+              <input type="number" id="epSize" value="16" min="4" max="400" oninput="applyEp('size',+this.value)"/>
+              <span class="ep-lbl" style="min-width:28px;text-align:right;">Color</span>
+              <input type="color" id="epColor" value="#e8e4dc" oninput="applyEp('color',this.value)"/>
+            </div>
+            <div class="ep-row">
+              <span class="ep-lbl">Opacity</span>
+              <input type="number" id="epOpacity" value="100" min="0" max="100" oninput="applyEp('opacity',+this.value)"/>
+              <span class="ep-lbl" style="min-width:28px;text-align:right;">LSpac</span>
+              <input type="number" id="epLS" value="0" step="0.05" min="-0.5" max="2" oninput="applyEp('letterSpacing',+this.value)"/>
+            </div>
+            <div class="ep-row">
+              <span class="ep-lbl">Style</span>
+              <button class="ep-btn" id="epBold" onclick="toggleEp('bold')"><b>B</b></button>
+              <button class="ep-btn" id="epItal" onclick="toggleEp('italic')"><i>I</i></button>
+              <button class="ep-btn" id="epAL" onclick="applyEp('align','left')">⬅</button>
+              <button class="ep-btn" id="epAC" onclick="applyEp('align','center')">↔</button>
+              <button class="ep-btn" id="epAR" onclick="applyEp('align','right')">➡</button>
+            </div>
+            <div class="ep-row">
+              <span class="ep-lbl">Text</span>
+              <input type="text" id="epText" oninput="applyEp('text',this.value)" style="font-size:11px;"/>
+            </div>
+            <div class="ep-row">
+              <span class="ep-lbl">X % / Y %</span>
+              <input type="number" id="epX" value="0" step="0.1" oninput="applyEp('xp',+this.value)" style="flex:0 0 50px;font-size:10px;"/>
+              <input type="number" id="epY" value="0" step="0.1" oninput="applyEp('yp',+this.value)" style="flex:0 0 50px;font-size:10px;"/>
+            </div>
+            <div class="ep-row">
+              <span class="ep-lbl">W % / H %</span>
+              <input type="number" id="epW" value="80" step="0.1" oninput="applyEp('wp',+this.value)" style="flex:0 0 50px;font-size:10px;"/>
+              <input type="number" id="epH" value="10" step="0.1" oninput="applyEp('hp',+this.value)" style="flex:0 0 50px;font-size:10px;"/>
+            </div>
+            <div style="display:flex;gap:5px;margin-top:8px;">
+              <button class="ep-btn" onclick="deleteEditorEl()" style="border-color:var(--danger);color:var(--danger);">Delete</button>
+              <button class="ep-btn" onclick="bringEditorFront()">↑ Front</button>
+              <button class="ep-btn" onclick="sendEditorBack()">↓ Back</button>
+            </div>
+          </div>
+        </div>
+        <div class="divv"></div>
+        <!-- Post info -->
+        <div class="ep-section">
+          <div class="ep-label">Post info</div>
+          <div class="ep-row">
+            <span class="ep-lbl">Caption</span>
+            <input type="text" id="epCaption" style="font-size:11px;" placeholder="Caption for this post"/>
+          </div>
+          <div class="ep-row">
+            <span class="ep-lbl">Date</span>
+            <input type="date" id="epDate" style="font-size:11px;"/>
+          </div>
+          <div class="ep-row">
+            <span class="ep-lbl">Time</span>
+            <input type="time" id="epTime" value="09:00" style="font-size:11px;"/>
+          </div>
+        </div>
+        <div class="ep-hint">Position and size are stored as % of card dimensions so they render correctly at full resolution.</div>
+      </div>
+      <div style="padding:10px 14px;border-top:1px solid var(--border);">
+        <button class="tb" style="width:100%;text-align:center;" onclick="resetEditorEls()">Reset element positions</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Calendar schedule modal -->
+<!-- Calendar modal -->
 <div class="mbg" id="calModal">
   <div class="modal">
-    <h3>Schedule for <span id="calModalDateLabel">—</span></h3>
+    <h3>Schedule for <span id="calModalDate">—</span></h3>
     <div style="font-size:9px;color:var(--muted);margin-bottom:10px;">Unlimited posts per day allowed</div>
-    <div class="cal-modal-slots" id="calModalSlots"></div>
+    <div class="cal-slots" id="calSlots"></div>
     <button class="add-ts" onclick="addCalSlot()">+ Add another time</button>
     <div class="mact">
       <button class="tb" onclick="closeCalModal()">Cancel</button>
@@ -500,39 +564,47 @@ textarea{line-height:1.65;font-style:italic;}
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════════════
-// SUPABASE + GLOBALS
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════════════
 const SURL='https://oshyrxekeqobkhmfnseq.supabase.co';
 const SKEY='sb_publishable_dQxgWep_h9-9wOnpkI6O-A_mS7EwBiA';
 const {createClient}=supabase;
 const db=createClient(SURL,SKEY);
-
 const TZ=new Date().toLocaleTimeString('en',{timeZoneName:'short'}).split(' ').pop();
+
+// ══════════════════════════════════════════════════
+// GLOBAL STATE
+// ══════════════════════════════════════════════════
 let posts=[],quotes=[],curPost=null;
 let uploadedImageUrl=null;
 let postDim={label:'1:1',w:1080,h:1080};
 let calView='week',calDate=new Date();
-let calModalDate=null,calModalSlots=['09:00'];
+let calModalDateStr=null,calModalSlots=['09:00'];
 let qFilter='all';
 let pollTimer=null;
 
-// Template state
-let tmplUrl=null,tmplIsDefault=false;
-let tmplEls=[]; // overlay elements on template
-let tmplSelId=null;
-let tmplDrag={active:false},tmplResize={active:false,handle:''};
-let tmplScale=1;
+// Template
+let tmplUrl=null;
 
-const FONTS=['Cormorant Garamond','Courier Prime','EB Garamond','Playfair Display','Libre Baskerville','Lora','DM Serif Display','Merriweather','Crimson Text','IBM Plex Serif','IBM Plex Mono','Space Mono','PT Serif','Raleway','Oswald','Barlow','Work Sans','Poppins','Montserrat','Fira Code','Inconsolata'];
+// Editor state
+let editorQuote=null;       // quote object being edited
+let editorEls=[];           // [{id,type,label,text,xp,yp,wp,hp,font,size,color,opacity,italic,bold,align,letterSpacing,z}]
+let editorSelId=null;
+let editorZoom=1,editorPanX=0,editorPanY=0;
+let editorDrag={active:false},editorResize={active:false,handle:''};
+let editorImg=null;         // HTMLImageElement of template
 
-// ══════════════════════════════════════════════════════════════
+const FONTS=['Cormorant Garamond','Courier Prime','EB Garamond','Playfair Display','Libre Baskerville','Lora','DM Serif Display','Merriweather','Crimson Text','IBM Plex Serif','IBM Plex Mono','Space Mono','PT Serif','Raleway','Oswald','Barlow','Poppins','Montserrat','Fira Code','Inconsolata'];
+
+// ══════════════════════════════════════════════════
 // INIT
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 async function init(){
   document.getElementById('tzBadge').textContent=TZ;
   document.getElementById('tzB2').textContent=TZ;
   document.getElementById('fDate').value=new Date().toLocaleDateString('en-CA');
+  document.getElementById('epDate').value=new Date().toLocaleDateString('en-CA');
   populateFontSelects();
   await checkDB();
   await Promise.all([loadQueue(),loadQuotes(),loadTemplate()]);
@@ -541,8 +613,7 @@ async function init(){
 
 function populateFontSelects(){
   const opts=FONTS.map(f=>`<option value="${f}">${f}</option>`).join('');
-  const sel=document.getElementById('pbFont');
-  if(sel)sel.innerHTML=opts;
+  document.getElementById('epFont').innerHTML=opts;
 }
 
 async function checkDB(){
@@ -555,9 +626,9 @@ function setSt(ok){
   document.getElementById('slbl').textContent=ok?'Connected':'Error';
 }
 
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // POLLING
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 function startPolling(){
   if(pollTimer)clearInterval(pollTimer);
   pollTimer=setInterval(async()=>{
@@ -568,35 +639,27 @@ function startPolling(){
       const ex=posts.find(x=>x.id===p.id);
       if(ex&&ex.status!==p.status){ex.status=p.status;ex.posted_at=p.posted_at;changed=true;}
     });
-    if(changed){
-      renderQueue();updateStats();
-      // Update quote statuses
-      await syncQuoteStatuses();
-      renderQuotesList();renderContentList();
+    if(!changed)return;
+    renderQueue();updateStats();
+    // Update quote statuses
+    for(const q of quotes.filter(x=>x.status==='queued'&&x.post_id)){
+      const post=posts.find(p=>p.id===q.post_id);
+      if(post?.status==='posted'){
+        await db.from('anvil_quotes').update({status:'published'}).eq('id',q.id);
+        q.status='published';
+      }
     }
+    renderQuotesList();renderContentList();
   },30000);
 }
 
-async function syncQuoteStatuses(){
-  // For queued quotes, check if their post has been posted
-  const queuedQuotes=quotes.filter(q=>q.status==='queued'&&q.post_id);
-  for(const q of queuedQuotes){
-    const post=posts.find(p=>p.id===q.post_id);
-    if(post&&post.status==='posted'){
-      await db.from('anvil_quotes').update({status:'published'}).eq('id',q.id);
-      q.status='published';
-    }
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // QUEUE
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 async function loadQueue(){
   const{data}=await db.from('anvil_posts').select('*').order('scheduled_at',{ascending:true});
   posts=data||[];renderQueue();updateStats();
 }
-
 function renderQueue(){
   const el=document.getElementById('qlist');
   if(!posts.length){el.innerHTML='<div style="padding:12px;text-align:center;color:var(--muted);font-size:10px;">Empty</div>';return;}
@@ -610,38 +673,28 @@ function renderQueue(){
       <div class="qdot ${p.status}"></div>
     </div>`).join('');
 }
-
 function updateStats(){
   document.getElementById('sp').textContent=posts.filter(p=>p.status==='pending').length;
   document.getElementById('ss').textContent=posts.filter(p=>p.status==='posted').length;
   document.getElementById('sf').textContent=posts.filter(p=>p.status==='failed').length;
 }
-
 function fmtD(iso){
   if(!iso)return'—';
   const d=new Date(iso);
-  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+
-    d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
-
 function loadPost(id){
   const p=posts.find(x=>x.id===id);if(!p)return;
   curPost=p;
   document.getElementById('fCap').value=p.caption||'';
   const d=new Date(p.scheduled_at);
   document.getElementById('fDate').value=d.toLocaleDateString('en-CA');
-  const h=String(d.getHours()).padStart(2,'0'),mn=String(d.getMinutes()).padStart(2,'0');
-  document.getElementById('fTime').value=h+':'+mn;
+  document.getElementById('fTime').value=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
   document.getElementById('btnDel').style.display='block';
   syncCaption();
-  if(p.image_url){
-    showImgPreview(p.image_url,'','');
-    uploadedImageUrl=p.image_url;
-    document.getElementById('instaImg').innerHTML=`<img src="${p.image_url}" alt=""/>`;
-  }
+  if(p.image_url){showImgPreview(p.image_url,'','');uploadedImageUrl=p.image_url;document.getElementById('instaImg').innerHTML=`<img src="${p.image_url}" alt=""/>`;}
   renderQueue();updatePostSummary();
 }
-
 function newPost(){
   curPost=null;
   document.getElementById('fCap').value='';
@@ -651,9 +704,9 @@ function newPost(){
   clearImage();renderQueue();syncCaption();updatePostSummary();
 }
 
-// ══════════════════════════════════════════════════════════════
-// IMAGE UPLOAD
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// UPLOAD
+// ══════════════════════════════════════════════════
 function onDragOver(e){e.preventDefault();document.getElementById('uploadZone').classList.add('drag');}
 function onDragLeave(){document.getElementById('uploadZone').classList.remove('drag');}
 function onDrop(e){e.preventDefault();document.getElementById('uploadZone').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)processFile(f);}
@@ -662,18 +715,16 @@ function onFileSelect(e){const f=e.target.files[0];if(f)processFile(f);}
 async function processFile(file){
   if(!file.type.startsWith('image/')){toast('Please upload an image','err');return;}
   const url=URL.createObjectURL(file);
-  showImgPreview(url,file.name,fmtBytes(file.size));
+  showImgPreview(url,file.name,'');
   document.getElementById('instaImg').innerHTML=`<img src="${url}" alt=""/>`;
-  await uploadToSupabase(file,'uploads/');
+  uploadedImageUrl=await uploadToSupabase(file,'uploads/');
   updatePostSummary();
 }
-
-function showImgPreview(url,name,size){
+function showImgPreview(url){
   document.getElementById('uploadZone').style.display='none';
   document.getElementById('imgPreviewWrap').style.display='block';
   document.getElementById('imgPreview').src=url;
 }
-
 function clearImage(){
   uploadedImageUrl=null;
   document.getElementById('uploadZone').style.display='';
@@ -684,48 +735,37 @@ function clearImage(){
   document.getElementById('progBar').style.display='none';
   updatePostSummary();
 }
-
 async function uploadToSupabase(file,prefix){
-  const progBar=document.getElementById('progBar');
-  const progFill=document.getElementById('progFill');
-  const statusEl=document.getElementById('uploadStatus');
-  if(progBar){progBar.style.display='block';progFill.style.width='20%';}
-  if(statusEl)statusEl.innerHTML='<span class="sbadge uploading">⟳ Uploading...</span>';
+  const pb=document.getElementById('progBar'),pf=document.getElementById('progFill'),st=document.getElementById('uploadStatus');
+  if(pb){pb.style.display='block';pf.style.width='20%';}
+  if(st)st.innerHTML='<span class="sbadge uploading">⟳ Uploading...</span>';
   try{
-    const fileName=`${prefix||'uploads/'}${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
-    const{error}=await db.storage.from('anvil-cards').upload(fileName,file,{contentType:file.type,upsert:false});
+    const name=`${prefix||'uploads/'}${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
+    const{error}=await db.storage.from('anvil-cards').upload(name,file,{contentType:file.type,upsert:false});
     if(error)throw error;
-    if(progFill)progFill.style.width='100%';
-    const{data:{publicUrl}}=db.storage.from('anvil-cards').getPublicUrl(fileName);
-    uploadedImageUrl=publicUrl;
-    if(statusEl)statusEl.innerHTML='<span class="sbadge done">✓ Ready to schedule</span>';
+    if(pf)pf.style.width='100%';
+    const{data:{publicUrl}}=db.storage.from('anvil-cards').getPublicUrl(name);
+    if(st)st.innerHTML='<span class="sbadge done">✓ Ready to schedule</span>';
     toast('Uploaded','ok');
-    updatePostSummary();
     return publicUrl;
   }catch(err){
-    if(statusEl)statusEl.innerHTML=`<span class="sbadge err">✕ ${err.message}</span>`;
+    if(st)st.innerHTML=`<span class="sbadge err">✕ ${err.message}</span>`;
     toast('Upload failed: '+err.message,'err');
-    if(progBar)progBar.style.display='none';
+    if(pb)pb.style.display='none';
     return null;
   }
 }
-
 function fmtBytes(b){if(b<1024)return b+'B';if(b<1048576)return Math.round(b/1024)+'KB';return(b/1048576).toFixed(1)+'MB';}
 
-// ══════════════════════════════════════════════════════════════
-// DIMENSION
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// DIM / CAPTION / SCHEDULE
+// ══════════════════════════════════════════════════
 function setDim(el,label,w,h){
-  document.querySelectorAll('.dim-btn').forEach(b=>{b.classList.remove('on');});
-  el.classList.add('on');
-  postDim={label,w,h};
+  document.querySelectorAll('.dim-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');postDim={label,w,h};
   document.getElementById('dimHint').textContent=`${w} × ${h}px`;
   document.getElementById('instaImg').style.aspectRatio=`${w}/${h}`;
 }
-
-// ══════════════════════════════════════════════════════════════
-// CAPTION
-// ══════════════════════════════════════════════════════════════
 function syncCaption(){
   const val=document.getElementById('fCap').value;
   document.getElementById('pmCap').textContent=val||'Caption appears here...';
@@ -734,60 +774,45 @@ function syncCaption(){
   meta.textContent=`${val.length} chars · ${tags} #tags`;
   meta.style.color=tags>30?'var(--danger)':'var(--muted)';
 }
-
 function setTime(t){document.getElementById('fTime').value=t;highlightPreset();updatePostSummary();}
 function highlightPreset(){
-  const val=document.getElementById('fTime').value;
-  document.querySelectorAll('.prs').forEach(b=>b.classList.toggle('on',b.textContent===val));
+  const v=document.getElementById('fTime').value;
+  document.querySelectorAll('.prs').forEach(b=>b.classList.toggle('on',b.textContent===v));
   updatePostSummary();
 }
-
 function updatePostSummary(){
-  const date=document.getElementById('fDate').value;
-  const time=document.getElementById('fTime').value;
+  const date=document.getElementById('fDate').value,time=document.getElementById('fTime').value;
   const el=document.getElementById('postSummary');
   if(!uploadedImageUrl){el.innerHTML='<span style="color:var(--muted);">Upload an image to schedule.</span>';return;}
-  el.innerHTML=`<div style="color:var(--accent);">${date||'No date'} at ${time} ${TZ}</div><div style="color:var(--muted);margin-top:2px;">Format: ${postDim.label} · Image ready</div>`;
+  el.innerHTML=`<div style="color:var(--accent);">${date||'No date'} at ${time} ${TZ}</div><div style="color:var(--muted);margin-top:2px;">Format: ${postDim.label}</div>`;
 }
-
-// ══════════════════════════════════════════════════════════════
-// SCHEDULE
-// ══════════════════════════════════════════════════════════════
-function ltu(ds,ts){
-  const[y,m,d]=ds.split('-').map(Number);
-  const[h,mn]=ts.split(':').map(Number);
-  return new Date(y,m-1,d,h,mn).toISOString();
-}
+function ltu(ds,ts){const[y,m,d]=ds.split('-').map(Number);const[h,mn]=ts.split(':').map(Number);return new Date(y,m-1,d,h,mn).toISOString();}
 
 async function schedulePost(imageUrl,caption,quoteId){
-  const imgUrl=imageUrl||uploadedImageUrl;
+  const img=imageUrl||uploadedImageUrl;
   const cap=caption||document.getElementById('fCap').value.trim();
-  if(!imgUrl){toast('Upload an image first','err');return false;}
-  if(!cap){toast('Caption cannot be empty','err');return false;}
-  if((cap.match(/#\w+/g)||[]).length>30){toast('Too many hashtags (max 30)','err');return false;}
+  if(!img){toast('Upload an image first','err');return null;}
+  if(!cap){toast('Caption cannot be empty','err');return null;}
+  if((cap.match(/#\w+/g)||[]).length>30){toast('Max 30 hashtags','err');return null;}
   const date=document.getElementById('fDate').value;
-  if(!date){toast('Pick a date','err');return false;}
+  if(!date){toast('Pick a date','err');return null;}
   const time=document.getElementById('fTime').value;
-  const row={
-    quote:cap,caption:cap,image_url:imgUrl,
-    scheduled_at:ltu(date,time),
-    dimension:postDim.label,width_px:postDim.w,height_px:postDim.h,
-    status:'pending',quote_id:quoteId||null,
+  const row={quote:cap,caption:cap,image_url:img,scheduled_at:ltu(date,time),
+    dimension:postDim.label,width_px:postDim.w,height_px:postDim.h,status:'pending',quote_id:quoteId||null,
     bg_color:'#2e4a6a',border_color:'#8aacbf',ink_color:'#e8e4dc',
     font_quote:'Courier Prime',font_header:'Cormorant Garamond',font_meta:'Cormorant Garamond',
-    font_size_quote:16,font_size_header:11,font_size_meta:11,
-  };
+    font_size_quote:16,font_size_header:11,font_size_meta:11};
   let postId=null;
   if(curPost&&!quoteId){
     const{error}=await db.from('anvil_posts').update(row).eq('id',curPost.id);
-    if(error){toast('Update failed: '+error.message,'err');return false;}
+    if(error){toast('Update failed','err');return null;}
     postId=curPost.id;toast('Updated','ok');
   }else{
     const{data,error}=await db.from('anvil_posts').insert([row]).select().single();
-    if(error){toast('Failed: '+error.message,'err');return false;}
+    if(error){toast('Failed: '+error.message,'err');return null;}
     postId=data.id;toast('Scheduled','ok');
   }
-  newPost();await loadQueue();if(calView)renderCal();
+  newPost();await loadQueue();renderCal();
   return postId;
 }
 
@@ -799,50 +824,44 @@ async function confirmDel(){
   closeDel();toast('Deleted','ok');newPost();await loadQueue();renderCal();
 }
 
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // QUOTES PIPELINE
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 async function loadQuotes(){
   const{data}=await db.from('anvil_quotes').select('*').order('order_num',{ascending:true});
   quotes=data||[];renderQuotesList();renderContentList();
 }
-
 function setQFilter(f,el){
   qFilter=f;
-  document.querySelectorAll('.cvs-btn').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
-  renderQuotesList();
+  document.querySelectorAll('#tab-quotes .cvs-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');renderQuotesList();
 }
-
 function renderQuotesList(){
   const el=document.getElementById('quotesList');
   const filtered=quotes.filter(q=>qFilter==='all'||q.status===qFilter);
-  if(!filtered.length){
-    el.innerHTML=`<div style="padding:20px;text-align:center;color:var(--muted);font-size:11px;">${qFilter==='all'?'No quotes yet. Add one above.':'No '+qFilter+' quotes.'}</div>`;
-    return;
-  }
+  if(!filtered.length){el.innerHTML=`<div style="padding:20px;text-align:center;color:var(--muted);font-size:11px;">${qFilter==='all'?'No quotes yet.':'No '+qFilter+' quotes.'}</div>`;return;}
   el.innerHTML=filtered.map(q=>`
-    <div class="quote-card" id="qcard-${q.id}" draggable="true"
+    <div class="quote-card" id="qc-${q.id}" draggable="true"
       ondragstart="onQDragStart(event,'${q.id}')"
       ondragover="onQDragOver(event,'${q.id}')"
       ondrop="onQDrop(event,'${q.id}')"
-      ondragleave="onQDragLeave(event,'${q.id}')">
-      <div class="qc-drag" title="Drag to reorder">⋮⋮</div>
+      ondragleave="document.getElementById('qc-${q.id}').classList.remove('drag-over')">
+      <div class="qc-drag">⋮⋮</div>
       <div class="qc-num">${String(q.order_num).padStart(3,'0')}</div>
       <div class="qc-body">
-        <div class="qc-text" id="qt-${q.id}" ondblclick="editQuote('${q.id}')">${q.text}</div>
-        <textarea class="qc-text-edit" id="qe-${q.id}" style="display:none;" onblur="saveQuoteEdit('${q.id}')" onkeydown="if(event.key==='Escape')cancelQuoteEdit('${q.id}')">${q.text}</textarea>
+        <div class="qc-text" id="qt-${q.id}">${q.text}</div>
+        <textarea class="qc-edit" id="qe-${q.id}" rows="2"
+          onblur="saveQuoteEdit('${q.id}')"
+          onkeydown="if(event.key==='Escape')cancelEdit('${q.id}')">${q.text}</textarea>
         <div class="qc-actions">
           <span class="badge ${q.status}">${q.status}</span>
-          ${q.status==='unpublished'?`<button class="tb" onclick="useQuoteForPost('${q.id}')">Use for post</button>`:''}
-          ${q.status==='queued'?`<button class="tb" onclick="viewQueuedPost('${q.id}')">View in queue</button>`:''}
-          <button class="tb" onclick="editQuote('${q.id}')">Edit</button>
-          <button class="tb d" onclick="deleteQuote('${q.id}')">Delete</button>
+          ${q.status==='unpublished'?`<button class="tb" onclick="loadQuoteToCaption('${q.id}')">Use for post</button>`:''}
+          <button class="tb" onclick="startEdit('${q.id}')">Edit</button>
+          <button class="tb d" onclick="deleteQuote('${q.id}')">Del</button>
         </div>
       </div>
     </div>`).join('');
 }
-
 async function addQuote(){
   const text=document.getElementById('newQuoteText').value.trim();
   if(!text){toast('Write a quote first','err');return;}
@@ -850,514 +869,555 @@ async function addQuote(){
   const{data,error}=await db.from('anvil_quotes').insert([{text,order_num:maxOrder+1,status:'unpublished'}]).select().single();
   if(error){toast('Failed: '+error.message,'err');return;}
   document.getElementById('newQuoteText').value='';
-  quotes.push(data);
-  renderQuotesList();renderContentList();
-  toast('Quote added','ok');
+  quotes.push(data);renderQuotesList();renderContentList();toast('Quote added','ok');
 }
-
-function editQuote(id){
-  const q=quotes.find(x=>x.id===id);if(!q)return;
+function startEdit(id){
   document.getElementById('qt-'+id).style.display='none';
-  const ta=document.getElementById('qe-'+id);
-  ta.style.display='block';ta.focus();ta.select();
+  const ta=document.getElementById('qe-'+id);ta.style.display='block';ta.focus();
 }
-
 async function saveQuoteEdit(id){
-  const ta=document.getElementById('qe-'+id);
-  if(!ta)return;
-  const newText=ta.value.trim();
-  if(!newText){cancelQuoteEdit(id);return;}
-  const{error}=await db.from('anvil_quotes').update({text:newText}).eq('id',id);
-  if(error){toast('Save failed','err');return;}
-  const q=quotes.find(x=>x.id===id);if(q)q.text=newText;
+  const ta=document.getElementById('qe-'+id);if(!ta)return;
+  const text=ta.value.trim();if(!text){cancelEdit(id);return;}
+  await db.from('anvil_quotes').update({text}).eq('id',id);
+  const q=quotes.find(x=>x.id===id);if(q)q.text=text;
   renderQuotesList();renderContentList();
 }
-
-function cancelQuoteEdit(id){
+function cancelEdit(id){
   document.getElementById('qt-'+id).style.display='block';
   document.getElementById('qe-'+id).style.display='none';
 }
-
 async function deleteQuote(id){
   if(!confirm('Delete this quote?'))return;
   await db.from('anvil_quotes').delete().eq('id',id);
   quotes=quotes.filter(x=>x.id!==id);
-  await renumberQuotes();
-  renderQuotesList();renderContentList();
-  toast('Deleted','ok');
+  await renumberQuotes();renderQuotesList();renderContentList();toast('Deleted','ok');
 }
-
 async function renumberQuotes(){
   for(let i=0;i<quotes.length;i++){
     quotes[i].order_num=i+1;
     await db.from('anvil_quotes').update({order_num:i+1}).eq('id',quotes[i].id);
   }
 }
-
-function useQuoteForPost(id){
+function loadQuoteToCaption(id){
   const q=quotes.find(x=>x.id===id);if(!q)return;
-  document.getElementById('fCap').value=q.text;
-  syncCaption();
-  switchTab('caption',document.querySelector('.pt:nth-child(2)'));
-  toast('Quote loaded into caption — add image and schedule','info');
+  document.getElementById('fCap').value=q.text;syncCaption();
+  switchTab('caption',document.querySelectorAll('.pt')[1]);
+  toast('Quote loaded — add image and schedule','info');
 }
-
-function viewQueuedPost(id){
-  const q=quotes.find(x=>x.id===id);if(!q||!q.post_id)return;
-  loadPost(q.post_id);
-  switchTab('design',document.querySelector('.pt:nth-child(1)'));
-}
-
-// Drag to reorder quotes
 let dragQuoteId=null;
-function onQDragStart(e,id){dragQuoteId=id;document.getElementById('qcard-'+id).classList.add('dragging');}
-function onQDragOver(e,id){e.preventDefault();if(id!==dragQuoteId)document.getElementById('qcard-'+id).classList.add('drag-over');}
-function onQDragLeave(e,id){document.getElementById('qcard-'+id).classList.remove('drag-over');}
+function onQDragStart(e,id){dragQuoteId=id;document.getElementById('qc-'+id).classList.add('dragging');}
+function onQDragOver(e,id){e.preventDefault();if(id!==dragQuoteId)document.getElementById('qc-'+id).classList.add('drag-over');}
 async function onQDrop(e,targetId){
   e.preventDefault();
   document.querySelectorAll('.quote-card').forEach(c=>c.classList.remove('drag-over','dragging'));
   if(!dragQuoteId||dragQuoteId===targetId)return;
-  const fromIdx=quotes.findIndex(q=>q.id===dragQuoteId);
-  const toIdx=quotes.findIndex(q=>q.id===targetId);
-  if(fromIdx<0||toIdx<0)return;
-  const [moved]=quotes.splice(fromIdx,1);
-  quotes.splice(toIdx,0,moved);
-  await renumberQuotes();
-  renderQuotesList();renderContentList();
-  dragQuoteId=null;
+  const fi=quotes.findIndex(q=>q.id===dragQuoteId),ti=quotes.findIndex(q=>q.id===targetId);
+  if(fi<0||ti<0)return;
+  const[moved]=quotes.splice(fi,1);quotes.splice(ti,0,moved);
+  await renumberQuotes();renderQuotesList();renderContentList();dragQuoteId=null;
 }
 
-// ══════════════════════════════════════════════════════════════
-// TEMPLATE SYSTEM
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// TEMPLATE
+// ══════════════════════════════════════════════════
 async function loadTemplate(){
   const{data}=await db.from('anvil_settings').select('value').eq('key','template_url').single();
   if(data?.value){
-    tmplUrl=data.value;tmplIsDefault=true;
-    document.getElementById('tmplStatus').textContent='Default template loaded';
-    showTmplThumb(tmplUrl);
-  } else {
-    document.getElementById('tmplStatus').innerHTML='<span style="color:var(--accent2);">No template set. Upload one to use the Content Pipeline.</span>';
+    tmplUrl=data.value;
+    document.getElementById('tmplStatus').textContent='Default template loaded ✓';
+    document.getElementById('tmplThumbWrap').style.display='flex';
+    document.getElementById('tmplThumb').src=tmplUrl;
+    document.getElementById('tmplThumbLabel').textContent='Default template';
     document.getElementById('btnSetDefault').style.display='none';
+  }else{
+    document.getElementById('tmplStatus').innerHTML='<span style="color:var(--accent2);">No template set. Upload one to use the Content Pipeline.</span>';
   }
   renderContentList();
 }
-
-function showTmplThumb(url){
-  document.getElementById('tmplThumbWrap').style.display='block';
-  document.getElementById('tmplThumb').src=url;
-}
-
-function openTemplateUpload(){
-  document.getElementById('tmplFileInput').click();
-}
-
-async function onTmplFileSelect(e){
+async function onTmplFile(e){
   const file=e.target.files[0];if(!file)return;
   toast('Uploading template...','info');
-  const fileName=`templates/${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
-  const{error}=await db.storage.from('anvil-cards').upload(fileName,file,{contentType:file.type,upsert:false});
+  const name=`templates/${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
+  const{error}=await db.storage.from('anvil-cards').upload(name,file,{contentType:file.type,upsert:false});
   if(error){toast('Upload failed: '+error.message,'err');return;}
-  const{data:{publicUrl}}=db.storage.from('anvil-cards').getPublicUrl(fileName);
-  tmplUrl=publicUrl;tmplIsDefault=false;
-  showTmplThumb(publicUrl);
-  document.getElementById('tmplStatus').textContent='New template uploaded — not yet set as default';
+  const{data:{publicUrl}}=db.storage.from('anvil-cards').getPublicUrl(name);
+  tmplUrl=publicUrl;
+  document.getElementById('tmplStatus').textContent='New template uploaded — not set as default yet';
+  document.getElementById('tmplThumbWrap').style.display='flex';
+  document.getElementById('tmplThumb').src=publicUrl;
+  document.getElementById('tmplThumbLabel').textContent='New template (not default)';
   document.getElementById('btnSetDefault').style.display='block';
   toast('Template uploaded','ok');
-  // Open editor automatically
-  openTmplEditor(publicUrl,'New Template');
+  openEditorForTemplate();
   renderContentList();
 }
-
 async function setAsDefault(){
-  if(!tmplUrl){toast('No template to set','err');return;}
-  const{error}=await db.from('anvil_settings').upsert({key:'template_url',value:tmplUrl});
-  if(error){toast('Failed: '+error.message,'err');return;}
-  tmplIsDefault=true;
+  if(!tmplUrl)return;
+  await db.from('anvil_settings').upsert({key:'template_url',value:tmplUrl});
   document.getElementById('tmplStatus').textContent='Default template saved ✓';
+  document.getElementById('tmplThumbLabel').textContent='Default template';
   document.getElementById('btnSetDefault').style.display='none';
-  toast('Set as default template','ok');
+  toast('Set as default','ok');
+}
+function openEditorForTemplate(){
+  openEditor(null,tmplUrl,'Template Layout');
 }
 
-// ══════════════════════════════════════════════════════════════
-// TEMPLATE EDITOR
-// ══════════════════════════════════════════════════════════════
-function openTmplEditor(url,title){
-  document.getElementById('tmplEditorTitle').textContent=title||'Template Editor';
-  document.getElementById('tmplEditorModal').classList.add('open');
-  tmplEls=[];tmplSelId=null;
-  document.getElementById('propsBar').style.display='none';
-  loadTmplImage(url);
-}
-
-function closeTmplEditor(){
-  document.getElementById('tmplEditorModal').classList.remove('open');
-}
-
-function saveTmplAndClose(){
-  closeTmplEditor();
-  renderContentList();
-  toast('Template layout saved','ok');
-}
-
-function loadTmplImage(url){
-  const canvas=document.getElementById('tmplCanvas');
-  const area=document.getElementById('tmplCanvasArea');
-  const img=new Image();
-  img.crossOrigin='anonymous';
-  img.onload=()=>{
-    const maxW=Math.min(area.offsetWidth-32,520);
-    const maxH=Math.min(area.offsetHeight-32,520);
-    const scaleX=maxW/img.naturalWidth;
-    const scaleY=maxH/img.naturalHeight;
-    tmplScale=Math.min(scaleX,scaleY,1);
-    const dw=Math.round(img.naturalWidth*tmplScale);
-    const dh=Math.round(img.naturalHeight*tmplScale);
-    canvas.width=dw;canvas.height=dh;
-    canvas.style.width=dw+'px';canvas.style.height=dh+'px';
-    const overlay=document.getElementById('tmplOverlay');
-    overlay.style.width=dw+'px';overlay.style.height=dh+'px';
-    const ctx=canvas.getContext('2d');
-    ctx.drawImage(img,0,0,dw,dh);
-    document.getElementById('tmplStage').style.width=dw+'px';
-    document.getElementById('tmplStage').style.height=dh+'px';
-    // Add default overlay elements
-    if(!tmplEls.length)resetTmplEls();
-    renderTmplOverlay();
-  };
-  img.onerror=()=>toast('Failed to load template image','err');
-  img.src=url;
-}
-
-function resetTmplEls(){
-  const canvas=document.getElementById('tmplCanvas');
-  const W=canvas.width||400,H=canvas.height||400;
-  const pad=Math.round(W*0.07);
-  tmplEls=[
-    {id:'te_header',label:'From the Margins',type:'header',x:pad,y:pad,w:W-pad*2-80,h:30,text:'From the Margins',font:'Cormorant Garamond',size:Math.round(11*(W/340)),color:'#8aacbf',opacity:80,italic:true,bold:false,align:'left'},
-    {id:'te_num',label:'Post #',type:'number',x:W-pad-80,y:pad,w:80,h:30,text:'001',font:'Cormorant Garamond',size:Math.round(11*(W/340)),color:'#8aacbf',opacity:80,italic:false,bold:false,align:'right'},
-    {id:'te_quote',label:'Quote text',type:'quote',x:pad,y:Math.round(H*0.32),w:W-pad*2,h:Math.round(H*0.34),text:'[QUOTE]',font:'Courier Prime',size:Math.round(16*(W/340)),color:'#e8e4dc',opacity:100,italic:true,bold:false,align:'left'},
-  ];
-  renderTmplOverlay();
-}
-
-function renderTmplOverlay(){
-  const layer=document.getElementById('tmplOverlay');
-  layer.style.pointerEvents='all';
-  // Clear stale
-  const ids=new Set(tmplEls.map(e=>e.id));
-  Array.from(layer.children).forEach(c=>{if(!ids.has(c.id))c.remove();});
-  tmplEls.forEach(el=>renderTmplEl(el));
-}
-
-function renderTmplEl(el){
-  const layer=document.getElementById('tmplOverlay');
-  let div=document.getElementById(el.id);
-  if(!div){
-    div=document.createElement('div');
-    div.className='tmpl-el';
-    div.id=el.id;
-    div.innerHTML=`<div class="tmpl-sel-ring"></div>
-      <div class="tmpl-text-inner"></div>
-      <div class="tmpl-rh tl" data-h="tl"></div>
-      <div class="tmpl-rh tr" data-h="tr"></div>
-      <div class="tmpl-rh bl" data-h="bl"></div>
-      <div class="tmpl-rh br" data-h="br"></div>`;
-    // Drag
-    div.addEventListener('mousedown',e=>{
-      if(e.target.classList.contains('tmpl-rh'))return;
-      e.preventDefault();e.stopPropagation();
-      selectTmplEl(el.id);
-      tmplDrag={active:true,elId:el.id,startMX:e.clientX,startMY:e.clientY,startX:el.x,startY:el.y};
-    });
-    // Resize
-    div.querySelectorAll('.tmpl-rh').forEach(rh=>{
-      rh.addEventListener('mousedown',e=>{
-        e.preventDefault();e.stopPropagation();
-        selectTmplEl(el.id);
-        tmplResize={active:true,elId:el.id,handle:rh.dataset.h,startMX:e.clientX,startMY:e.clientY,startX:el.x,startY:el.y,startW:el.w,startH:el.h};
-      });
-    });
-    // Double click to edit text
-    div.addEventListener('dblclick',()=>{
-      const newText=prompt(`Edit "${el.label}":`,el.text);
-      if(newText!==null){el.text=newText;renderTmplEl(el);}
-    });
-    layer.appendChild(div);
-  }
-  div.style.left=el.x+'px';div.style.top=el.y+'px';
-  div.style.width=el.w+'px';div.style.height=el.h+'px';
-  div.classList.toggle('tmpl-el sel',el.id===tmplSelId);
-  div.classList.toggle('tmpl-el',true);
-  if(el.id===tmplSelId)div.classList.add('sel');else div.classList.remove('sel');
-  const inner=div.querySelector('.tmpl-text-inner');
-  inner.style.fontFamily=`'${el.font}',Georgia,serif`;
-  inner.style.fontSize=el.size+'px';
-  inner.style.color=el.color;
-  inner.style.opacity=el.opacity/100;
-  inner.style.fontStyle=el.italic?'italic':'normal';
-  inner.style.fontWeight=el.bold?'600':'300';
-  inner.style.textAlign=el.align;
-  inner.style.lineHeight='1.65';
-  inner.style.padding='2px';
-  inner.textContent=el.text;
-  div.querySelectorAll('.tmpl-rh').forEach(rh=>rh.style.display=el.id===tmplSelId?'block':'none');
-}
-
-function selectTmplEl(id){
-  tmplSelId=id;
-  tmplEls.forEach(e=>renderTmplEl(e));
-  const el=tmplEls.find(e=>e.id===id);
-  if(el){showPropsBar(el);}
-}
-
-function showPropsBar(el){
-  document.getElementById('propsBar').style.display='flex';
-  document.getElementById('pbFont').value=el.font;
-  document.getElementById('pbSize').value=el.size;
-  document.getElementById('pbColor').value=el.color;
-  document.getElementById('pbOpacity').value=el.opacity;
-  document.getElementById('pbBold').classList.toggle('on',el.bold);
-  document.getElementById('pbItal').classList.toggle('on',el.italic);
-}
-
-function applyPb(key,val){
-  const el=tmplEls.find(e=>e.id===tmplSelId);if(!el)return;
-  el[key]=val;renderTmplEl(el);
-}
-
-function togglePb(key){
-  const el=tmplEls.find(e=>e.id===tmplSelId);if(!el)return;
-  el[key]=!el[key];
-  document.getElementById('pb'+key[0].toUpperCase()+key.slice(1)).classList.toggle('on',el[key]);
-  renderTmplEl(el);
-}
-
-function deleteTmplEl(){
-  if(!tmplSelId)return;
-  const div=document.getElementById(tmplSelId);if(div)div.remove();
-  tmplEls=tmplEls.filter(e=>e.id!==tmplSelId);
-  tmplSelId=null;
-  document.getElementById('propsBar').style.display='none';
-}
-
-function addTmplTextEl(type){
-  const canvas=document.getElementById('tmplCanvas');
-  const W=canvas.width||400,H=canvas.height||400;
-  const id='te_'+Date.now();
-  const defaults={
-    quote:{text:'[QUOTE]',font:'Courier Prime',size:Math.round(16*(W/340)),italic:true,color:'#e8e4dc',opacity:100,label:'Quote text'},
-    number:{text:'001',font:'Cormorant Garamond',size:Math.round(11*(W/340)),italic:false,color:'#8aacbf',opacity:80,label:'Post #'},
-    custom:{text:'New text',font:'Cormorant Garamond',size:Math.round(12*(W/340)),italic:false,color:'#e8e4dc',opacity:100,label:'Text'},
-  };
-  const d=defaults[type]||defaults.custom;
-  tmplEls.push({id,type,...d,x:W*0.1,y:H*0.4,w:W*0.8,h:60,bold:false,align:'left'});
-  renderTmplOverlay();
-  selectTmplEl(id);
-}
-
-// Global mouse handlers for template editor
-document.addEventListener('mousemove',e=>{
-  if(tmplDrag.active){
-    const el=tmplEls.find(x=>x.id===tmplDrag.elId);if(!el)return;
-    el.x=tmplDrag.startX+(e.clientX-tmplDrag.startMX);
-    el.y=tmplDrag.startY+(e.clientY-tmplDrag.startMY);
-    renderTmplEl(el);
-  }
-  if(tmplResize.active){
-    const el=tmplEls.find(x=>x.id===tmplResize.elId);if(!el)return;
-    const dx=e.clientX-tmplResize.startMX,dy=e.clientY-tmplResize.startMY;
-    const h=tmplResize.handle;
-    if(h.includes('r'))el.w=Math.max(20,tmplResize.startW+dx);
-    if(h.includes('l')){el.w=Math.max(20,tmplResize.startW-dx);el.x=tmplResize.startX+(tmplResize.startW-el.w);}
-    if(h.includes('b'))el.h=Math.max(10,tmplResize.startH+dy);
-    if(h.includes('t')){el.h=Math.max(10,tmplResize.startH-dy);el.y=tmplResize.startY+(tmplResize.startH-el.h);}
-    renderTmplEl(el);
-  }
-});
-document.addEventListener('mouseup',()=>{tmplDrag.active=false;tmplResize.active=false;});
-
-// Click outside deselects
-document.getElementById('tmplCanvas')?.addEventListener('click',()=>{
-  tmplSelId=null;
-  tmplEls.forEach(e=>renderTmplEl(e));
-  document.getElementById('propsBar').style.display='none';
-});
-
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // CONTENT PIPELINE
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 function renderContentList(){
+  const unpub=quotes.filter(q=>q.status==='unpublished');
+  document.getElementById('unpubCount').textContent=`${unpub.length} quote${unpub.length!==1?'s':''}`;
   const el=document.getElementById('contentList');
-  const unpublished=quotes.filter(q=>q.status==='unpublished');
   if(!tmplUrl){
     el.innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:11px;">Upload a template above to use the Content Pipeline.</div>';
     return;
   }
-  if(!unpublished.length){
+  if(!unpub.length){
     el.innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:11px;">No unpublished quotes. Add quotes in the Quotes Pipeline tab.</div>';
     return;
   }
-  el.innerHTML=unpublished.map(q=>`
+  el.innerHTML=unpub.map(q=>`
     <div class="cp-card">
-      <div class="cp-thumb">
-        <canvas id="cpthumb-${q.id}" width="100" height="100"></canvas>
-      </div>
-      <div class="cp-info">
-        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">#${String(q.order_num).padStart(3,'0')}</div>
-        <div class="cp-quote-text">${q.text}</div>
-        <div class="cp-actions">
-          <button class="tb p" onclick="generatePost('${q.id}')">Generate & Queue</button>
-          <button class="tb" onclick="previewInEditor('${q.id}')">Edit layout</button>
+      <div class="cp-card-header">
+        <div class="cp-thumb"><canvas id="cpt-${q.id}" width="56" height="56"></canvas></div>
+        <div class="cp-meta">
+          <div class="cp-order">Quote #${String(q.order_num).padStart(3,'0')}</div>
+          <div class="cp-quote">${q.text}</div>
+          <div class="cp-actions">
+            <button class="tb p" onclick="openEditorForQuote('${q.id}')">Preview & Queue</button>
+          </div>
         </div>
       </div>
+      <div class="cp-postnum">
+        <label>Post # to show on card</label>
+        <input type="number" id="cpn-${q.id}" value="${q.order_num}" min="1" max="9999" style="font-family:var(--font-mono);font-size:13px;text-align:center;width:80px;"/>
+      </div>
     </div>`).join('');
-  // Draw thumbnails
-  unpublished.forEach(q=>drawThumbnail(q));
+  unpub.forEach(q=>drawCPThumb(q));
 }
 
-function drawThumbnail(q){
-  const canvas=document.getElementById('cpthumb-'+q.id);
+function drawCPThumb(q){
+  const canvas=document.getElementById('cpt-'+q.id);
   if(!canvas||!tmplUrl)return;
-  const img=new Image();
-  img.crossOrigin='anonymous';
+  const img=new Image();img.crossOrigin='anonymous';
   img.onload=()=>{
-    canvas.width=100;canvas.height=100;
     const ctx=canvas.getContext('2d');
-    // Draw template scaled
-    const scale=Math.max(100/img.naturalWidth,100/img.naturalHeight);
-    const sw=img.naturalWidth*scale,sh=img.naturalHeight*scale;
-    ctx.drawImage(img,(100-sw)/2,(100-sh)/2,sw,sh);
-    // Overlay quote text
-    const quoteEl=tmplEls.find(e=>e.type==='quote');
-    const numEl=tmplEls.find(e=>e.type==='number');
-    const tmplW=img.naturalWidth;
-    const s=100/tmplW;
-    if(quoteEl){
-      ctx.save();
-      ctx.globalAlpha=quoteEl.opacity/100;
-      ctx.fillStyle=quoteEl.color;
-      ctx.font=`${quoteEl.italic?'italic ':''} 300 ${Math.max(6,quoteEl.size*s)}px '${quoteEl.font}',serif`;
-      ctx.textAlign=quoteEl.align;
-      const ax=quoteEl.align==='right'?(quoteEl.x+quoteEl.w)*s:quoteEl.align==='center'?(quoteEl.x+quoteEl.w/2)*s:quoteEl.x*s;
-      ctx.fillText(q.text.slice(0,30)+(q.text.length>30?'…':''),ax,(quoteEl.y+quoteEl.size)*s);
-      ctx.restore();
-    }
-    if(numEl){
-      ctx.save();
-      ctx.globalAlpha=numEl.opacity/100;
-      ctx.fillStyle=numEl.color;
-      ctx.font=`300 ${Math.max(5,numEl.size*s)}px '${numEl.font}',serif`;
-      ctx.textAlign=numEl.align;
-      const ax2=numEl.align==='right'?(numEl.x+numEl.w)*s:numEl.x*s;
-      ctx.fillText(String(q.order_num).padStart(3,'0'),ax2,(numEl.y+numEl.size)*s);
-      ctx.restore();
-    }
+    canvas.width=56;canvas.height=56;
+    const s=Math.max(56/img.naturalWidth,56/img.naturalHeight);
+    ctx.drawImage(img,(56-img.naturalWidth*s)/2,(56-img.naturalHeight*s)/2,img.naturalWidth*s,img.naturalHeight*s);
   };
   img.src=tmplUrl;
 }
 
-async function generatePost(quoteId){
-  const q=quotes.find(x=>x.id===quoteId);if(!q)return;
-  if(!tmplUrl){toast('No template set','err');return;}
-  // Render final image from template + overlays
-  const imageUrl=await renderFinalImage(q);
-  if(!imageUrl){toast('Image generation failed','err');return;}
-  // Create post
-  const cap=document.getElementById('fCap').value.trim()||q.text;
-  const date=document.getElementById('fDate').value||new Date().toLocaleDateString('en-CA');
-  const time=document.getElementById('fTime').value||'09:00';
-  const row={
-    quote:q.text,caption:cap,image_url:imageUrl,
-    scheduled_at:ltu(date,time),
-    dimension:postDim.label,width_px:postDim.w,height_px:postDim.h,
-    status:'pending',quote_id:quoteId,
-    bg_color:'#2e4a6a',border_color:'#8aacbf',ink_color:'#e8e4dc',
-    font_quote:'Courier Prime',font_header:'Cormorant Garamond',font_meta:'Cormorant Garamond',
-    font_size_quote:16,font_size_header:11,font_size_meta:11,
-  };
-  const{data:postData,error}=await db.from('anvil_posts').insert([row]).select().single();
-  if(error){toast('Schedule failed: '+error.message,'err');return;}
-  // Mark quote as queued
-  await db.from('anvil_quotes').update({status:'queued',post_id:postData.id}).eq('id',quoteId);
-  q.status='queued';q.post_id=postData.id;
-  toast('Generated & queued','ok');
-  await loadQueue();renderQuotesList();renderContentList();renderCal();
+async function openEditorForQuote(quoteId){
+  const q=quotes.find(x=>x.id===quoteId);
+  if(!q||!tmplUrl){toast('No template set','err');return;}
+  const postNum=document.getElementById('cpn-'+quoteId)?.value||q.order_num;
+  // Pre-fill editor caption
+  document.getElementById('epCaption').value=q.text;
+  openEditor(q,tmplUrl,`Quote #${String(q.order_num).padStart(3,'0')}`,postNum);
 }
 
 async function generateAll(){
-  const unpublished=quotes.filter(q=>q.status==='unpublished');
-  if(!unpublished.length){toast('No unpublished quotes','info');return;}
+  const unpub=quotes.filter(q=>q.status==='unpublished');
+  if(!unpub.length){toast('No unpublished quotes','info');return;}
   if(!tmplUrl){toast('No template set','err');return;}
-  toast(`Generating ${unpublished.length} posts...`,'info');
-  for(const q of unpublished)await generatePost(q.id);
+  const startNum=parseInt(document.getElementById('batchStartNum').value)||1;
+  if(!confirm(`Generate and queue ${unpub.length} posts starting at post #${startNum}?`))return;
+  toast(`Generating ${unpub.length} posts...`,'info');
+  for(let i=0;i<unpub.length;i++){
+    const q=unpub[i];
+    const postNum=startNum+i;
+    const imageUrl=await renderFinalImage(q,postNum);
+    if(!imageUrl)continue;
+    const cap=document.getElementById('fCap').value.trim()||q.text;
+    const date=document.getElementById('fDate').value||new Date().toLocaleDateString('en-CA');
+    const time=document.getElementById('fTime').value||'09:00';
+    const row={quote:q.text,caption:cap,image_url:imageUrl,scheduled_at:ltu(date,time),
+      dimension:postDim.label,width_px:postDim.w,height_px:postDim.h,status:'pending',quote_id:q.id,
+      bg_color:'#2e4a6a',border_color:'#8aacbf',ink_color:'#e8e4dc',
+      font_quote:'Courier Prime',font_header:'Cormorant Garamond',font_meta:'Cormorant Garamond',
+      font_size_quote:16,font_size_header:11,font_size_meta:11};
+    const{data,error}=await db.from('anvil_posts').insert([row]).select().single();
+    if(!error){
+      await db.from('anvil_quotes').update({status:'queued',post_id:data.id}).eq('id',q.id);
+      q.status='queued';q.post_id=data.id;
+    }
+  }
   toast('All generated','ok');
+  await loadQueue();renderQuotesList();renderContentList();renderCal();
 }
 
-async function renderFinalImage(q){
-  return new Promise(resolve=>{
-    const img=new Image();
-    img.crossOrigin='anonymous';
-    img.onload=async()=>{
-      const canvas=document.createElement('canvas');
-      canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
-      const ctx=canvas.getContext('2d');
-      ctx.drawImage(img,0,0);
-      // Draw each overlay element
-      tmplEls.forEach(el=>{
-        ctx.save();
-        ctx.globalAlpha=el.opacity/100;
-        ctx.fillStyle=el.color;
-        const fStyle=`${el.italic?'italic ':''} ${el.bold?'600 ':'300 '}${el.size}px '${el.font}',Georgia,serif`;
-        ctx.font=fStyle;
-        ctx.textAlign=el.align;
-        let text=el.text;
-        if(el.type==='quote')text=q.text;
-        if(el.type==='number')text=String(q.order_num).padStart(3,'0');
-        const ax=el.align==='right'?el.x+el.w:el.align==='center'?el.x+el.w/2:el.x;
-        // Word wrap
-        const words=text.split(' ');let line='';const lines=[];
-        for(const w of words){
-          const t=line?line+' '+w:w;
-          if(ctx.measureText(t).width>el.w&&line){lines.push(line);line=w;}else line=t;
-        }
-        lines.push(line);
-        const lh=el.size*1.65;
-        lines.forEach((ln,i)=>ctx.fillText(ln,ax,el.y+el.size*(i+1)+i*lh*0.5));
-        ctx.restore();
+// ══════════════════════════════════════════════════
+// CARD EDITOR
+// ══════════════════════════════════════════════════
+// Default element positions as percentages of card dimensions
+function getDefaultEls(quoteText,postNum){
+  return[
+    {id:'el_header',type:'header',label:'From the Margins',
+     text:'From the Margins',xp:7,yp:6,wp:70,hp:6,
+     font:'Cormorant Garamond',size:11,color:'#8aacbf',opacity:80,italic:true,bold:false,align:'left',letterSpacing:0.08,z:2},
+    {id:'el_num',type:'number',label:'Post #'+postNum,
+     text:String(postNum).padStart(3,'0'),xp:78,yp:6,wp:15,hp:6,
+     font:'Cormorant Garamond',size:11,color:'#8aacbf',opacity:80,italic:false,bold:false,align:'right',letterSpacing:0.4,z:2},
+    {id:'el_openmark',type:'mark',label:'Opening mark',
+     text:'\u201C',xp:6,yp:24,wp:12,hp:12,
+     font:'Cormorant Garamond',size:11,color:'#e8e4dc',opacity:20,italic:false,bold:false,align:'left',letterSpacing:0,z:2},
+    {id:'el_quote',type:'quote',label:'Quote text',
+     text:quoteText||'Your quote here...',xp:7,yp:32,wp:86,hp:32,
+     font:'Courier Prime',size:16,color:'#e8e4dc',opacity:100,italic:true,bold:false,align:'left',letterSpacing:0.01,z:3},
+    {id:'el_closemark',type:'mark',label:'Closing mark',
+     text:'\u201D',xp:82,yp:62,wp:12,hp:12,
+     font:'Cormorant Garamond',size:11,color:'#e8e4dc',opacity:20,italic:false,bold:false,align:'right',letterSpacing:0,z:2},
+    {id:'el_watermark',type:'watermark',label:'The Anvil Speaks',
+     text:'The Anvil Speaks',xp:45,yp:90,wp:48,hp:5,
+     font:'Cormorant Garamond',size:10,color:'#e8e4dc',opacity:20,italic:true,bold:false,align:'right',letterSpacing:0.12,z:2},
+  ];
+}
+
+function openEditor(quote,imgUrl,title,postNum){
+  editorQuote=quote;
+  editorSelId=null;
+  editorEls=getDefaultEls(quote?.text||'',postNum||1);
+  document.getElementById('editorTitle').textContent=title||'Card Editor';
+  document.getElementById('editorModal').classList.add('open');
+  document.getElementById('noSelMsg').style.display='block';
+  document.getElementById('elProps').style.display='none';
+  // Set default date/time in editor
+  if(!document.getElementById('epDate').value)
+    document.getElementById('epDate').value=new Date().toLocaleDateString('en-CA');
+  loadEditorImage(imgUrl||tmplUrl);
+}
+
+function closeEditor(){
+  document.getElementById('editorModal').classList.remove('open');
+  editorImg=null;editorQuote=null;editorSelId=null;
+}
+
+function loadEditorImage(url){
+  const img=new Image();img.crossOrigin='anonymous';
+  img.onload=()=>{
+    editorImg=img;
+    setupEditorCanvas();
+    setTimeout(editorZoomFit,50);
+  };
+  img.onerror=()=>toast('Could not load image. Check CORS settings on storage.','err');
+  img.src=url+'?t='+Date.now(); // cache bust for crossOrigin
+}
+
+function setupEditorCanvas(){
+  if(!editorImg)return;
+  const canvas=document.getElementById('editorCanvas');
+  canvas.width=editorImg.naturalWidth;
+  canvas.height=editorImg.naturalHeight;
+  canvas.style.width=editorImg.naturalWidth+'px';
+  canvas.style.height=editorImg.naturalHeight+'px';
+  document.getElementById('stageWrap').style.width=editorImg.naturalWidth+'px';
+  document.getElementById('stageWrap').style.height=editorImg.naturalHeight+'px';
+  renderEditorCanvas();
+  renderIboxes();
+}
+
+// ── Canvas rendering ──
+function renderEditorCanvas(){
+  if(!editorImg)return;
+  const canvas=document.getElementById('editorCanvas');
+  const W=canvas.width,H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  ctx.drawImage(editorImg,0,0,W,H);
+  // Draw elements sorted by z
+  const sorted=[...editorEls].sort((a,b)=>a.z-b.z);
+  sorted.forEach(el=>drawElOnCanvas(ctx,el,W,H));
+}
+
+function drawElOnCanvas(ctx,el,W,H){
+  const x=el.xp/100*W, y=el.yp/100*H;
+  const w=el.wp/100*W, h=el.hp/100*H;
+  ctx.save();
+  ctx.globalAlpha=el.opacity/100;
+  ctx.fillStyle=el.color;
+  const fStyle=`${el.italic?'italic ':''} ${el.bold?'600':'300'} ${el.size*(W/1080)}px '${el.font}',Georgia,serif`;
+  ctx.font=fStyle;
+  ctx.textAlign=el.align||'left';
+  if(el.letterSpacing)ctx.letterSpacing=(el.letterSpacing*el.size*(W/1080))+'px';
+  const ax=el.align==='right'?x+w:el.align==='center'?x+w/2:x;
+  const lh=el.size*(W/1080)*1.65;
+  // Word wrap
+  const words=(el.text||'').split(' ');let line='';const lines=[];
+  for(const word of words){
+    const t=line?line+' '+word:word;
+    if(ctx.measureText(t).width>w&&line){lines.push(line);line=word;}else line=t;
+  }
+  lines.push(line);
+  lines.forEach((ln,i)=>ctx.fillText(ln,ax,y+el.size*(W/1080)*(i+1)+i*lh*0.3));
+  ctx.restore();
+}
+
+// ── Interaction boxes ──
+function renderIboxes(){
+  const layer=document.getElementById('iboxLayer');
+  const canvas=document.getElementById('editorCanvas');
+  const W=canvas.width,H=canvas.height;
+  // Remove stale
+  const ids=new Set(editorEls.map(e=>e.id));
+  Array.from(layer.children).forEach(c=>{if(!ids.has(c.id))c.remove();});
+  editorEls.forEach(el=>renderIbox(el,W,H));
+}
+
+function renderIbox(el,W,H){
+  if(!W){const c=document.getElementById('editorCanvas');W=c.width;H=c.height;}
+  const layer=document.getElementById('iboxLayer');
+  const px=el.xp/100*W,py=el.yp/100*H,pw=el.wp/100*W,ph=el.hp/100*H;
+  let box=document.getElementById(el.id);
+  if(!box){
+    box=document.createElement('div');
+    box.id=el.id;box.className='ibox';
+    box.innerHTML=`<div class="sel-ring" data-lbl="${el.label}"></div>
+      <div class="rh tl" data-h="tl"></div><div class="rh tr" data-h="tr"></div>
+      <div class="rh bl" data-h="bl"></div><div class="rh br" data-h="br"></div>
+      <div class="rh ml" data-h="ml"></div><div class="rh mr" data-h="mr"></div>`;
+    box.addEventListener('mousedown',e=>{
+      if(e.target.classList.contains('rh'))return;
+      e.preventDefault();e.stopPropagation();
+      selectEditorEl(el.id);
+      const c=document.getElementById('editorCanvas');
+      editorDrag={active:true,elId:el.id,startMX:e.clientX,startMY:e.clientY,startXp:el.xp,startYp:el.yp,W:c.width,H:c.height};
+    });
+    box.querySelectorAll('.rh').forEach(rh=>{
+      rh.addEventListener('mousedown',e=>{
+        e.preventDefault();e.stopPropagation();
+        selectEditorEl(el.id);
+        const c=document.getElementById('editorCanvas');
+        editorResize={active:true,elId:el.id,handle:rh.dataset.h,startMX:e.clientX,startMY:e.clientY,startXp:el.xp,startYp:el.yp,startWp:el.wp,startHp:el.hp,W:c.width,H:c.height};
       });
-      // Upload
-      canvas.toBlob(async(blob)=>{
+    });
+    layer.appendChild(box);
+  }
+  box.style.left=px+'px';box.style.top=py+'px';
+  box.style.width=pw+'px';box.style.height=ph+'px';
+  box.style.zIndex=el.z+10;
+  box.classList.toggle('sel',el.id===editorSelId);
+  box.querySelectorAll('.rh').forEach(rh=>rh.style.display=el.id===editorSelId?'block':'none');
+  box.querySelector('.sel-ring').dataset.lbl=el.label;
+}
+
+// ── Mouse events ──
+document.addEventListener('mousemove',e=>{
+  if(editorDrag.active){
+    const el=editorEls.find(x=>x.id===editorDrag.elId);if(!el)return;
+    const dx=(e.clientX-editorDrag.startMX)/editorZoom,dy=(e.clientY-editorDrag.startMY)/editorZoom;
+    el.xp=Math.max(0,Math.min(95,editorDrag.startXp+dx/editorDrag.W*100));
+    el.yp=Math.max(0,Math.min(95,editorDrag.startYp+dy/editorDrag.H*100));
+    renderEditorCanvas();renderIbox(el);updateEditorProps(el);
+  }
+  if(editorResize.active){
+    const el=editorEls.find(x=>x.id===editorResize.elId);if(!el)return;
+    const dx=(e.clientX-editorResize.startMX)/editorZoom,dy=(e.clientY-editorResize.startMY)/editorZoom;
+    const h=editorResize.handle;const{W,H}=editorResize;
+    if(h.includes('r'))el.wp=Math.max(2,editorResize.startWp+dx/W*100);
+    if(h.includes('l')){el.wp=Math.max(2,editorResize.startWp-dx/W*100);el.xp=editorResize.startXp+(editorResize.startWp-el.wp);}
+    if(h.includes('b'))el.hp=Math.max(1,editorResize.startHp+dy/H*100);
+    if(h.includes('t')){el.hp=Math.max(1,editorResize.startHp-dy/H*100);el.yp=editorResize.startYp+(editorResize.startHp-el.hp);}
+    renderEditorCanvas();renderIbox(el);updateEditorProps(el);
+  }
+});
+document.addEventListener('mouseup',()=>{
+  if(editorDrag.active||editorResize.active)renderEditorCanvas();
+  editorDrag.active=false;editorResize.active=false;
+});
+
+// Click on canvas bg deselects
+document.getElementById('editorCanvas').addEventListener('click',()=>{
+  editorSelId=null;
+  editorEls.forEach(el=>renderIbox(el));
+  document.getElementById('noSelMsg').style.display='block';
+  document.getElementById('elProps').style.display='none';
+});
+
+// ── Selection / props ──
+function selectEditorEl(id){
+  editorSelId=id;
+  editorEls.forEach(el=>renderIbox(el));
+  const el=editorEls.find(x=>x.id===id);
+  if(el){showEditorProps(el);}
+}
+
+function showEditorProps(el){
+  document.getElementById('noSelMsg').style.display='none';
+  document.getElementById('elProps').style.display='block';
+  document.getElementById('epElLabel').textContent=el.label;
+  document.getElementById('epFont').value=el.font;
+  document.getElementById('epSize').value=el.size;
+  document.getElementById('epColor').value=el.color;
+  document.getElementById('epOpacity').value=el.opacity;
+  document.getElementById('epLS').value=el.letterSpacing;
+  document.getElementById('epText').value=el.text;
+  document.getElementById('epX').value=el.xp.toFixed(1);
+  document.getElementById('epY').value=el.yp.toFixed(1);
+  document.getElementById('epW').value=el.wp.toFixed(1);
+  document.getElementById('epH').value=el.hp.toFixed(1);
+  document.getElementById('epBold').classList.toggle('on',el.bold);
+  document.getElementById('epItal').classList.toggle('on',el.italic);
+  ['epAL','epAC','epAR'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  const amap={left:'epAL',center:'epAC',right:'epAR'};
+  if(amap[el.align])document.getElementById(amap[el.align]).classList.add('on');
+}
+
+function updateEditorProps(el){
+  document.getElementById('epX').value=el.xp.toFixed(1);
+  document.getElementById('epY').value=el.yp.toFixed(1);
+  document.getElementById('epW').value=el.wp.toFixed(1);
+  document.getElementById('epH').value=el.hp.toFixed(1);
+}
+
+function applyEp(key,val){
+  const el=editorEls.find(x=>x.id===editorSelId);if(!el)return;
+  el[key]=val;
+  renderEditorCanvas();renderIbox(el);
+}
+
+function toggleEp(key){
+  const el=editorEls.find(x=>x.id===editorSelId);if(!el)return;
+  el[key]=!el[key];
+  document.getElementById('ep'+key[0].toUpperCase()+key.slice(1)).classList.toggle('on',el[key]);
+  renderEditorCanvas();
+}
+
+function deleteEditorEl(){
+  if(!editorSelId)return;
+  const box=document.getElementById(editorSelId);if(box)box.remove();
+  editorEls=editorEls.filter(e=>e.id!==editorSelId);
+  editorSelId=null;
+  document.getElementById('noSelMsg').style.display='block';
+  document.getElementById('elProps').style.display='none';
+  renderEditorCanvas();
+}
+
+function addEditorEl(type){
+  const id='el_'+Date.now();
+  const defaults={
+    quote:{text:editorQuote?.text||'Quote text',font:'Courier Prime',size:16,italic:true,color:'#e8e4dc',opacity:100,label:'Quote text'},
+    number:{text:'001',font:'Cormorant Garamond',size:11,italic:false,color:'#8aacbf',opacity:80,label:'Post #'},
+    text:{text:'New text',font:'Cormorant Garamond',size:12,italic:false,color:'#e8e4dc',opacity:100,label:'Text'},
+  };
+  const d=defaults[type]||defaults.text;
+  editorEls.push({id,...d,type,xp:7,yp:40,wp:86,hp:10,bold:false,align:'left',letterSpacing:0,z:Math.max(...editorEls.map(e=>e.z),0)+1});
+  renderEditorCanvas();renderIboxes();selectEditorEl(id);
+}
+
+function resetEditorEls(){
+  const num=editorEls.find(e=>e.type==='number')?.text||'001';
+  const quote=editorEls.find(e=>e.type==='quote')?.text||editorQuote?.text||'';
+  // Clear iboxes
+  document.getElementById('iboxLayer').innerHTML='';
+  editorEls=getDefaultEls(quote,parseInt(num)||1);
+  renderEditorCanvas();renderIboxes();
+}
+
+function bringEditorFront(){
+  const el=editorEls.find(x=>x.id===editorSelId);if(!el)return;
+  el.z=Math.max(...editorEls.map(e=>e.z))+1;renderEditorCanvas();renderIboxes();
+}
+function sendEditorBack(){
+  const el=editorEls.find(x=>x.id===editorSelId);if(!el)return;
+  el.z=Math.max(1,Math.min(...editorEls.map(e=>e.z))-1);renderEditorCanvas();renderIboxes();
+}
+
+// ── Zoom ──
+function editorZoomIn(){editorZoom=Math.min(4,editorZoom*1.2);applyEditorZoom();}
+function editorZoomOut(){editorZoom=Math.max(0.05,editorZoom/1.2);applyEditorZoom();}
+function editorZoomFit(){
+  const area=document.getElementById('editorCanvasArea');
+  const canvas=document.getElementById('editorCanvas');
+  if(!canvas.width)return;
+  const sx=(area.offsetWidth-40)/canvas.width,sy=(area.offsetHeight-40)/canvas.height;
+  editorZoom=Math.min(sx,sy,1);
+  applyEditorZoom();
+}
+function applyEditorZoom(){
+  const wrap=document.getElementById('stageWrap');
+  wrap.style.transform=`scale(${editorZoom})`;
+  wrap.style.transformOrigin='center center';
+  document.getElementById('editorZoomLabel').textContent=Math.round(editorZoom*100)+'%';
+}
+
+// ── Approve & Queue ──
+async function approveAndQueue(){
+  const caption=document.getElementById('epCaption').value.trim();
+  if(!caption){toast('Add a caption in the sidebar','err');return;}
+  const date=document.getElementById('epDate').value;
+  if(!date){toast('Pick a date','err');return;}
+  const time=document.getElementById('epTime').value;
+  // Render final image at full resolution
+  const imageUrl=await renderFinalImage(editorQuote,null);
+  if(!imageUrl){toast('Image render failed','err');return;}
+  // Save to queue
+  const row={quote:caption,caption,image_url:imageUrl,
+    scheduled_at:ltu(date,time),
+    dimension:postDim.label,width_px:postDim.w,height_px:postDim.h,
+    status:'pending',quote_id:editorQuote?.id||null,
+    bg_color:'#2e4a6a',border_color:'#8aacbf',ink_color:'#e8e4dc',
+    font_quote:'Courier Prime',font_header:'Cormorant Garamond',font_meta:'Cormorant Garamond',
+    font_size_quote:16,font_size_header:11,font_size_meta:11};
+  const{data,error}=await db.from('anvil_posts').insert([row]).select().single();
+  if(error){toast('Queue failed: '+error.message,'err');return;}
+  // Mark quote as queued
+  if(editorQuote){
+    await db.from('anvil_quotes').update({status:'queued',post_id:data.id}).eq('id',editorQuote.id);
+    const q=quotes.find(x=>x.id===editorQuote.id);
+    if(q){q.status='queued';q.post_id=data.id;}
+  }
+  toast('Queued ✓','ok');
+  closeEditor();
+  await loadQueue();renderQuotesList();renderContentList();renderCal();
+}
+
+// ── Render final full-res image ──
+async function renderFinalImage(quote,postNumOverride){
+  return new Promise(resolve=>{
+    if(!tmplUrl){resolve(null);return;}
+    const img=new Image();img.crossOrigin='anonymous';
+    img.onload=async()=>{
+      const W=img.naturalWidth,H=img.naturalHeight;
+      const canvas=document.createElement('canvas');
+      canvas.width=W;canvas.height=H;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,W,H);
+      // Use current editorEls (which have percentages)
+      const sorted=[...editorEls].sort((a,b)=>a.z-b.z);
+      sorted.forEach(el=>{
+        const elCopy={...el};
+        // Substitute live values
+        if(el.type==='quote'&&quote)elCopy.text=quote.text;
+        if(el.type==='number'){
+          const num=postNumOverride!=null?postNumOverride:
+            (document.getElementById('cpn-'+(quote?.id||''))?.value||quote?.order_num||1);
+          elCopy.text=String(num).padStart(3,'0');
+        }
+        drawElOnCanvas(ctx,elCopy,W,H);
+      });
+      canvas.toBlob(async blob=>{
         if(!blob){resolve(null);return;}
-        const file=new File([blob],`post_${q.order_num}_${Date.now()}.png`,{type:'image/png'});
-        const fileName=`generated/${file.name}`;
-        const{error}=await db.storage.from('anvil-cards').upload(fileName,file,{contentType:'image/png',upsert:false});
+        const file=new File([blob],`post_${Date.now()}.png`,{type:'image/png'});
+        const name=`generated/${file.name}`;
+        const{error}=await db.storage.from('anvil-cards').upload(name,file,{contentType:'image/png'});
         if(error){resolve(null);return;}
-        const{data:{publicUrl}}=db.storage.from('anvil-cards').getPublicUrl(fileName);
+        const{data:{publicUrl}}=db.storage.from('anvil-cards').getPublicUrl(name);
         resolve(publicUrl);
       },'image/png');
     };
     img.onerror=()=>resolve(null);
-    img.src=tmplUrl;
+    img.src=tmplUrl+'?t='+Date.now();
   });
 }
 
-function previewInEditor(quoteId){
-  const q=quotes.find(x=>x.id===quoteId);if(!q||!tmplUrl)return;
-  // Pre-fill quote text into the quote element
-  const qEl=tmplEls.find(e=>e.type==='quote');if(qEl)qEl.text=q.text;
-  const nEl=tmplEls.find(e=>e.type==='number');if(nEl)nEl.text=String(q.order_num).padStart(3,'0');
-  openTmplEditor(tmplUrl,`Editing: Quote #${q.order_num}`);
-}
-
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // CALENDAR
-// ══════════════════════════════════════════════════════════════
-function setCalView(v,el){
-  calView=v;
-  document.querySelectorAll('.cvs-btn').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');renderCal();
-}
+// ══════════════════════════════════════════════════
+function setCalView(v,el){calView=v;document.querySelectorAll('.cvs-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderCal();}
 function calNav(d){
   if(calView==='week')calDate=new Date(calDate.getTime()+d*7*86400000);
   else if(calView==='month')calDate=new Date(calDate.getFullYear(),calDate.getMonth()+d,1);
@@ -1366,84 +1426,69 @@ function calNav(d){
 }
 function renderCal(){if(calView==='week')renderWeek();else if(calView==='month')renderMonth();else renderYear();}
 function postsOnDay(y,m,d){return posts.filter(p=>{const pd=new Date(p.scheduled_at);return pd.getFullYear()===y&&pd.getMonth()===m&&pd.getDate()===d;});}
-
 function renderWeek(){
   const start=new Date(calDate);start.setDate(start.getDate()-start.getDay());
   const end=new Date(start);end.setDate(end.getDate()+6);
-  document.getElementById('calTitle').textContent=
-    start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+end.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-  const today=new Date();
-  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('calTitle').textContent=start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+end.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const today=new Date();const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   let html=`<div class="week-grid">${days.map(d=>`<div class="wdh">${d}</div>`).join('')}`;
   for(let i=0;i<7;i++){
     const d=new Date(start);d.setDate(d.getDate()+i);
-    const isToday=d.toDateString()===today.toDateString();
+    const isT=d.toDateString()===today.toDateString();
     const dp=postsOnDay(d.getFullYear(),d.getMonth(),d.getDate());
     const ds=d.toLocaleDateString('en-CA');
-    html+=`<div class="wday${isToday?' today':''}" onclick="openCalModal('${ds}')">
-      <div class="wd-num${isToday?' tnm':''}">${d.getDate()}</div>
+    html+=`<div class="wday${isT?' today':''}" onclick="openCalModal('${ds}')">
+      <div class="wd-num${isT?' tnm':''}">${d.getDate()}</div>
       ${dp.map(p=>`<div class="cal-pill ${p.status}" onclick="event.stopPropagation();loadPost('${p.id}')">
-        ${new Date(p.scheduled_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} ${(p.caption||'').slice(0,10)}
+        ${new Date(p.scheduled_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} ${(p.caption||'').slice(0,8)}
       </div>`).join('')}
     </div>`;
   }
-  html+='</div>';
-  document.getElementById('calGrid').innerHTML=html;
+  html+='</div>';document.getElementById('calGrid').innerHTML=html;
 }
-
 function renderMonth(){
   const y=calDate.getFullYear(),m=calDate.getMonth();
   document.getElementById('calTitle').textContent=new Date(y,m,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-  const firstDay=new Date(y,m,1).getDay();
-  const dim=new Date(y,m+1,0).getDate();
-  const today=new Date();
+  const fd=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),today=new Date();
   const days=['S','M','T','W','T','F','S'];
   let html=`<div class="month-grid">${days.map(d=>`<div class="wdh">${d}</div>`).join('')}`;
   const prev=new Date(y,m,0).getDate();
-  for(let i=firstDay-1;i>=0;i--)html+=`<div class="mday om"><div class="md-n">${prev-i}</div></div>`;
+  for(let i=fd-1;i>=0;i--)html+=`<div class="mday om"><div class="md-n">${prev-i}</div></div>`;
   for(let d=1;d<=dim;d++){
-    const isToday=y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate();
+    const isT=y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate();
     const dp=postsOnDay(y,m,d);
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    html+=`<div class="mday${isToday?' today':''}" onclick="openCalModal('${ds}')">
-      <div class="md-n${isToday?' tnm':''}">${d}</div>
+    html+=`<div class="mday${isT?' today':''}" onclick="openCalModal('${ds}')">
+      <div class="md-n${isT?' tnm':''}">${d}</div>
       ${dp.map(p=>`<div class="md-dot ${p.status}" onclick="event.stopPropagation();loadPost('${p.id}')" title="${fmtD(p.scheduled_at)}"></div>`).join('')}
     </div>`;
   }
-  const rem=(7-((firstDay+dim)%7))%7;
+  const rem=(7-((fd+dim)%7))%7;
   for(let d=1;d<=rem;d++)html+=`<div class="mday om"><div class="md-n">${d}</div></div>`;
-  html+='</div>';
-  document.getElementById('calGrid').innerHTML=html;
+  html+='</div>';document.getElementById('calGrid').innerHTML=html;
 }
-
 function renderYear(){
-  const y=calDate.getFullYear();
-  document.getElementById('calTitle').textContent=y;
-  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const today=new Date();
+  const y=calDate.getFullYear();document.getElementById('calTitle').textContent=y;
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],today=new Date();
   let html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">';
   months.forEach((mn,mi)=>{
     const mp=posts.filter(p=>{const d=new Date(p.scheduled_at);return d.getFullYear()===y&&d.getMonth()===mi;});
     const isTM=y===today.getFullYear()&&mi===today.getMonth();
     html+=`<div style="border:1px solid ${isTM?'var(--accent2)':'var(--border)'};border-radius:var(--r);padding:8px;cursor:pointer;" onclick="calDate=new Date(${y},${mi},1);setCalView('month',document.querySelector('.cvs-btn:nth-child(2)'))">
-      <div style="font-size:11px;color:${isTM?'var(--accent2)':'var(--text)'};margin-bottom:4px;">${mn}</div>
+      <div style="font-size:11px;color:${isTM?'var(--accent2)':'var(--text)'};margin-bottom:3px;">${mn}</div>
       <div style="font-size:9px;color:var(--muted);">${mp.length} post${mp.length!==1?'s':''}</div>
       <div style="display:flex;gap:2px;margin-top:3px;flex-wrap:wrap;">${mp.slice(0,10).map(p=>`<div class="md-dot ${p.status}"></div>`).join('')}</div>
     </div>`;
   });
-  html+='</div>';
-  document.getElementById('calGrid').innerHTML=html;
+  html+='</div>';document.getElementById('calGrid').innerHTML=html;
 }
-
 function openCalModal(ds){
-  calModalDate=ds;calModalSlots=['09:00'];
-  document.getElementById('calModalDateLabel').textContent=
-    new Date(ds+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  renderCalSlots();
-  document.getElementById('calModal').classList.add('open');
+  calModalDateStr=ds;calModalSlots=['09:00'];
+  document.getElementById('calModalDate').textContent=new Date(ds+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  renderCalSlots();document.getElementById('calModal').classList.add('open');
 }
 function renderCalSlots(){
-  document.getElementById('calModalSlots').innerHTML=calModalSlots.map((t,i)=>`
+  document.getElementById('calSlots').innerHTML=calModalSlots.map((t,i)=>`
     <div class="tsr">
       <input type="time" value="${t}" onchange="calModalSlots[${i}]=this.value"/>
       <button class="rmb" onclick="rmCalSlot(${i})"${calModalSlots.length<=1?' disabled':''}>×</button>
@@ -1452,7 +1497,6 @@ function renderCalSlots(){
 function addCalSlot(){calModalSlots.push('12:00');renderCalSlots();}
 function rmCalSlot(i){if(calModalSlots.length<=1)return;calModalSlots.splice(i,1);renderCalSlots();}
 function closeCalModal(){document.getElementById('calModal').classList.remove('open');}
-
 async function saveCalSlots(){
   if(!uploadedImageUrl){toast('Upload an image first (Design tab)','err');closeCalModal();return;}
   const caption=document.getElementById('fCap').value.trim();
@@ -1460,48 +1504,42 @@ async function saveCalSlots(){
   if((caption.match(/#\w+/g)||[]).length>30){toast('Max 30 hashtags','err');return;}
   const rows=calModalSlots.map(t=>({
     quote:caption,caption,image_url:uploadedImageUrl,
-    scheduled_at:ltu(calModalDate,t),
-    dimension:postDim.label,width_px:postDim.w,height_px:postDim.h,
-    status:'pending',
+    scheduled_at:ltu(calModalDateStr,t),
+    dimension:postDim.label,width_px:postDim.w,height_px:postDim.h,status:'pending',
     bg_color:'#2e4a6a',border_color:'#8aacbf',ink_color:'#e8e4dc',
     font_quote:'Courier Prime',font_header:'Cormorant Garamond',font_meta:'Cormorant Garamond',
-    font_size_quote:16,font_size_header:11,font_size_meta:11,
-  }));
+    font_size_quote:16,font_size_header:11,font_size_meta:11}));
   const{error}=await db.from('anvil_posts').insert(rows);
   if(error){toast('Failed: '+error.message,'err');return;}
   toast(`Scheduled ${rows.length} post${rows.length>1?'s':''}`, 'ok');
   closeCalModal();await loadQueue();renderCal();
 }
 
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // TABS
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 function switchTab(name,el){
   document.querySelectorAll('.pt').forEach(t=>t.classList.remove('on'));
   if(el)el.classList.add('on');
   ['design','caption','quotes','content','calendar'].forEach(n=>{
-    const p=document.getElementById('tab-'+n);
-    if(p)p.style.display=n===name?'block':'none';
+    const p=document.getElementById('tab-'+n);if(p)p.style.display=n===name?'block':'none';
   });
   if(name==='calendar')renderCal();
   if(name==='quotes')renderQuotesList();
-  if(name==='content'){renderContentList();}
+  if(name==='content')renderContentList();
 }
 
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // TOAST
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 function toast(msg,type='ok'){
   const el=document.getElementById('toast');
   el.textContent=msg;el.className=`toast ${type} show`;
-  setTimeout(()=>el.classList.remove('show'),2400);
+  setTimeout(()=>el.classList.remove('show'),2500);
 }
 
-// Keyboard Ctrl+Z/Y for template editor
 document.addEventListener('keydown',e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==='Escape'){
-    document.querySelectorAll('.mbg.open').forEach(m=>m.classList.remove('open'));
-  }
+  if(e.key==='Escape')document.querySelectorAll('.mbg.open,.editor-modal-bg.open').forEach(m=>m.classList.remove('open'));
 });
 
 init();
