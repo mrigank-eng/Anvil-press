@@ -1,5 +1,4 @@
 // api/post.js
-// Simplified pipeline — image already uploaded, just post to Instagram
 export const config = { runtime: 'edge' };
 
 import { createClient } from '@supabase/supabase-js';
@@ -24,7 +23,6 @@ async function waitForContainer(containerId) {
 }
 
 async function postToInstagram(imageUrl, caption) {
-  // Step 1: Create media container
   const containerRes = await fetch(`https://graph.facebook.com/v25.0/${IG_ID}/media`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -37,10 +35,8 @@ async function postToInstagram(imageUrl, caption) {
   const container = await containerRes.json();
   if (container.error) throw new Error(`Container error: ${container.error.message}`);
 
-  // Step 2: Wait for processing
   await waitForContainer(container.id);
 
-  // Step 3: Publish
   const publishRes = await fetch(`https://graph.facebook.com/v25.0/${IG_ID}/media_publish`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -75,23 +71,35 @@ export default async function handler(req) {
     status: 400, headers: { 'Content-Type': 'application/json' }
   });
 
-  // Fetch post
+  // Fetch post — accept both 'pending' and 'rendering' status
+  // (cron marks it 'rendering' before calling us, so we must accept that)
   const { data: post, error: fetchErr } = await db
     .from('anvil_posts').select('*').eq('id', post_id).single();
 
-  if (fetchErr || !post) return new Response(JSON.stringify({ error: 'Post not found' }), {
-    status: 404, headers: { 'Content-Type': 'application/json' }
-  });
+  if (fetchErr || !post) {
+    return new Response(JSON.stringify({ error: 'Post not found' }), {
+      status: 404, headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
-  if (post.status !== 'pending') return new Response(JSON.stringify({ error: `Post is ${post.status}` }), {
-    status: 400, headers: { 'Content-Type': 'application/json' }
-  });
+  // Accept pending or rendering — reject anything else
+  if (post.status !== 'pending' && post.status !== 'rendering') {
+    return new Response(JSON.stringify({ error: `Post is ${post.status} — cannot post` }), {
+      status: 400, headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
-  if (!post.image_url) return new Response(JSON.stringify({ error: 'No image URL on this post' }), {
-    status: 400, headers: { 'Content-Type': 'application/json' }
-  });
+  if (!post.image_url) {
+    await db.from('anvil_posts').update({
+      status: 'failed',
+      error_message: 'No image URL on this post',
+    }).eq('id', post_id);
+    return new Response(JSON.stringify({ error: 'No image URL' }), {
+      status: 400, headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
-  // Mark as rendering
+  // Ensure status is rendering
   await db.from('anvil_posts').update({ status: 'rendering' }).eq('id', post_id);
 
   try {
