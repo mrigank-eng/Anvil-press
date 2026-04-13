@@ -374,8 +374,8 @@ async function init(){
   document.getElementById('fDate').value=new Date().toLocaleDateString('en-CA');
   document.getElementById('epDate').value=new Date().toLocaleDateString('en-CA');
   populateFontSelects();
-  await checkDB();
-  await loadQueue();
+  // Run in parallel — don't let checkDB block queue loading
+  await Promise.all([checkDB(), loadQueue()]);
   startPolling();
 }
 
@@ -385,8 +385,14 @@ function populateFontSelects(){
 }
 
 async function checkDB(){
-  try{const{error}=await db.from('anvil_posts').select('id').limit(1);setSt(!error||error.code==='42P01');}
-  catch{setSt(false);}
+  try{
+    const timeout=new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),5000));
+    const{error}=await Promise.race([
+      db.from('anvil_posts').select('id').limit(1),
+      timeout
+    ]);
+    setSt(!error||error.code==='42P01');
+  }catch{setSt(false);}
 }
 function setSt(ok){
   document.getElementById('dot').style.background=ok?'var(--success)':'var(--danger)';
@@ -424,13 +430,24 @@ function startPolling(){
 // ══════════════════════════════════════════════════
 async function loadQueue(){
   const qel=document.getElementById('qlist');
+  qel.innerHTML='<div style="padding:12px;text-align:center;color:var(--muted);font-size:10px;">Loading...</div>';
+
+  // 8 second timeout
+  const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout — Supabase not responding')),8000));
+
   try{
-    const{data,error}=await db.from('anvil_posts').select('*').order('scheduled_at',{ascending:true});
+    const{data,error}=await Promise.race([
+      db.from('anvil_posts').select('id,caption,image_url,scheduled_at,status,posted_at').order('scheduled_at',{ascending:true}),
+      timeout
+    ]);
     if(error)throw new Error(error.message);
     posts=data||[];
     renderQueue();updateStats();
+    setSt(true);
   }catch(err){
-    qel.innerHTML=`<div style="padding:12px;text-align:center;color:var(--danger);font-size:10px;line-height:1.6;">Load error:<br/>${err.message}<br/><button class="tb" style="margin-top:8px;" onclick="loadQueue()">Retry</button></div>`;
+    qel.innerHTML=`<div style="padding:12px;text-align:center;color:var(--danger);font-size:10px;line-height:1.8;">`
+      +`${err.message}<br/>`
+      +`<button class="tb" style="margin-top:8px;" onclick="loadQueue()">Retry</button></div>`;
     setSt(false);
   }
 }
