@@ -400,15 +400,22 @@ function setSt(ok){
 function startPolling(){
   if(pollTimer)clearInterval(pollTimer);
   pollTimer=setInterval(async()=>{
-    const{data}=await db.from('anvil_posts').select('id,status,posted_at');
-    if(!data)return;
-    let changed=false;
-    data.forEach(p=>{
-      const ex=posts.find(x=>x.id===p.id);
-      if(ex&&ex.status!==p.status){ex.status=p.status;ex.posted_at=p.posted_at;changed=true;}
-    });
-    if(!changed)return;
-    renderQueue();updateStats();
+    try{
+      const{data,error}=await db.from('anvil_posts').select('id,status,posted_at,caption,scheduled_at,image_url');
+      if(error||!data)return;
+      // Add any new posts not yet in local array
+      data.forEach(p=>{
+        const ex=posts.find(x=>x.id===p.id);
+        if(ex){
+          if(ex.status!==p.status){ex.status=p.status;ex.posted_at=p.posted_at;}
+        } else {
+          posts.push(p); // new post appeared (e.g. from another session)
+        }
+      });
+      // Remove posts deleted elsewhere
+      posts=posts.filter(p=>data.find(d=>d.id===p.id));
+      renderQueue();updateStats();
+    }catch(e){}
   },30000);
 }
 
@@ -416,13 +423,28 @@ function startPolling(){
 // QUEUE
 // ══════════════════════════════════════════════════
 async function loadQueue(){
-  const{data}=await db.from('anvil_posts').select('*').order('scheduled_at',{ascending:true});
-  posts=data||[];renderQueue();updateStats();
+  const qel=document.getElementById('qlist');
+  try{
+    const{data,error}=await db.from('anvil_posts').select('*').order('scheduled_at',{ascending:true});
+    if(error)throw new Error(error.message);
+    posts=data||[];
+    renderQueue();updateStats();
+  }catch(err){
+    qel.innerHTML=`<div style="padding:12px;text-align:center;color:var(--danger);font-size:10px;line-height:1.6;">Load error:<br/>${err.message}<br/><button class="tb" style="margin-top:8px;" onclick="loadQueue()">Retry</button></div>`;
+    setSt(false);
+  }
 }
 function renderQueue(){
   const el=document.getElementById('qlist');
   if(!posts.length){el.innerHTML='<div style="padding:12px;text-align:center;color:var(--muted);font-size:10px;">Empty</div>';return;}
-  el.innerHTML=posts.map(p=>`
+  // Sort: pending/draft first then by time, posted last
+  const order={pending:0,draft:1,rendering:2,failed:3,posted:4};
+  const sorted=[...posts].sort((a,b)=>{
+    const ao=order[a.status]??5,bo=order[b.status]??5;
+    if(ao!==bo)return ao-bo;
+    return new Date(a.scheduled_at)-new Date(b.scheduled_at);
+  });
+  el.innerHTML=sorted.map(p=>`
     <div class="qi${curPost?.id===p.id?' on':''}" onclick="loadPost('${p.id}')">
       ${p.image_url?`<img class="qi-thumb" src="${p.image_url}" alt=""/>`:`<div class="qi-thumb-ph">✦</div>`}
       <div class="qi-info">
