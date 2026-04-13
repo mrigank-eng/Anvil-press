@@ -372,7 +372,6 @@ async function init(){
   document.getElementById('tzBadge').textContent=TZ;
   document.getElementById('tzB2').textContent=TZ;
   document.getElementById('fDate').value=new Date().toLocaleDateString('en-CA');
-  document.getElementById('epDate').value=new Date().toLocaleDateString('en-CA');
   populateFontSelects();
   // Run in parallel — don't let checkDB block queue loading
   await Promise.all([checkDB(), loadQueue()]);
@@ -381,7 +380,8 @@ async function init(){
 
 function populateFontSelects(){
   const opts=FONTS.map(f=>`<option value="${f}">${f}</option>`).join('');
-  document.getElementById('epFont').innerHTML=opts;
+  const epFont=document.getElementById('epFont');
+  if(epFont)epFont.innerHTML=opts;
 }
 
 async function checkDB(){
@@ -745,7 +745,7 @@ function toast(msg,type='ok'){
 }
 
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape')document.querySelectorAll('.mbg.open,.editor-modal-bg.open').forEach(m=>m.classList.remove('open'));
+  if(e.key==='Escape')document.querySelectorAll('.mbg.open').forEach(m=>m.classList.remove('open'));
 });
 
 init();
